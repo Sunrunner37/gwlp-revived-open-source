@@ -230,10 +230,17 @@ namespace GameServer.ServerData
                                                                      where n.npcID == npcID
                                                                      select n;
 
+                                                        
+
                                                         // check if we found an npc
                                                         if (dbNpcs.Count() == 0) continue;
 
                                                         var dbNpc = dbNpcs.First();
+
+                                                        var nameID = npc.nameID;
+                                                        var nameHash = (from n in db.nPcSNames
+                                                                        where n.nameID == nameID
+                                                                        select n.nameHash).First();
 
                                                         var newNpc = new NonPlayerChar()
                                                         {
@@ -244,7 +251,7 @@ namespace GameServer.ServerData
                                                                         FileID = dbNpc.npcFileID,
                                                                         ModelHash = dbNpc.modelHash,
                                                                         Appearance = dbNpc.appearance,
-                                                                        NameHash = npc.nameHash,
+                                                                        NameHash = nameHash,
                                                                         Scale = dbNpc.scale,
                                                                         ProfessionFlags = dbNpc.professionFlags,
                                                                         Position = new GWVector(npc.spawnX, npc.spawnY, npc.plane),

@@ -5,7 +5,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from gwlpr on 2011-09-08 22:13:46Z.
+// Auto-generated from gwlpr on 2011-09-10 18:19:31Z.
 // Please visit http://code.google.com/p/dblinq2007/ for more information.
 //
 namespace GameServer.DataBase
@@ -2560,7 +2560,7 @@ namespace GameServer.DataBase
 		
 		private int _mapID;
 		
-		private byte[] _nameHash;
+		private int _nameID;
 		
 		private int _npcID;
 		
@@ -2589,9 +2589,9 @@ namespace GameServer.DataBase
 		
 		partial void OnmapIDChanging(int value);
 		
-		partial void OnnameHashChanged();
+		partial void OnnameIDChanged();
 		
-		partial void OnnameHashChanging(byte[] value);
+		partial void OnnameIDChanging(int value);
 		
 		partial void OnnpcIDChanged();
 		
@@ -2674,24 +2674,23 @@ namespace GameServer.DataBase
 			}
 		}
 		
-		[Column(Storage="_nameHash", Name="NameHash", DbType="blob", AutoSync=AutoSync.Never)]
+		[Column(Storage="_nameID", Name="NameID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-		public byte[] nameHash
+		public int nameID
 		{
 			get
 			{
-				return this._nameHash;
+				return this._nameID;
 			}
 			set
 			{
-				if (((_nameHash == value) 
-							== false))
+				if ((_nameID != value))
 				{
-					this.OnnameHashChanging(value);
+					this.OnnameIDChanging(value);
 					this.SendPropertyChanging();
-					this._nameHash = value;
-					this.SendPropertyChanged("nameHash");
-					this.OnnameHashChanged();
+					this._nameID = value;
+					this.SendPropertyChanged("nameID");
+					this.OnnameIDChanged();
 				}
 			}
 		}
