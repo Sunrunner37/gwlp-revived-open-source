@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1F57BA58-6DFF-4EF9-B90F-674A20886EF3}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LoginServer</RootNamespace>
+    <AssemblyName>LoginServer</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DbLinq">
+      <HintPath>..\..\..\Dll's\DbLinq.dll</HintPath>
+    </Reference>
+    <Reference Include="DbLinq.MySql">
+      <HintPath>..\..\..\Dll's\DbLinq.MySql.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data, Version=6.4.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Dll's\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DataBase\MySQL.cs" />
+    <Compile Include="Enums\SyncState.cs" />
+    <Compile Include="Packets\FromClient\NotEncP16896_ClientSeed.cs" />
+    <Compile Include="Packets\FromClient\P00_KeepAlive.cs" />
+    <Compile Include="Packets\FromClient\P01_ComputerUser.cs" />
+    <Compile Include="Packets\FromClient\P010_CharacterPlayName.cs" />
+    <Compile Include="Packets\FromClient\NotEncP1024_ClientVersion.cs" />
+    <Compile Include="Packets\FromClient\Packet11.cs" />
+    <Compile Include="Packets\FromClient\Packet12.cs" />
+    <Compile Include="Packets\FromClient\P13_AccountLogout.cs" />
+    <Compile Include="Packets\FromClient\P14_ExitOrConnectionUpdate.cs" />
+    <Compile Include="Packets\FromClient\P15_ComputerHardware.cs" />
+    <Compile Include="Packets\FromClient\Packet16.cs" />
+    <Compile Include="Packets\FromClient\Packet17.cs" />
+    <Compile Include="Packets\FromClient\Packet18.cs" />
+    <Compile Include="Packets\FromClient\P02_ComputerHash.cs" />
+    <Compile Include="Packets\FromClient\Packet20.cs" />
+    <Compile Include="Packets\FromClient\Packet21.cs" />
+    <Compile Include="Packets\FromClient\P22_UnknownBeforeLogin.cs" />
+    <Compile Include="Packets\FromClient\Packet23.cs" />
+    <Compile Include="Packets\FromClient\Packet24.cs" />
+    <Compile Include="Packets\FromClient\Packet25.cs" />
+    <Compile Include="Packets\FromClient\Packet26.cs" />
+    <Compile Include="Packets\FromClient\Packet27.cs" />
+    <Compile Include="Packets\FromClient\Packet28.cs" />
+    <Compile Include="Packets\FromClient\Packet29.cs" />
+    <Compile Include="Packets\FromClient\Packet3.cs" />
+    <Compile Include="Packets\FromClient\Packet30.cs" />
+    <Compile Include="Packets\FromClient\Packet31.cs" />
+    <Compile Include="Packets\FromClient\P32_AccountDataFromCC3.cs" />
+    <Compile Include="Packets\FromClient\P33_AccountDataFromCC.cs" />
+    <Compile Include="Packets\FromClient\Packet34.cs" />
+    <Compile Include="Packets\FromClient\P35_ClientID.cs" />
+    <Compile Include="Packets\FromClient\Packet36.cs" />
+    <Compile Include="Packets\FromClient\Packet37.cs" />
+    <Compile Include="Packets\FromClient\P38_AcceptEula.cs" />
+    <Compile Include="Packets\FromClient\Packet39.cs" />
+    <Compile Include="Packets\FromClient\P04_AccountLogin.cs" />
+    <Compile Include="Packets\FromClient\Packet40.cs" />
+    <Compile Include="Packets\FromClient\P41_CharacterPlayInfo.cs" />
+    <Compile Include="Packets\FromClient\Packet42.cs" />
+    <Compile Include="Packets\FromClient\Packet43.cs" />
+    <Compile Include="Packets\FromClient\Packet44.cs" />
+    <Compile Include="Packets\FromClient\Packet45.cs" />
+    <Compile Include="Packets\FromClient\Packet46.cs" />
+    <Compile Include="Packets\FromClient\Packet48.cs" />
+    <Compile Include="Packets\FromClient\Packet49.cs" />
+    <Compile Include="Packets\FromClient\P05_AccountDataFromCC2.cs" />
+    <Compile Include="Packets\FromClient\Packet50.cs" />
+    <Compile Include="Packets\FromClient\Packet51.cs" />
+    <Compile Include="Packets\FromClient\Packet52.cs" />
+    <Compile Include="Packets\FromClient\P53_RequestResponse.cs" />
+    <Compile Include="Packets\FromClient\Packet54.cs" />
+    <Compile Include="Packets\FromClient\Packet55.cs" />
+    <Compile Include="Packets\FromClient\Packet6.cs" />
+    <Compile Include="Packets\FromClient\Packet7.cs" />
+    <Compile Include="Packets\FromClient\Packet8.cs" />
+    <Compile Include="Packets\FromClient\P09_LastCharInfo.cs" />
+    <Compile Include="Packets\FromGameServer\P65281_HandshakeRequest.cs" />
+    <Compile Include="Packets\FromGameServer\P65282_ServerStatsReply.cs" />
+    <Compile Include="Packets\FromGameServer\P65284_AcceptPlayerReply.cs" />
+    <Compile Include="Packets\FromGameServer\P65285_ClientDispatchAcknowledgement.cs" />
+    <Compile Include="Packets\ToClient\NotEncP5633_ServerSeed.cs" />
+    <Compile Include="Packets\ToClient\Packet0.cs" />
+    <Compile Include="Packets\ToClient\P01_ComputerInfoReply.cs" />
+    <Compile Include="Packets\ToClient\Packet10.cs" />
+    <Compile Include="Packets\ToClient\Packet11.cs" />
+    <Compile Include="Packets\ToClient\Packet12.cs" />
+    <Compile Include="Packets\ToClient\Packet13.cs" />
+    <Compile Include="Packets\ToClient\Packet14.cs" />
+    <Compile Include="Packets\ToClient\Packet16.cs" />
+    <Compile Include="Packets\ToClient\P17_AccountPermissions.cs" />
+    <Compile Include="Packets\ToClient\Packet18.cs" />
+    <Compile Include="Packets\ToClient\Packet19.cs" />
+    <Compile Include="Packets\ToClient\Packet2.cs" />
+    <Compile Include="Packets\ToClient\P20_FriendsListEnd.cs" />
+    <Compile Include="Packets\ToClient\Packet21.cs" />
+    <Compile Include="Packets\ToClient\P22_AccountGuiSettings.cs" />
+    <Compile Include="Packets\ToClient\Packet23.cs" />
+    <Compile Include="Packets\ToClient\Packet24.cs" />
+    <Compile Include="Packets\ToClient\P26_AllDistrictsInfo.cs" />
+    <Compile Include="Packets\ToClient\Packet27.cs" />
+    <Compile Include="Packets\ToClient\Packet28.cs" />
+    <Compile Include="Packets\ToClient\Packet29.cs" />
+    <Compile Include="Packets\ToClient\P03_StreamTerminator.cs" />
+    <Compile Include="Packets\ToClient\Packet30.cs" />
+    <Compile Include="Packets\ToClient\Packet31.cs" />
+    <Compile Include="Packets\ToClient\Packet32.cs" />
+    <Compile Include="Packets\ToClient\Packet33.cs" />
+    <Compile Include="Packets\ToClient\Packet34.cs" />
+    <Compile Include="Packets\ToClient\Packet35.cs" />
+    <Compile Include="Packets\ToClient\Packet36.cs" />
+    <Compile Include="Packets\ToClient\P38_SendResponse.cs" />
+    <Compile Include="Packets\ToClient\Packet4.cs" />
+    <Compile Include="Packets\ToClient\Packet5.cs" />
+    <Compile Include="Packets\ToClient\Packet6.cs" />
+    <Compile Include="Packets\ToClient\P07_CharacterInfo.cs" />
+    <Compile Include="Packets\ToClient\Packet8.cs" />
+    <Compile Include="Packets\ToClient\P09_ReferToGameServer.cs" />
+    <Compile Include="Packets\ToGameServer\P65283_BuildMapRequest.cs" />
+    <Compile Include="Packets\ToGameServer\P65284_AcceptPlayerRequest.cs" />
+    <Compile Include="Packets\ToGameServer\P65281_HandshakeReply.cs" />
+    <Compile Include="Packets\ToGameServer\P65282_ServerStatsRequest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server.cs" />
+    <Compile Include="ServerData\Client.cs" />
+    <Compile Include="ServerData\GameServer.cs" />
+    <Compile Include="ServerData\Idents.cs" />
+    <Compile Include="ServerData\World.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ServerEngine\ServerEngine.csproj">
+      <Project>{A08F6CA4-E560-4703-82E7-50E7921A8D66}</Project>
+      <Name>ServerEngine</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,56 @@
+<FileServer Id = 1>
+	<IP>127.0.0.1</IP>
+	<Port>7112</Port>
+</FileServer>
+<FileServer Id = 2>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<FileServer Id = 3>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<FileServer Id = 4>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<FileServer Id = 5>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<FileServer Id = 6>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<FileServer Id = 7>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<FileServer Id = 8>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<FileServer Id = 9>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<FileServer Id = 10>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<FileServer Id = 11>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<FileServer Id = 12>
+	<IP>127.0.0.1</IP>
+	<Port>2</Port>
+</FileServer>
+<LoginServer>
+	<IP>127.0.0.1</IP>
+	<Port>8112</Port>
+</LoginServer>
+<GameServer>
+	<IP>127.0.0.1</IP>
+	<Port>9112</Port>
+</GameServer>

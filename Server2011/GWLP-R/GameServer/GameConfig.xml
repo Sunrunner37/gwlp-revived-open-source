@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ConfigFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SrvType>2</SrvType>
+  <SrvPort>9112</SrvPort>
+  <SrvMaxClients>100</SrvMaxClients>
+  <LoginSrvIP>localhost</LoginSrvIP>
+  <LoginSrvPort>8112</LoginSrvPort>
+  <DataBaseType>mysql</DataBaseType>
+  <DataBaseIP>localhost</DataBaseIP>
+  <DataBaseName>gwlp</DataBaseName>
+  <DataBaseUid>root</DataBaseUid>
+  <DataBasePwd />
+</ConfigFile>
