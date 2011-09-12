@@ -201,7 +201,7 @@ namespace GameServer.Modules
                         }
                 }
 
-                private static void CheckCollition(Character chara)
+                private static void CheckCollision(Character chara)
                 {
                         var result = true;
 
