@@ -61,6 +61,7 @@
     <Compile Include="Commands\CommandAttribute.cs" />
     <Compile Include="Commands\HelpMe.cs" />
     <Compile Include="Commands\ChangeMap.cs" />
+    <Compile Include="Commands\SetSpawn.cs" />
     <Compile Include="Commands\Test.cs" />
     <Compile Include="Enums\ItemStorage.cs" />
     <Compile Include="Enums\ItemType.cs" />

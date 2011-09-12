@@ -20,8 +20,9 @@ namespace GameServer.ServerData
                 static World()
                 {
                         ChatCommandsDict = new Dictionary<string, Type>();
+                        ChatCommandsDict.Add("ChangeMap", typeof(ChangeMap));
                         ChatCommandsDict.Add("HelpMe", typeof (HelpMe));
-                        ChatCommandsDict.Add("ChangeMap", typeof (ChangeMap));
+                        ChatCommandsDict.Add("SetSpawn", typeof(SetSpawn));
                         ChatCommandsDict.Add("Test", typeof (Test));
 
                         clients = new MultiKeyDictionary<Clients, Client>();

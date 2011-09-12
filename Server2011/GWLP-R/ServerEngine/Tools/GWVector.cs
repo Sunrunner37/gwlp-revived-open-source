@@ -108,5 +108,26 @@ namespace ServerEngine.Tools
                 {
                         return new GWVector(v1.X * val, v1.Y * val, v1.PlaneZ);
                 }
+
+                /// <summary>
+                ///   Operator overload.
+                /// </summary>
+                public static float operator *(GWVector v1, GWVector v2)
+                {
+                        return (v1.X * v2.Y) - (v1.Y * v2.X);
+                }
+
+                /// <summary>
+                ///   Factory method
+                /// </summary>
+                /// <param name="x1">Point 1 X</param>
+                /// <param name="y1">Point 1 Y</param>
+                /// <param name="x2">Point 2 X</param>
+                /// <param name="y2">Point 2 Y</param>
+                /// <returns></returns>
+                public static GWVector CreateFromAToB(float x1, float y1, float x2, float y2)
+                {
+                        return new GWVector(x2-x1, y2-y1, 0);
+                }
         }
 }

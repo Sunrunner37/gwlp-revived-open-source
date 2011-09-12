@@ -35,6 +35,10 @@ namespace GameServer.ServerData
                 public int VitalStats { get; set; }
 
                 public GWVector Position { get; set; }
+                /// <summary>
+                ///   Only used with module: Movement
+                /// </summary>
+                public uint TrapezoidIndex { get; set; }
                 public GWVector Direction { get; set; }
                 public MovementState MoveState { get; set; }
                 public int MoveType { get; set; }

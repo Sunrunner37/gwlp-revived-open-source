@@ -132,7 +132,7 @@ namespace GameServer
                                                               new ActionQueue().Execute,
                                                               new HeartBeat().Execute,
                                                               new Ping().Execute,
-                                                              new Movement().Execute
+                                                              new Movement(@"PMAPs\").Execute
                                                       };
 
                                 Debug.WriteLine("\t\t\t[done]");

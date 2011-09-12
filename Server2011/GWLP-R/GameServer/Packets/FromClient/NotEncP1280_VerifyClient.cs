@@ -126,15 +126,33 @@ namespace GameServer.Packets.FromClient
                                                 Map map;
                                                 lock (map = World.GetMap(Maps.MapID, newChar.MapID))
                                                 {
-                                                        var spawn = (from s in map.Spawns.Values
+                                                        var spawns = from s in map.Spawns.Values
                                                                      where s.IsOutpost && s.IsPvE
-                                                                     select s).First();
+                                                                     select s;
+
+                                                        var spawn = new MapSpawn()
+                                                        {
+                                                                IsOutpost = true,
+                                                                IsPvE = true,
+                                                                SpawnID = 0,
+                                                                SpawnPlane = 0,
+                                                                SpawnRadius = 0,
+                                                                SpawnX = 0,
+                                                                SpawnY = 0,
+                                                                TeamSpawnNumber = 0,
+                                                        };
+
+                                                        if (spawns.Count() != 0)
+                                                        {
+                                                                spawn = spawns.First();
+                                                        }
 
                                                         newChar.CharStats.Position.X = spawn.SpawnX;
                                                         newChar.CharStats.Position.Y = spawn.SpawnY;
                                                         newChar.CharStats.Position.PlaneZ = spawn.SpawnPlane;
                                                         newChar.CharStats.Direction = new GWVector(0,0,0);
                                                         newChar.CharStats.MoveState = MovementState.NotMovingHandled;
+                                                        newChar.CharStats.TrapezoidIndex = 0;
                                                         newChar.CharStats.IsRotating = false;
                                                 }
 
