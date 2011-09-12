@@ -173,7 +173,7 @@ namespace GameServer.Modules
                                 {
                                         // check for collision
                                         chara.CharStats.Direction = chara.CharStats.Direction.UnitVector;
-                                        CheckCollition(chara);
+                                        CheckCollision(chara);
 
                                         switch (chara.CharStats.MoveState)
                                         {
