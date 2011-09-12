@@ -173,10 +173,7 @@ namespace GameServer.Modules
                                 {
                                         // check for collision
                                         chara.CharStats.Direction = chara.CharStats.Direction.UnitVector;
-                                        if (IsColliding(chara))
-                                        {
-                                                chara.CharStats.MoveState = MovementState.NotMovingUnhandled;
-                                        }
+                                        CheckCollition(chara);
 
                                         switch (chara.CharStats.MoveState)
                                         {
@@ -204,25 +201,29 @@ namespace GameServer.Modules
                         }
                 }
 
-                private static bool IsColliding(Character chara)
+                private static void CheckCollition(Character chara)
                 {
-                        var result = false;
+                        var result = true;
 
                         PathingMap pmap = null;
+                        // check if we've got a map of it
                         if (maps.TryGetValue(chara.MapID, out pmap))
                         {
-                                // if we've got a map of it
-
                                 // check if the client is in the given trapezoid
                                 var state = InTrapezoid(pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex], chara.CharStats.Position);
 
+                                uint trapIndex = 0xFFFFFFFF;
                                 switch (state)
                                 {
                                         case 0: // inside trapezoid, everything ok.
+                                                {
+                                                        trapIndex = 0;
+                                                        chara.CharStats.LastValidPosition = chara.CharStats.Position;
+                                                }
                                                 break;
                                         case 1: // the client is under the trapezoid, we need to change traps
                                                 {
-                                                        chara.CharStats.TrapezoidIndex = SearchTrapezoid(
+                                                        trapIndex = SearchTrapezoid(
                                                                 pmap,
                                                                 pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex].AdjacentsBottom,
                                                                 chara.CharStats.Position);
@@ -230,36 +231,42 @@ namespace GameServer.Modules
                                                 break;
                                         case 3: // the client is above the trapezoid, we need to change traps
                                                 {
-                                                        chara.CharStats.TrapezoidIndex = SearchTrapezoid(
+                                                        trapIndex = SearchTrapezoid(
                                                                 pmap,
                                                                 pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex].AdjacentsTop,
                                                                 chara.CharStats.Position);
                                                 }
                                                 break;
                                         default: // case 2 or 4: the char is out of the map borders
-                                                chara.CharStats.TrapezoidIndex = 0xFFFFFFFF;
+                                                trapIndex = 0xFFFFFFFF;
                                                 break;
                                 }
 
-                                // now we either have valid data or 0xFFFFFFFF which means that the client is out of map borders.
-                                // that shouldnt have happened..
-                                if (chara.CharStats.TrapezoidIndex == 0xFFFFFFFF)
+                                if (trapIndex > 0 && trapIndex != 0xFFFFFFFF)
                                 {
-                                        // kick the char? 
-                                        Debug.WriteLine("Invalid character position.");
-#warning Kick the char if position is invalid?
+                                        chara.CharStats.TrapezoidIndex = trapIndex;
+                                        chara.CharStats.LastValidPosition = chara.CharStats.Position;
+                                }
+                                else if (trapIndex == 0xFFFFFFFF)
+                                {
+                                        chara.CharStats.Position = chara.CharStats.LastValidPosition;
                                 }
 
+                                // now same thing again if the client is moving
                                 if (chara.CharStats.MoveState == MovementState.MovingHandled || chara.CharStats.MoveState == MovementState.MovingUnhandled)
                                 {
                                         // check if the client is in the given predicted trapezoid
                                         state = InTrapezoid(pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex], chara.CharStats.Position + (chara.CharStats.Direction * 512));
 
-                                        uint trapIndex = 0xFFFFFFFF;
+
+                                        trapIndex = 0xFFFFFFFF;
                                         switch (state)
                                         {
                                                 case 0: // inside trapezoid, everything ok.
-                                                        trapIndex = 0;
+                                                        {
+                                                                trapIndex = 0;
+                                                                chara.CharStats.LastValidPosition = chara.CharStats.Position;
+                                                        }
                                                         break;
                                                 case 1: // the client is under the trapezoid, we need to change traps
                                                         {
@@ -274,7 +281,7 @@ namespace GameServer.Modules
                                                                 trapIndex = SearchTrapezoid(
                                                                         pmap,
                                                                         pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex].AdjacentsTop,
-                                                                        chara.CharStats.Position);
+                                                                        chara.CharStats.Position + (chara.CharStats.Direction * 512));
                                                         }
                                                         break;
                                                 default: // case 2 or 4: the char is out of the map borders
@@ -285,17 +292,14 @@ namespace GameServer.Modules
                                         if (trapIndex > 0 && trapIndex != 0xFFFFFFFF)
                                         {
                                                 chara.CharStats.TrapezoidIndex = trapIndex;
-                                                result = false;
+                                                chara.CharStats.LastValidPosition = chara.CharStats.Position;
                                         }
                                         else if (trapIndex == 0xFFFFFFFF)
                                         {
-                                                result = true;
+                                                chara.CharStats.Position = chara.CharStats.LastValidPosition;
                                         }
                                 }
-
                         }
-
-                        return result;
                 }
 
                 /// <summary>

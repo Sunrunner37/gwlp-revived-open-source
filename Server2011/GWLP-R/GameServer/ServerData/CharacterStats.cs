@@ -12,6 +12,7 @@ namespace GameServer.ServerData
                 public CharacterStats()
                 {
                         Position = new GWVector(0, 0, 0);
+                        LastValidPosition = Position.Clone();
                         Direction = new GWVector(0, 0, 0);
                 }
 
@@ -35,6 +36,7 @@ namespace GameServer.ServerData
                 public int VitalStats { get; set; }
 
                 public GWVector Position { get; set; }
+                public GWVector LastValidPosition { get; set; }
                 /// <summary>
                 ///   Only used with module: Movement
                 /// </summary>

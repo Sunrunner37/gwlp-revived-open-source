@@ -182,7 +182,7 @@ namespace GameServer
 
                                         if (tlis.Pending()) Debug.WriteLine("New dispatch client!");
 
-                                        // Let the CPU have a pause
+#warning Let the CPU have a pause
                                         System.Threading.Thread.Sleep(1);
                                 }
                                 catch (Exception e)

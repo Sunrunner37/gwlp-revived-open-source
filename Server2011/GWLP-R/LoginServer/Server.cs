@@ -148,7 +148,7 @@ namespace LoginServer
                                         // execute all subscribers in the server task list
                                         serverTasks.AsParallel().ForAll(action => action());
 
-                                        // Let the CPU have a pause
+#warning Let the CPU have a pause
                                         System.Threading.Thread.Sleep(1);
                                 }
                                 catch (Exception e)
