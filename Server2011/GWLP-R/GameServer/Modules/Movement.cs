@@ -285,7 +285,7 @@ namespace GameServer.Modules
                                                         }
                                                         break;
                                                 default: // case 2 or 4: the char is out of the map borders
-                                                        chara.CharStats.TrapezoidIndex = 0xFFFFFFFF;
+                                                        trapIndex = 0xFFFFFFFF;
                                                         break;
                                         }
 
@@ -297,6 +297,7 @@ namespace GameServer.Modules
                                         else if (trapIndex == 0xFFFFFFFF)
                                         {
                                                 chara.CharStats.Position = chara.CharStats.LastValidPosition;
+                                                chara.CharStats.MoveState = MovementState.NotMovingUnhandled;
                                         }
                                 }
                         }
@@ -321,13 +322,13 @@ namespace GameServer.Modules
                                 return 3;
 
                         // is pos out of right border?
-                        var bCrossCtoP = (trap.TopRight - trap.BottomRight) * (pos - trap.BottomRight);
-                        if (bCrossCtoP < 0)
+                        var bCrossCtoP = (trap.TopRight - trap.BottomRight) * (pos - trap.TopRight);
+                        if (bCrossCtoP <= 0)
                                 return 2;
 
                         // is pos out of left border?
                         var dCrossAtoP = (trap.BottomLeft - trap.TopLeft) * (pos - trap.BottomLeft);
-                        if (dCrossAtoP < 0)
+                        if (dCrossAtoP <= 0)
                                 return 4;
 
                         return 0;
