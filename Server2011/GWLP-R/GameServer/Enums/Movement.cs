@@ -23,6 +23,8 @@ namespace GameServer.Enums
                 DiagBwRight = 6,
                 SideLeft = 7,
                 SideRight = 8,
-                Stop = 9
+                Stop = 9,
+                FwCollision = 10,
+                DgCollision = 11,
         }
 }

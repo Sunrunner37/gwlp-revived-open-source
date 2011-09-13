@@ -50,11 +50,11 @@ namespace GameServer.Actions
                                 var moveType = (byte) chara.CharStats.MoveType;
                                 float speed = 1F;
 
-                                if (moveType != (byte)MovementType.Stop)
+                                if (moveType != (byte)MovementType.Stop && chara.CharStats.MoveState == MovementState.MovingUnhandled)
                                 {
                                         // Note: KEYBOARD MOVE START
                                         var moveStart = new NetworkMessage(reNetID);
-                                        moveStart.PacketTemplate = new P026_KeyboardMoveStart.PacketSt26()
+                                        moveStart.PacketTemplate = new P026_MovementDirection.PacketSt26()
                                         {
                                                 AgentID = (ushort)(int)chara[Chars.AgentID],
                                                 DirX = chara.CharStats.Direction.X,
@@ -62,6 +62,9 @@ namespace GameServer.Actions
                                                 MoveType = moveType
                                         };
                                         QueuingService.PostProcessingQueue.Enqueue(moveStart);
+
+                                        // reset the moving state here
+                                        chara.CharStats.MoveState = MovementState.MovingHandled;
                                 }
 
 
@@ -74,10 +77,24 @@ namespace GameServer.Actions
                                 {
                                         speed = 0.75F;
                                 }
+                                else if (moveType == (byte)MovementType.FwCollision)
+                                {
+                                        speed = 0.2F;
+
+                                        // reset movetype, cause 10 is non existant for the client
+                                        moveType = 1;
+                                }
+                                else if (moveType == (byte)MovementType.DgCollision)
+                                {
+                                        speed = 0.6F;
+
+                                        // reset movetype, cause 10 is non existant for the client
+                                        moveType = 1;
+                                }
 
                                 // Note: KEYBOARD MOVE SPEED
                                 var moveSpeed = new NetworkMessage(reNetID);
-                                moveSpeed.PacketTemplate = new P032_KeyboardMoveSpeed.PacketSt32()
+                                moveSpeed.PacketTemplate = new P032_MovementSpeedModifier.PacketSt32()
                                 {
                                         AgentID = (ushort)(int)chara[Chars.AgentID],
                                         Speed = speed,
@@ -87,13 +104,13 @@ namespace GameServer.Actions
 
                                 // Note: GOTO LOCATION
                                 var gotoLoc = new NetworkMessage(reNetID);
-                                gotoLoc.PacketTemplate = new P030_GotoLocation.PacketSt30()
+                                gotoLoc.PacketTemplate = new P030_MovementAim.PacketSt30()
                                 {
                                         AgentID = (ushort)(int)chara[Chars.AgentID],
                                         X = newAim.X,
                                         Y = newAim.Y,
                                         PlaneZ = (ushort)newAim.PlaneZ,
-                                        Data1 = 0
+                                        Data1 = (ushort)newAim.PlaneZ
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(gotoLoc);
                         }

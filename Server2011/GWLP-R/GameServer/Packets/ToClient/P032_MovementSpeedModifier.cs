@@ -6,7 +6,7 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 32)]
-        public class P032_KeyboardMoveSpeed : IPacket
+        public class P032_MovementSpeedModifier : IPacket
         {
                 public class PacketSt32 : IPacketTemplate
                 {

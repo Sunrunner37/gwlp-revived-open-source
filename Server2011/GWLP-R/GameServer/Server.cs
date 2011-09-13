@@ -170,8 +170,6 @@ namespace GameServer
                                 Environment.Exit(1);
                         }
 
-                        var tlis = new TcpListener(IPAddress.Any, 6112);
-                        tlis.Start();
                         // Main loop here...);
                         while (true)
                         {
@@ -179,8 +177,6 @@ namespace GameServer
                                 {
                                         // execute all subscribers in the server task list
                                         serverTasks.AsParallel().ForAll(action => action());
-
-                                        if (tlis.Pending()) Debug.WriteLine("New dispatch client!");
 
 #warning Let the CPU have a pause
                                         System.Threading.Thread.Sleep(1);

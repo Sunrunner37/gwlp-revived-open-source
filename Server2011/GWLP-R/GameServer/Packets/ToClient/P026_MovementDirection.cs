@@ -6,7 +6,7 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 26)]
-        public class P026_KeyboardMoveStart : IPacket
+        public class P026_MovementDirection : IPacket
         {
                 public class PacketSt26 : IPacketTemplate
                 {

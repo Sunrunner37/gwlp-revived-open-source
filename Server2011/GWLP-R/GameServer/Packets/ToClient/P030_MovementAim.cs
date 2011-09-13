@@ -6,7 +6,7 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 30)]
-        public class P030_GotoLocation : IPacket
+        public class P030_MovementAim : IPacket
         {
                 public class PacketSt30 : IPacketTemplate
                 {

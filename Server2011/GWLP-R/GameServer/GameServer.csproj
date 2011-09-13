@@ -447,7 +447,7 @@
     <Compile Include="Packets\ToClient\Packet257.cs" />
     <Compile Include="Packets\ToClient\Packet258.cs" />
     <Compile Include="Packets\ToClient\Packet259.cs" />
-    <Compile Include="Packets\ToClient\P026_KeyboardMoveStart.cs" />
+    <Compile Include="Packets\ToClient\P026_MovementDirection.cs" />
     <Compile Include="Packets\ToClient\Packet260.cs" />
     <Compile Include="Packets\ToClient\Packet261.cs" />
     <Compile Include="Packets\ToClient\Packet262.cs" />
@@ -492,7 +492,7 @@
     <Compile Include="Packets\ToClient\Packet298.cs" />
     <Compile Include="Packets\ToClient\Packet299.cs" />
     <Compile Include="Packets\ToClient\Packet3.cs" />
-    <Compile Include="Packets\ToClient\P030_GotoLocation.cs" />
+    <Compile Include="Packets\ToClient\P030_MovementAim.cs" />
     <Compile Include="Packets\ToClient\Packet300.cs" />
     <Compile Include="Packets\ToClient\Packet301.cs" />
     <Compile Include="Packets\ToClient\Packet302.cs" />
@@ -514,7 +514,7 @@
     <Compile Include="Packets\ToClient\P317_ItemStreamWeaponBarSlot.cs" />
     <Compile Include="Packets\ToClient\P318_ItemStreamHead2.cs" />
     <Compile Include="Packets\ToClient\Packet319.cs" />
-    <Compile Include="Packets\ToClient\P032_KeyboardMoveSpeed.cs" />
+    <Compile Include="Packets\ToClient\P032_MovementSpeedModifier.cs" />
     <Compile Include="Packets\ToClient\Packet321.cs" />
     <Compile Include="Packets\ToClient\Packet322.cs" />
     <Compile Include="Packets\ToClient\Packet323.cs" />
