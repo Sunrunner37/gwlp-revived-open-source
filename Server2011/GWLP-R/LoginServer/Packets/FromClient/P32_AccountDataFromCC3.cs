@@ -33,23 +33,21 @@ namespace LoginServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt32();
                         pParser((PacketSt32)message.PacketTemplate, message.PacketData);
 
-                        Client client;
-                        lock (client = World.GetClient(Idents.Clients.NetID, message.NetID))
+                        var client = World.GetClient(Idents.Clients.NetID, message.NetID);
+                        
+                        client.LoginCount = (int)((PacketSt32)message.PacketTemplate).LoginCount;
+
+                        // send a stream terminator:
+                        var msg = new NetworkMessage((int)client[Idents.Clients.NetID])
                         {
-                                client.LoginCount = (int)((PacketSt32)message.PacketTemplate).LoginCount;
-
-                                // send a stream terminator:
-                                var msg = new NetworkMessage((int)client[Idents.Clients.NetID])
-                                {
-                                        PacketTemplate = new P03_StreamTerminator.PacketSt3()
-                                };
-                                // set the message data
-                                ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).ErrorCode = 0;
-                                // send it
-                                QueuingService.PostProcessingQueue.Enqueue(msg);
-                        }
-
+                                PacketTemplate = new P03_StreamTerminator.PacketSt3()
+                        };
+                        // set the message data
+                        ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
+                        ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).ErrorCode = 0;
+                        // send it
+                        QueuingService.PostProcessingQueue.Enqueue(msg);
+                        
                         return true;
                 }
 

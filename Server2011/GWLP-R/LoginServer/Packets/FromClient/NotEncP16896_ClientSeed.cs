@@ -36,27 +36,25 @@ namespace LoginServer.Packets.FromClient
                         // check the sync state of the client
                         var client = World.GetClient(Idents.Clients.NetID, message.NetID);
 
-                        lock (client)
+                        if (client.Status == SyncState.ConnectionEstablished)
                         {
-                                if (client.Status == SyncState.ConnectionEstablished)
-                                {
-                                        client.InitCryptSeed = ((PacketSt16896) message.PacketTemplate).Seed;
+                                client.InitCryptSeed = ((PacketSt16896) message.PacketTemplate).Seed;
 
-                                        // send server seed:
-                                        //
-                                        var msg = new NetworkMessage(message.NetID);
-                                        // set the message type
-                                        msg.PacketTemplate = new NotEncP5633_ServerSeed.PacketSt5633();
-                                        // set the message data
-                                        ((NotEncP5633_ServerSeed.PacketSt5633)msg.PacketTemplate).Seed = new byte[20];
-                                        // send it
-                                        QueuingService.PostProcessingQueue.Enqueue(msg);
+                                // send server seed:
+                                //
+                                var msg = new NetworkMessage(message.NetID);
+                                // set the message type
+                                msg.PacketTemplate = new NotEncP5633_ServerSeed.PacketSt5633();
+                                // set the message data
+                                ((NotEncP5633_ServerSeed.PacketSt5633)msg.PacketTemplate).Seed = new byte[20];
+                                // send it
+                                QueuingService.PostProcessingQueue.Enqueue(msg);
 
-                                        return true;
-                                }
-                                // if the client is in any different sync state, kick it
-                                World.KickClient(Idents.Clients.NetID, message.NetID);
+                                return true;
                         }
+                        // if the client is in any different sync state, kick it
+                        World.KickClient(Idents.Clients.NetID, message.NetID);
+                        
                         return true;
                 }
 

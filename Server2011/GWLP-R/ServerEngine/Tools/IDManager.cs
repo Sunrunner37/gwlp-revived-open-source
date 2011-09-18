@@ -1,78 +1,73 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ServerEngine.Tools
 {
         public sealed class IDManager
         {
-                private readonly int startValue;
-                private readonly List<int> usedValues;
+                private readonly object objLock = new object();
+
+                private readonly Stack<int> freeValues;
 
                 /// <summary>
                 ///   Initializes a new instance of the class.
                 /// </summary>
-                /// <param name="startValue">
+                /// <param name="lowestPossible">
                 ///   The smallest value that the ID's could take
                 /// </param>
-                public IDManager(int startValue)
+                /// <param name="highestPossible">
+                ///   The highest possible ID
+                /// </param>
+                public IDManager(int lowestPossible, int highestPossible)
                 {
-                        this.startValue = startValue;
+                        lock (objLock)
+                        {
+                                // fail check
+                                lowestPossible = lowestPossible <= 0 ? 1 : lowestPossible;
+                                highestPossible = highestPossible > 1000000 ? 1000000 : highestPossible;
 
-                        usedValues = new List<int>();
+                                if (lowestPossible >= highestPossible)
+                                {
+                                        throw new IndexOutOfRangeException(
+                                                "Lowest value must be at least 1 smaller than highest value");
+                                }
+
+                                // create the freeID's stack
+                                var freeIDs = new List<int>();
+                                for (var i = highestPossible; i > lowestPossible; i--)
+                                {
+                                        freeIDs.Add(i);
+                                }
+
+                                freeValues = new Stack<int>(freeIDs);
+                        }
                 }
 
                 /// <summary>
-                ///   This returns a currently unused ID, and sets it to 'used'.
+                ///   This returns a currently unused ID.
                 /// </summary>
-                /// <returns>
-                ///   Returns a currently unused ID.
-                /// </returns>
-                public int NewID()
+                public int RequestID()
                 {
-                        int result = GetSmallestFree();
+                        lock (objLock)
+                        {
+                                if (freeValues.Count != 0)
+                                {
+                                        return freeValues.Pop();
+                                }
 
-                        usedValues.Add(result);
-
-                        return result;
+                                throw new IndexOutOfRangeException("No more free IDs");
+                        }
                 }
 
                 /// <summary>
                 ///   This frees a used ID.
                 /// </summary>
-                /// <param name="toFree">
-                ///   The ID that will be freed.
-                /// </param>
                 public void FreeID(int toFree)
                 {
-                        usedValues.Remove(toFree);
-                }
-
-                /// <summary>
-                ///   This searches for the smallest unused value.
-                ///   (Which is >= startValue and not in usedValues)
-                /// </summary>
-                /// <returns>
-                ///   Returns the smallest unused value.
-                /// </returns>
-                private int GetSmallestFree()
-                {
-                        int result = startValue;
-
-                        usedValues.Sort();
-                        foreach (int val in usedValues)
+                        lock (objLock)
                         {
-                                // if there is a gap:
-                                if (val > (result + 1))
-                                {
-                                        result++;
-                                        break;
-                                } // or if it is just greater than the last checked ID
-                                else if (val >= result)
-                                {
-                                        result = val + 1;
-                                }
+                                freeValues.Push(toFree);
                         }
-
-                        return result;
                 }
         }
 }

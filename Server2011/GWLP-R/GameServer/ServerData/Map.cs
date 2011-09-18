@@ -11,6 +11,18 @@ namespace GameServer.ServerData
 {
         public class Map : IIdentifiable<Maps>
         {
+                private readonly object objLock = new object();
+
+                private Dictionary<int, MapSpawn> spawns;
+                private Dictionary<int, NonPlayerChar> npcs;
+                private List<int> charIDs;
+                private IDManager charAgentIDManager;
+                private ConcurrentQueue<Action<Map>> actionQueue;
+                private readonly Dictionary<Maps, object> identifierKeyEnumeration;
+
+                /// <summary>
+                ///   Create a new instance of the class
+                /// </summary>
                 public Map(int mapID, int gameMapID, int gameFileID)
                 {
                         var tmp = new Dictionary<Maps, object>();
@@ -23,35 +35,150 @@ namespace GameServer.ServerData
                         Spawns = new Dictionary<int, MapSpawn>();
                         Npcs = new Dictionary<int, NonPlayerChar>();
                         CharIDs = new List<int>();
-                        CharAgentIDManager = new IDManager(1);
+                        CharAgentIDManager = new IDManager(1, 10000);
                         ActionQueue = new ConcurrentQueue<Action<Map>>();
 
                         Debug.WriteLine("Created new map");
                 }
 
+                /// <summary>
+                ///   This indexer returns the identifier of the given type.
+                /// </summary>
+                /// <param name="identType"></param>
+                /// <returns></returns>
                 public object this[Maps identType]
                 {
                         get
                         {
-                                object id;
+                                lock (objLock)
+                                {
+                                        object id;
 
-                                identifierKeyEnumeration.TryGetValue(identType, out id);
+                                        identifierKeyEnumeration.TryGetValue(identType, out id);
 
-                                return id;
+                                        return id;
+                                }
                         }
                 }
 
-                public Dictionary<int, MapSpawn> Spawns { get; private set; }
+                /// <summary>
+                ///   This property contains possible spawn points for a map
+                ///   THIS SHOULD BE CHANGED, TO HAVE NPCs AND PLAYERS DIVIDED FOR EACH SPAWN
+                /// </summary>
+                public Dictionary<int, MapSpawn> Spawns
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return spawns;
+                                }
+                        }
+                        private set
+                        {
+                                lock (objLock)
+                                {
+                                        spawns = value;
+                                }
+                        }
+                }
 
-                public Dictionary<int, NonPlayerChar> Npcs { get; private set; }
+                /// <summary>
+                ///   This property contains the NPCs that are on this map
+                /// </summary>
+                public Dictionary<int, NonPlayerChar> Npcs
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return npcs;
+                                }
+                        }
+                        private set
+                        {
+                                lock (objLock)
+                                {
+                                        npcs = value;
+                                }
+                        }
+                }
 
-                public List<int> CharIDs { get; private set; }
+                /// <summary>
+                ///   This property contains the CharIDs of the chars that are currently on this map
+                /// </summary>
+                public List<int> CharIDs
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return charIDs;
+                                }
+                        }
+                        private set
+                        {
+                                lock (objLock)
+                                {
+                                        charIDs = value;
+                                }
+                        }
+                }
 
-                public IDManager CharAgentIDManager { get; private set; }
+                /// <summary>
+                ///   This property contains the ID manager for AgentIDs
+                /// </summary>
+                public IDManager CharAgentIDManager
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return charAgentIDManager;
+                                }
+                        }
+                        private set
+                        {
+                                lock (objLock)
+                                {
+                                        charAgentIDManager = value;
+                                }
+                        }
+                }
 
-                public ConcurrentQueue<Action<Map>> ActionQueue { get; private set; }
+                /// <summary>
+                ///   This property contains the action queue
+                /// </summary>
+                public ConcurrentQueue<Action<Map>> ActionQueue
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return actionQueue;
+                                }
+                        }
+                        private set
+                        {
+                                lock (objLock)
+                                {
+                                        actionQueue = value;
+                                }
+                        }
+                }
 
-                private readonly Dictionary<Maps, object> identifierKeyEnumeration;
-                public IEnumerable<KeyValuePair<Maps, object>> IdentifierKeyEnumeration { get { return identifierKeyEnumeration; } }
+                /// <summary>
+                ///   This property contains the identifier - key enumeration of the client.
+                /// </summary>
+                public IEnumerable<KeyValuePair<Maps, object>> IdentifierKeyEnumeration
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return identifierKeyEnumeration;
+                                }
+                        }
+                }
         }
 }

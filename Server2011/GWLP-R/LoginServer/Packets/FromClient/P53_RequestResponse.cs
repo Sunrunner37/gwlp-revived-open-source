@@ -29,34 +29,32 @@ namespace LoginServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt53();
                         pParser((PacketSt53)message.PacketTemplate, message.PacketData);
 
-                        Client client;
-                        lock (client = World.GetClient(Idents.Clients.NetID, message.NetID))
+                        var client = World.GetClient(Idents.Clients.NetID, message.NetID);
+                        
+                        client.LoginCount = (int)((PacketSt53)message.PacketTemplate).LoginCount;
+
+                        // send a response (whatever that does):
+                        var sendResponse = new NetworkMessage(message.NetID)
                         {
-                                client.LoginCount = (int)((PacketSt53)message.PacketTemplate).LoginCount;
+                                PacketTemplate = new P38_SendResponse.PacketSt38()
+                        };
+                        // set the message data
+                        ((P38_SendResponse.PacketSt38)sendResponse.PacketTemplate).LoginCount = (uint)client.LoginCount;
+                        ((P38_SendResponse.PacketSt38)sendResponse.PacketTemplate).Data1 = 0;
+                        // send it
+                        QueuingService.PostProcessingQueue.Enqueue(sendResponse);
 
-                                // send a response (whatever that does):
-                                var sendResponse = new NetworkMessage(message.NetID)
-                                {
-                                        PacketTemplate = new P38_SendResponse.PacketSt38()
-                                };
-                                // set the message data
-                                ((P38_SendResponse.PacketSt38)sendResponse.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                ((P38_SendResponse.PacketSt38)sendResponse.PacketTemplate).Data1 = 0;
-                                // send it
-                                QueuingService.PostProcessingQueue.Enqueue(sendResponse);
-
-                                // send a stream terminator:
-                                var streamTerminator = new NetworkMessage(message.NetID)
-                                {
-                                        PacketTemplate = new P03_StreamTerminator.PacketSt3()
-                                };
-                                // set the message data
-                                ((P03_StreamTerminator.PacketSt3)streamTerminator.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                ((P03_StreamTerminator.PacketSt3)streamTerminator.PacketTemplate).ErrorCode = 0;
-                                // send it
-                                QueuingService.PostProcessingQueue.Enqueue(streamTerminator);
-                        }
-
+                        // send a stream terminator:
+                        var streamTerminator = new NetworkMessage(message.NetID)
+                        {
+                                PacketTemplate = new P03_StreamTerminator.PacketSt3()
+                        };
+                        // set the message data
+                        ((P03_StreamTerminator.PacketSt3)streamTerminator.PacketTemplate).LoginCount = (uint)client.LoginCount;
+                        ((P03_StreamTerminator.PacketSt3)streamTerminator.PacketTemplate).ErrorCode = 0;
+                        // send it
+                        QueuingService.PostProcessingQueue.Enqueue(streamTerminator);
+                        
                         return true;
                 }
 

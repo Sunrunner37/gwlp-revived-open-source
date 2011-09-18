@@ -28,7 +28,7 @@ namespace GameServer.ServerData
                         clients = new MultiKeyDictionary<Clients, Client>();
                         chars = new MultiKeyDictionary<Chars, Character>();
                         maps = new MultiKeyDictionary<Maps, Map>();
-                        charLocalIDs = new IDManager(1);
+                        charLocalIDs = new IDManager(1, 10000);
                 }
 
                 public static Dictionary<string, Type> ChatCommandsDict { get; private set; } 
@@ -166,8 +166,8 @@ namespace GameServer.ServerData
 
                 public static void RegisterCharacterIDs(out int localID, out int agentID, int mapIDToRegisterWith)
                 {
-                        localID = charLocalIDs.NewID();
-                        agentID = GetMap(Maps.MapID, mapIDToRegisterWith).CharAgentIDManager.NewID();
+                        localID = charLocalIDs.RequestID();
+                        agentID = GetMap(Maps.MapID, mapIDToRegisterWith).CharAgentIDManager.RequestID();
                 }
 
                 public static void UnRegisterCharacterIDs(int localID, int agentID, int mapIDToUnRegisterWith)
@@ -245,7 +245,7 @@ namespace GameServer.ServerData
 
                                                         var newNpc = new NonPlayerChar()
                                                         {
-                                                                AgentID = newMap.CharAgentIDManager.NewID(),
+                                                                AgentID = newMap.CharAgentIDManager.RequestID(),
                                                                 Stats = new NonPlayerCharStats()
                                                                 {
                                                                         NpcID = npcID,
@@ -268,7 +268,7 @@ namespace GameServer.ServerData
                                                                         Direction = new GWVector(0, 0, 0),
                                                                         Morale = 100,
                                                                         VitalStats = (int)VitalStatus.Alive,
-                                                                        MoveState = MovementState.MovingHandled,
+                                                                        MoveState = MovementState.MoveKeepDir,
                                                                         MoveType = MovementType.Stop,
                                                                 }
                                                         };

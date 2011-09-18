@@ -30,22 +30,21 @@ namespace LoginServer.Packets.FromGameServer
                         pParser((PacketSt65285)message.PacketTemplate, message.PacketData);
 
                         // get client and send stream terminator
-                        Client client;
-                        lock (client = World.GetClient(Idents.Clients.AccID, ((PacketSt65285)message.PacketTemplate).AccID))
-                        {
-                                client.LoginCount++;
+                        var client = World.GetClient(Idents.Clients.AccID, ((PacketSt65285) message.PacketTemplate).AccID);
+                        
+#warning Dispatch should require the login server to search for a game server!
+                        //client.LoginCount++;
 
-                                //// send a stream terminator:
-                                //var msg = new NetworkMessage((int)client[Idents.Clients.NetID])
-                                //{
-                                //        PacketTemplate = new P03_StreamTerminator.PacketSt3()
-                                //};
-                                //// set the message data
-                                //((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                //((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).ErrorCode = 0;
-                                //// send it
-                                //QueuingService.PostProcessingQueue.Enqueue(msg);
-                        }
+                        //// send a stream terminator:
+                        //var msg = new NetworkMessage((int)client[Idents.Clients.NetID])
+                        //{
+                        //        PacketTemplate = new P03_StreamTerminator.PacketSt3()
+                        //};
+                        //// set the message data
+                        //((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
+                        //((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).ErrorCode = 0;
+                        //// send it
+                        //QueuingService.PostProcessingQueue.Enqueue(msg);
 
                         return true;
                 }

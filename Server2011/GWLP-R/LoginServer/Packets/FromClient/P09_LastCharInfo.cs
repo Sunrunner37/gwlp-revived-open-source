@@ -34,23 +34,21 @@ namespace LoginServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt9();
                         pParser((PacketSt9)message.PacketTemplate, message.PacketData);
 
-                        Client client;
-                        lock (client = World.GetClient(Idents.Clients.NetID, message.NetID))
+                        var client = World.GetClient(Idents.Clients.NetID, message.NetID);
+                        
+                        client.LoginCount = (int)((PacketSt9)message.PacketTemplate).LoginCount;
+
+                        // send a stream terminator:
+                        var msg = new NetworkMessage(message.NetID)
                         {
-                                client.LoginCount = (int)((PacketSt9)message.PacketTemplate).LoginCount;
-
-                                // send a stream terminator:
-                                var msg = new NetworkMessage(message.NetID)
-                                {
-                                        PacketTemplate = new P03_StreamTerminator.PacketSt3()
-                                };
-                                // set the message data
-                                ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).ErrorCode = 0;
-                                // send it
-                                QueuingService.PostProcessingQueue.Enqueue(msg);
-                        }
-
+                                PacketTemplate = new P03_StreamTerminator.PacketSt3()
+                        };
+                        // set the message data
+                        ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
+                        ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).ErrorCode = 0;
+                        // send it
+                        QueuingService.PostProcessingQueue.Enqueue(msg);
+                        
                         return true;
                 }
 

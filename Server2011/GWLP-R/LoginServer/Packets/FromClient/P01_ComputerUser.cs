@@ -35,19 +35,17 @@ namespace LoginServer.Packets.FromClient
                         // check the sync state of the client
                         var client = World.GetClient(Idents.Clients.NetID, message.NetID);
 
-                        lock (client)
-                        {
-                                var msg = new NetworkMessage(message.NetID)
-                                                  {
-                                                          PacketTemplate = new P01_ComputerInfoReply.PacketSt1()
-                                                  };
-                                // set the message data
-                                ((P01_ComputerInfoReply.PacketSt1)msg.PacketTemplate).StaticData1 = 3732952299;
-                                ((P01_ComputerInfoReply.PacketSt1)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                ((P01_ComputerInfoReply.PacketSt1)msg.PacketTemplate).Data3 = 0;
-                                // send it
-                                QueuingService.PostProcessingQueue.Enqueue(msg);
-                        }
+                        var msg = new NetworkMessage(message.NetID)
+                                                {
+                                                        PacketTemplate = new P01_ComputerInfoReply.PacketSt1()
+                                                };
+                        // set the message data
+                        ((P01_ComputerInfoReply.PacketSt1)msg.PacketTemplate).StaticData1 = 3732952299;
+                        ((P01_ComputerInfoReply.PacketSt1)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
+                        ((P01_ComputerInfoReply.PacketSt1)msg.PacketTemplate).Data3 = 0;
+                        // send it
+                        QueuingService.PostProcessingQueue.Enqueue(msg);
+                        
 
                         return true;
                 }

@@ -48,6 +48,14 @@ namespace ServerEngine.NetworkManagement
                 public bool IsTerminated { get; private set; }
 
                 /// <summary>
+                ///   This property contains the network ID of the client
+                /// </summary>
+                public int NetID
+                {
+                        get { return netID; }
+                }
+
+                /// <summary>
                 ///   The port of the remote client.
                 /// </summary>
                 public int Port

@@ -36,13 +36,10 @@ namespace LoginServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt5();
                         pParser((PacketSt5)message.PacketTemplate, message.PacketData);
 
-                        Client client;
-                        lock (client = World.GetClient(Idents.Clients.NetID, message.NetID))
-                        {
-                                client.LoginCount = (int)((PacketSt5)message.PacketTemplate).LoginCount;
-                        }
-
-
+                        var client = World.GetClient(Idents.Clients.NetID, message.NetID);
+                        
+                        client.LoginCount = (int)((PacketSt5)message.PacketTemplate).LoginCount;
+                        
                         return true;
                 }
 

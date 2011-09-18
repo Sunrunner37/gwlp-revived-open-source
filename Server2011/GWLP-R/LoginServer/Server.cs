@@ -91,7 +91,7 @@ namespace LoginServer
 
                                 // Init the network manager
                                 Debug.Write("Creating network manager...");
-                                NetworkManager.Instance.MaxClients = localConfig.SrvMaxClients;
+                                NetworkManager.Instance.Init(localConfig.SrvMaxClients);
                                 NetworkManager.Instance.StartListeners(localConfig.SrvPort);
 
                                 Debug.WriteLine("\t\t\t[done]");

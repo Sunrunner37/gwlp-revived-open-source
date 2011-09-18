@@ -31,29 +31,24 @@ namespace LoginServer.Packets.FromClient
                         pParser((PacketSt14)message.PacketTemplate, message.PacketData);
                         
                         // 0=exit
-                        Client client;
+                        var client= World.GetClient(Idents.Clients.NetID, message.NetID);
                         switch (((PacketSt14)message.PacketTemplate).ExitCode)
                         {
                                 case 0:
-                                        lock (client = World.GetClient(Idents.Clients.NetID, message.NetID))
-                                        {
-                                                client.Status = SyncState.PossibleQuit;
+                                        client.Status = SyncState.PossibleQuit;
 
-                                                var msg = new NetworkMessage(message.NetID);
-                                                msg.PacketTemplate = new P03_StreamTerminator.PacketSt3()
-                                                {
-                                                        LoginCount = (uint)client.LoginCount,
-                                                        ErrorCode = 0
-                                                };
-                                                QueuingService.PostProcessingQueue.Enqueue(msg);
+                                        var msg = new NetworkMessage(message.NetID);
+                                        msg.PacketTemplate = new P03_StreamTerminator.PacketSt3()
+                                        {
+                                                LoginCount = (uint)client.LoginCount,
+                                                ErrorCode = 0
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(msg);
                                                 
-                                        }
                                         break;
                                 case 1:
-                                        lock (client = World.GetClient(Idents.Clients.NetID, message.NetID))
-                                        {
-                                                client.Status = SyncState.TriesToLoadInstance;
-                                        }
+                                        client.Status = SyncState.TriesToLoadInstance;
+                                        
                                         break;
                                 default:
                                         throw new NotImplementedException();

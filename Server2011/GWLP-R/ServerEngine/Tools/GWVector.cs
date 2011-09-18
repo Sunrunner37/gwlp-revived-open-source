@@ -79,9 +79,9 @@ namespace ServerEngine.Tools
                 /// <summary>
                 ///   Returns the angle with a given vector
                 /// </summary>
-                public float AngleWith(GWVector v1)
+                public float CosWith(GWVector v1)
                 {
-                        return (float)Math.Acos(((v1.X * X) + (v1.Y * Y)) / (v1.Length * Length));
+                        return (((v1.X * X) + (v1.Y * Y)) / (v1.Length * Length));
                 }
 
                 /// <summary>

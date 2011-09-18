@@ -35,39 +35,35 @@ namespace LoginServer.Packets.FromGameServer
                         pParser((PacketSt65284)message.PacketTemplate, message.PacketData);
 
                         // get client and send refer to gameserver
-                        Client client;
-                        lock (client = World.GetClient(Idents.Clients.AccID, ((PacketSt65284)message.PacketTemplate).AccID))
+                        var client = World.GetClient(Idents.Clients.AccID, ((PacketSt65284) message.PacketTemplate).AccID);
+                        
+                        var gameServer = World.GetGameServer(Idents.GameServers.NetID, message.NetID);
+                                
+                        using (var db = (MySQL)DataBaseProvider.GetDataBase())
                         {
-                                GameServer gameServer;
-                                lock (gameServer = World.GetGameServer(Idents.GameServers.NetID, message.NetID))
+                                // send refer to game server:
+                                var msg = new NetworkMessage((int)client[Idents.Clients.NetID])
                                 {
-                                        using (var db = (MySQL)DataBaseProvider.GetDataBase())
-                                        {
-                                                // send refer to game server:
-                                                var msg = new NetworkMessage((int)client[Idents.Clients.NetID])
-                                                {
-                                                        PacketTemplate = new P09_ReferToGameServer.PacketSt9()
-                                                };
-                                                // set the message data
-                                                ((P09_ReferToGameServer.PacketSt9)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                                ((P09_ReferToGameServer.PacketSt9)msg.PacketTemplate).GameMapID = (ushort)(from m in db.mapsMasterData where m.gameMapID == client.MapID select m).First().gameMapID;
-                                                ((P09_ReferToGameServer.PacketSt9)msg.PacketTemplate).SecurityKey1 = client.SecurityKeys[0];
-                                                ((P09_ReferToGameServer.PacketSt9)msg.PacketTemplate).SecurityKey2 = client.SecurityKeys[1];
-                                                // set the server ip and port
-                                                var ms = new MemoryStream();
-                                                RawConverter.WriteUInt16(2, ms); // this is necessary, whatever it does.
-                                                RawConverter.WriteByteAr(BitConverter.GetBytes((short)(int)gameServer[Idents.GameServers.Port]).Reverse().ToArray(), ms);
-                                                RawConverter.WriteByteAr((byte[])gameServer[Idents.GameServers.IP], ms);
-                                                var serverConnection = new byte[24];
-                                                ms.ToArray().CopyTo(serverConnection, 0);
-                                                // add it
-                                                ((P09_ReferToGameServer.PacketSt9)msg.PacketTemplate).ServerConnectionInfo = serverConnection;
-                                                // send it
-                                                QueuingService.PostProcessingQueue.Enqueue(msg);
-                                        }
-                                }
+                                        PacketTemplate = new P09_ReferToGameServer.PacketSt9()
+                                };
+                                // set the message data
+                                ((P09_ReferToGameServer.PacketSt9)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
+                                ((P09_ReferToGameServer.PacketSt9)msg.PacketTemplate).GameMapID = (ushort)(from m in db.mapsMasterData where m.gameMapID == client.MapID select m).First().gameMapID;
+                                ((P09_ReferToGameServer.PacketSt9)msg.PacketTemplate).SecurityKey1 = client.SecurityKeys[0];
+                                ((P09_ReferToGameServer.PacketSt9)msg.PacketTemplate).SecurityKey2 = client.SecurityKeys[1];
+                                // set the server ip and port
+                                var ms = new MemoryStream();
+                                RawConverter.WriteUInt16(2, ms); // this is necessary, whatever it does.
+                                RawConverter.WriteByteAr(BitConverter.GetBytes((short)(int)gameServer[Idents.GameServers.Port]).Reverse().ToArray(), ms);
+                                RawConverter.WriteByteAr((byte[])gameServer[Idents.GameServers.IP], ms);
+                                var serverConnection = new byte[24];
+                                ms.ToArray().CopyTo(serverConnection, 0);
+                                // add it
+                                ((P09_ReferToGameServer.PacketSt9)msg.PacketTemplate).ServerConnectionInfo = serverConnection;
+                                // send it
+                                QueuingService.PostProcessingQueue.Enqueue(msg);
                         }
-
+                        
                         return true;
                 }
 

@@ -35,63 +35,62 @@ namespace LoginServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt41();
                         pParser((PacketSt41)message.PacketTemplate, message.PacketData);
 
-                        Client client;
-                        lock (client = World.GetClient(Idents.Clients.NetID, message.NetID))
+                        var client = World.GetClient(Idents.Clients.NetID, message.NetID);
+                        
+                        // necessary!
+#warning CHECKME Character play info should have login count...
+                        client.LoginCount++;
+
+                        var serverNetID = 0;
+                        GameServer server;
+                        if (!World.GetBestGameServer(client.MapID, out server) && server != null)
                         {
-                                // necessary!
-                                client.LoginCount++;
+                                serverNetID = (int) server[Idents.GameServers.NetID];
 
-                                var serverNetID = 0;
-                                GameServer server;
-                                if (!World.GetBestGameServer(client.MapID, out server) && server != null)
+
+                                var buildMap = new NetworkMessage(serverNetID)
+                                                {
+                                                        PacketTemplate =new P65283_BuildMapRequest.PacketSt65283()
+                                                };
+                                // set the message data
+                                ((P65283_BuildMapRequest.PacketSt65283) buildMap.PacketTemplate).MapID = (uint) client.MapID;
+                                // send it
+                                QueuingService.PostProcessingQueue.Enqueue(buildMap);
+
+                        }
+                        else if (server == null)
+                        {
+                                // no game server found,
+                                // send a stream terminator:
+                                var msg = new NetworkMessage(message.NetID)
                                 {
-                                        serverNetID = (int) server[Idents.GameServers.NetID];
-
-
-                                        var buildMap = new NetworkMessage(serverNetID)
-                                                        {
-                                                                PacketTemplate =new P65283_BuildMapRequest.PacketSt65283()
-                                                        };
-                                        // set the message data
-                                        ((P65283_BuildMapRequest.PacketSt65283) buildMap.PacketTemplate).MapID = (uint) client.MapID;
-                                        // send it
-                                        QueuingService.PostProcessingQueue.Enqueue(buildMap);
-
-                                }
-                                else if (server == null)
-                                {
-                                        // no game server found,
-                                        // send a stream terminator:
-                                        var msg = new NetworkMessage(message.NetID)
-                                        {
-                                                PacketTemplate = new P03_StreamTerminator.PacketSt3()
-                                        };
-                                        // set the message data
-                                        ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                        ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).ErrorCode = 5;
-                                        // send it
-                                        QueuingService.PostProcessingQueue.Enqueue(msg);
-
-                                        return true;
-                                }
-
-                                // if the map already exists, the netID was not yet set:
-                                serverNetID = (int)server[Idents.GameServers.NetID];
-
-                                var acceptPlayer = new NetworkMessage(serverNetID)
-                                {
-                                        PacketTemplate = new P65284_AcceptPlayerRequest.PacketSt65284()
+                                        PacketTemplate = new P03_StreamTerminator.PacketSt3()
                                 };
                                 // set the message data
-                                ((P65284_AcceptPlayerRequest.PacketSt65284)acceptPlayer.PacketTemplate).AccID = (uint)((int)client[Idents.Clients.AccID]);
-                                ((P65284_AcceptPlayerRequest.PacketSt65284)acceptPlayer.PacketTemplate).CharID = (uint)((int)client[Idents.Clients.CharID]);
-                                ((P65284_AcceptPlayerRequest.PacketSt65284)acceptPlayer.PacketTemplate).MapID = (uint)client.MapID;
-                                ((P65284_AcceptPlayerRequest.PacketSt65284)acceptPlayer.PacketTemplate).Key1 = client.SecurityKeys[0];
-                                ((P65284_AcceptPlayerRequest.PacketSt65284)acceptPlayer.PacketTemplate).Key2 = client.SecurityKeys[1];
+                                ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
+                                ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).ErrorCode = 5;
                                 // send it
-                                QueuingService.PostProcessingQueue.Enqueue(acceptPlayer);
-                                
+                                QueuingService.PostProcessingQueue.Enqueue(msg);
+
+                                return true;
                         }
+
+                        // if the map already exists, the netID was not yet set:
+                        serverNetID = (int)server[Idents.GameServers.NetID];
+
+                        var acceptPlayer = new NetworkMessage(serverNetID)
+                        {
+                                PacketTemplate = new P65284_AcceptPlayerRequest.PacketSt65284()
+                        };
+                        // set the message data
+                        ((P65284_AcceptPlayerRequest.PacketSt65284)acceptPlayer.PacketTemplate).AccID = (uint)((int)client[Idents.Clients.AccID]);
+                        ((P65284_AcceptPlayerRequest.PacketSt65284)acceptPlayer.PacketTemplate).CharID = (uint)((int)client[Idents.Clients.CharID]);
+                        ((P65284_AcceptPlayerRequest.PacketSt65284)acceptPlayer.PacketTemplate).MapID = (uint)client.MapID;
+                        ((P65284_AcceptPlayerRequest.PacketSt65284)acceptPlayer.PacketTemplate).Key1 = client.SecurityKeys[0];
+                        ((P65284_AcceptPlayerRequest.PacketSt65284)acceptPlayer.PacketTemplate).Key2 = client.SecurityKeys[1];
+                        // send it
+                        QueuingService.PostProcessingQueue.Enqueue(acceptPlayer);
+                                
 
                         return true;
                 }
