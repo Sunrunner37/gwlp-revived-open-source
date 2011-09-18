@@ -33,87 +33,80 @@ namespace GameServer.Actions
 
                 private static void CreatePackets(int charID, int recipientCharID)
                 {
-                        Character chara;
-                        lock (chara = World.GetCharacter(Chars.CharID, charID))
+                        var chara = World.GetCharacter(Chars.CharID, charID);
+                    
+                        // get the recipient of all those packets
+                        int reNetID = 0;
+                        if (recipientCharID != charID)
                         {
-                                // get the recipient of all those packets
-                                int reNetID = 0;
-                                if (recipientCharID != charID)
-                                {
-                                        reNetID = (int)World.GetCharacter(Chars.CharID, recipientCharID)[Chars.NetID];
-                                }
-                                else
-                                {
-                                        reNetID = (int)chara[Chars.NetID];
-                                }
+                                reNetID = (int)World.GetCharacter(Chars.CharID, recipientCharID)[Chars.NetID];
+                        }
+                        else
+                        {
+                                reNetID = (int)chara[Chars.NetID];
+                        }
 
-                                var moveType = (byte) chara.CharStats.MoveType;
-                                float speed = 1F;
+                        var moveType = (byte) chara.CharStats.MoveType;
 
-                                if (moveType != (byte)MovementType.Stop && chara.CharStats.MoveState == MovementState.MovingUnhandled)
-                                {
-                                        // Note: KEYBOARD MOVE START
-                                        var moveStart = new NetworkMessage(reNetID);
-                                        moveStart.PacketTemplate = new P026_MovementDirection.PacketSt26()
-                                        {
-                                                AgentID = (ushort)(int)chara[Chars.AgentID],
-                                                DirX = chara.CharStats.Direction.X,
-                                                DirY = chara.CharStats.Direction.Y,
-                                                MoveType = moveType
-                                        };
-                                        QueuingService.PostProcessingQueue.Enqueue(moveStart);
+                        if (moveType == (byte)MovementType.Forward || moveType == (byte)MovementType.DiagFwLeft || moveType == (byte)MovementType.DiagFwRight)
+                        {
+                                chara.CharStats.SpeedModifier = 1F;
+                        }
+                        else if (moveType == (byte)MovementType.Backward || moveType == (byte)MovementType.DiagBwLeft || moveType == (byte)MovementType.DiagBwRight)
+                        {
+                                chara.CharStats.SpeedModifier = 0.66F;
+                        }
+                        else if (moveType == (byte)MovementType.SideLeft || moveType == (byte)MovementType.SideRight)
+                        {
+                                chara.CharStats.SpeedModifier = 0.75F;
+                        }
+                        else if (moveType == (byte)MovementType.Collision)
+                        {
+                                // dont change speed modifier, as it is dynamically set.
 
-                                        // reset the moving state here
-                                        chara.CharStats.MoveState = MovementState.MovingHandled;
-                                }
+                                // reset movetype, cause 10 is non existant for the client
+                                moveType = 1;
+                        }
 
-
-                                if (moveType == (byte)MovementType.Backward || moveType == (byte)MovementType.DiagBwLeft ||
-                                moveType == (byte)MovementType.DiagBwRight)
-                                {
-                                        speed = 0.66F;
-                                }
-                                else if (moveType == (byte)MovementType.SideLeft || moveType == (byte)MovementType.SideRight)
-                                {
-                                        speed = 0.75F;
-                                }
-                                else if (moveType == (byte)MovementType.FwCollision)
-                                {
-                                        speed = 0.2F;
-
-                                        // reset movetype, cause 10 is non existant for the client
-                                        moveType = 1;
-                                }
-                                else if (moveType == (byte)MovementType.DgCollision)
-                                {
-                                        speed = 0.6F;
-
-                                        // reset movetype, cause 10 is non existant for the client
-                                        moveType = 1;
-                                }
-
-                                // Note: KEYBOARD MOVE SPEED
-                                var moveSpeed = new NetworkMessage(reNetID);
-                                moveSpeed.PacketTemplate = new P032_MovementSpeedModifier.PacketSt32()
+                        if (moveType != (byte)MovementType.Stop && chara.CharStats.MoveState == MovementState.MoveChangeDir)
+                        {
+                                // Note: KEYBOARD MOVE START
+                                var moveStart = new NetworkMessage(reNetID);
+                                moveStart.PacketTemplate = new P026_MovementDirection.PacketSt26()
                                 {
                                         AgentID = (ushort)(int)chara[Chars.AgentID],
-                                        Speed = speed,
+                                        DirX = chara.CharStats.Direction.X,
+                                        DirY = chara.CharStats.Direction.Y,
                                         MoveType = moveType
                                 };
-                                QueuingService.PostProcessingQueue.Enqueue(moveSpeed);
+                                QueuingService.PostProcessingQueue.Enqueue(moveStart);
 
-                                // Note: GOTO LOCATION
-                                var gotoLoc = new NetworkMessage(reNetID);
-                                gotoLoc.PacketTemplate = new P030_MovementAim.PacketSt30()
-                                {
-                                        AgentID = (ushort)(int)chara[Chars.AgentID],
-                                        X = newAim.X,
-                                        Y = newAim.Y,
-                                        PlaneZ = (ushort)newAim.PlaneZ,
-                                        Data1 = (ushort)newAim.PlaneZ
-                                };
-                                QueuingService.PostProcessingQueue.Enqueue(gotoLoc);
+                                // reset the moving state here
+                                chara.CharStats.MoveState = MovementState.MoveKeepDir;
                         }
+
+                        // Note: MOVE SPEED MODIFIER
+                        var moveSpeed = new NetworkMessage(reNetID);
+                        moveSpeed.PacketTemplate = new P032_MovementSpeedModifier.PacketSt32()
+                        {
+                                AgentID = (ushort)(int)chara[Chars.AgentID],
+                                Speed = chara.CharStats.SpeedModifier,
+                                MoveType = moveType
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(moveSpeed);
+
+                        // Note: MOVEMENT AIM
+                        var gotoLoc = new NetworkMessage(reNetID);
+                        gotoLoc.PacketTemplate = new P030_MovementAim.PacketSt30()
+                        {
+                                AgentID = (ushort)(int)chara[Chars.AgentID],
+                                X = newAim.X,
+                                Y = newAim.Y,
+                                PlaneZ = (ushort)newAim.PlaneZ,
+                                Data1 = 0
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(gotoLoc);
+                        
                 }
         }
 }

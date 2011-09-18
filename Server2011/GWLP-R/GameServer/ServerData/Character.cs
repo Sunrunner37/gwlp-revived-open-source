@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using GameServer.Enums;
 using ServerEngine.Tools;
 
@@ -10,6 +8,18 @@ namespace GameServer.ServerData
 {
         public class Character : IIdentifiable<Chars>
         {
+                private readonly object objLock = new object();
+
+                private DateTime pingTime;
+                private int mapID;
+                private bool isAtOutpost;
+                private CharacterStats charStats;
+                private DateTime lastHeartBeat;
+                private readonly Dictionary<Chars, object> identifierKeyEnumeration;
+
+                /// <summary>
+                ///   Create a new instance of the class
+                /// </summary>
                 public Character(int charID, int accID, int netID, int localID, int agentID, string name)
                 {
                         var tmp = new Dictionary<Chars, object>();
@@ -23,42 +33,147 @@ namespace GameServer.ServerData
                         identifierKeyEnumeration = tmp;
 
                         CharStats = new CharacterStats();
-                        Commands = new Dictionary<string, bool>();
-
+                        
                         Debug.WriteLine("Created new character");
                 }
 
+                /// <summary>
+                ///   This indexer returns the identifier of the given type.
+                /// </summary>
+                /// <param name="identType"></param>
+                /// <returns></returns>
                 public object this[Chars identType]
                 {
                         get
                         {
-                                object id;
+                                lock (objLock)
+                                {
+                                        object id;
 
-                                identifierKeyEnumeration.TryGetValue(identType, out id);
+                                        identifierKeyEnumeration.TryGetValue(identType, out id);
 
-                                return id;
+                                        return id;
+                                }
                         }
                 }
-                public DateTime PingTime { get; set; }
 
-                public int MapID { get; set; }
-                public bool IsAtOutpost { get; set; }
+                /// <summary>
+                ///   This property contains the timestamp of the last Ping
+                /// </summary>
+                public DateTime PingTime
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return pingTime;
+                                }
+                        }
+                        set
+                        {
+                                lock (objLock)
+                                {
+                                        pingTime = value;
+                                }
+                        }
+                }
 
-                public int AttPtsFree { get; set; }
-                public int AttPtsTotal { get; set; }
-                public int SkillPtsFree { get; set; }
-                public int SkillPtsTotal { get; set; }
+                /// <summary>
+                ///   This property contains the MapID of the char
+                /// </summary>
+                public int MapID
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return mapID;
+                                }
+                        }
+                        set
+                        {
+                                lock (objLock)
+                                {
+                                        mapID = value;
+                                }
+                        }
+                }
 
-                public CharacterStats CharStats { get; set; }
+                /// <summary>
+                ///   This property determines whether the char is at an outpost
+                /// </summary>
+                public bool IsAtOutpost
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return isAtOutpost;
+                                }
+                        }
+                        set
+                        {
+                                lock (objLock)
+                                {
+                                        isAtOutpost = value;
+                                }
+                        }
+                }
 
-                public DateTime LastHeartBeat { get; set; }
+                /// <summary>
+                ///   This property contains the general char stats object
+                /// </summary>
+                public CharacterStats CharStats
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return charStats;
+                                }
+                        }
+                        set
+                        {
+                                lock (objLock)
+                                {
+                                        charStats = value;
+                                }
+                        }
+                }
 
-                public Dictionary<string, bool> Commands { get; set; }
+                /// <summary>
+                ///   This property contains the timestamp of the last heartbeat
+                /// </summary>
+                public DateTime LastHeartBeat
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return lastHeartBeat;
+                                }
+                        }
+                        set
+                        {
+                                lock (objLock)
+                                {
+                                        lastHeartBeat = value;
+                                }
+                        }
+                }
 
-                public string ChatPrefix { get; set; }
-                public byte ChatColor { get; set; }
-
-                private readonly Dictionary<Chars, object> identifierKeyEnumeration;
-                public IEnumerable<KeyValuePair<Chars, object>> IdentifierKeyEnumeration { get { return identifierKeyEnumeration; } }
+                /// <summary>
+                ///   This property contains the identifier - key enumeration of the client.
+                /// </summary>
+                public IEnumerable<KeyValuePair<Chars, object>> IdentifierKeyEnumeration
+                {
+                        get
+                        {
+                                lock (objLock)
+                                {
+                                        return identifierKeyEnumeration;
+                                }
+                        }
+                }
         }
 }

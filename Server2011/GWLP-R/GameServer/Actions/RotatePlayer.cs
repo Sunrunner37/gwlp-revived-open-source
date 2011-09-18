@@ -30,30 +30,29 @@ namespace GameServer.Actions
 
                 private static void CreatePackets(int charID, int recipientCharID)
                 {
-                        Character chara;
-                        lock (chara = World.GetCharacter(Chars.CharID, charID))
+                        var chara = World.GetCharacter(Chars.CharID, charID);
+                        
+                        // get the recipient of all those packets
+                        int reNetID = 0;
+                        if (recipientCharID != charID)
                         {
-                                // get the recipient of all those packets
-                                int reNetID = 0;
-                                if (recipientCharID != charID)
-                                {
-                                        reNetID = (int)World.GetCharacter(Chars.CharID, recipientCharID)[Chars.NetID];
-                                }
-                                else
-                                {
-                                        reNetID = (int)chara[Chars.NetID];
-                                }
-
-                                // Note: ROTATE AGENT
-                                var rotAgent = new NetworkMessage(reNetID);
-                                rotAgent.PacketTemplate = new P035_RotateAgent.PacketSt35()
-                                {
-                                        AgentID = (ushort)(int)chara[Chars.AgentID],
-                                        Rotation = chara.CharStats.Rotation,
-                                        Data1 = 0x40060A92
-                                };
-                                QueuingService.PostProcessingQueue.Enqueue(rotAgent);
+                                reNetID = (int)World.GetCharacter(Chars.CharID, recipientCharID)[Chars.NetID];
                         }
+                        else
+                        {
+                                reNetID = (int)chara[Chars.NetID];
+                        }
+
+                        // Note: ROTATE AGENT
+                        var rotAgent = new NetworkMessage(reNetID);
+                        rotAgent.PacketTemplate = new P035_RotateAgent.PacketSt35()
+                        {
+                                AgentID = (ushort)(int)chara[Chars.AgentID],
+                                Rotation = chara.CharStats.Rotation,
+                                Data1 = 0x40060A92
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(rotAgent);
+                        
                 }
         }
 }

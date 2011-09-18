@@ -36,6 +36,8 @@ namespace GameServer.Packets.FromClient
                         pParser((PacketSt16896)message.PacketTemplate, message.PacketData);
 
                         var client = World.GetClient(Clients.NetID, message.NetID);
+                        var chara = World.GetCharacter(Chars.CharID, client[Clients.CharID]);
+
                         // unkown client, probably a dispatching client
                         if (client == null)
                         {
@@ -71,75 +73,66 @@ namespace GameServer.Packets.FromClient
                                                 int localID, agentID;
                                                 World.RegisterCharacterIDs(out localID, out agentID, newClient.MapID);
 
-                                                Character chara, newChar;
-                                                lock (chara = World.GetCharacter(Chars.CharID, (int)newClient[Clients.CharID]))
-                                                {
-                                                        newChar = new Character(
-                                                                (int)newClient[Clients.CharID],
-                                                                (int)newClient[Clients.AccID],
-                                                                (int)newClient[Clients.NetID],
-                                                                localID,
-                                                                agentID,
-                                                                (string)chara[Chars.Name]);
-
-                                                        newChar.MapID = newClient.MapID;
-                                                        newChar.IsAtOutpost = chara.IsAtOutpost;
-                                                        newChar.LastHeartBeat = DateTime.Now;
-                                                        newChar.PingTime = DateTime.Now;
-                                                        newChar.CharStats.ProfessionPrimary = chara.CharStats.ProfessionPrimary;
-                                                        newChar.CharStats.ProfessionSecondary = chara.CharStats.ProfessionSecondary;
-                                                        newChar.CharStats.Level = chara.CharStats.Level;
-                                                        newChar.CharStats.Morale = 100;
-                                                        newChar.CharStats.SkillBar = chara.CharStats.SkillBar;
-                                                        newChar.CharStats.UnlockedSkills = chara.CharStats.UnlockedSkills;
-                                                        newChar.AttPtsFree = chara.AttPtsFree;
-                                                        newChar.AttPtsTotal = chara.AttPtsTotal;
-                                                        newChar.SkillPtsFree = chara.SkillPtsFree;
-                                                        newChar.SkillPtsTotal = chara.SkillPtsTotal;
-
-                                                        // appearance
-                                                        newChar.CharStats.Appearance = chara.CharStats.Appearance;
-
-                                                        // spawn point
-                                                        Map map;
-                                                        lock (map = World.GetMap(Maps.MapID, newChar.MapID))
-                                                        {
+                                                // get the spawn point
+                                                var map = World.GetMap(Maps.MapID, chara.MapID);
 #warning FIXME Supports currently Outposts (and PvE) zones only
-                                                                MapSpawn spawn;
-                                                                var spawnEnum = from s in map.Spawns.Values
-                                                                             where s.IsOutpost && s.IsPvE
-                                                                             select s;
+                                                MapSpawn spawn;
+                                                var spawnEnum = from s in map.Spawns.Values
+                                                                where s.IsOutpost && s.IsPvE
+                                                                select s;
 
-                                                                if (spawnEnum.Count() == 0)
-                                                                {
-                                                                        spawn = new MapSpawn
-                                                                                        {
-                                                                                                SpawnX = 1F,
-                                                                                                SpawnY = 1F,
-                                                                                                SpawnPlane = 0
-                                                                                        };
-                                                                }
-                                                                else
-                                                                {
-                                                                        spawn = spawnEnum.First();
-                                                                }
-
-                                                                newChar.CharStats.Position.X = spawn.SpawnX;
-                                                                newChar.CharStats.Position.Y = spawn.SpawnY;
-                                                                newChar.CharStats.Position.PlaneZ = spawn.SpawnPlane;
-                                                                newChar.CharStats.Direction = new GWVector(0, 0, 0);
-                                                                newChar.CharStats.MoveState = MovementState.NotMovingHandled;
-                                                                newChar.CharStats.IsRotating = false;
-                                                        }
-
-                                                        newChar.CharStats.Rotation = BitConverter.ToSingle(new byte[] { 0xB6, 0xC0, 0x4F, 0xBF }, 0);
-                                                        newChar.CharStats.Speed = 288F;
-
-                                                        newChar.ChatPrefix = chara.ChatPrefix;
-                                                        newChar.ChatColor = chara.ChatColor;
-                                                        newChar.Commands = chara.Commands;
-
+                                                if (spawnEnum.Count() == 0)
+                                                {
+                                                        spawn = new MapSpawn
+                                                        {
+                                                                SpawnX = 1F,
+                                                                SpawnY = 1F,
+                                                                SpawnPlane = 0
+                                                        };
                                                 }
+                                                else
+                                                {
+                                                        spawn = spawnEnum.First();
+                                                }
+
+                                                // create the character object
+                                                var newChar = new Character(
+                                                        (int)newClient[Clients.CharID],
+                                                        (int)newClient[Clients.AccID],
+                                                        (int)newClient[Clients.NetID],
+                                                        localID,
+                                                        agentID,
+                                                        (string)chara[Chars.Name])
+                                                {
+                                                        MapID = newClient.MapID,
+                                                        IsAtOutpost = chara.IsAtOutpost,
+                                                        LastHeartBeat = DateTime.Now,
+                                                        PingTime = DateTime.Now,
+                                                        CharStats = new CharacterStats()
+                                                                {
+                                                                        ProfessionPrimary = chara.CharStats.ProfessionPrimary,
+                                                                        ProfessionSecondary = chara.CharStats.ProfessionSecondary,
+                                                                        Level = chara.CharStats.Level,
+                                                                        Morale = 100,
+                                                                        SkillBar = chara.CharStats.SkillBar,
+                                                                        UnlockedSkills = chara.CharStats.UnlockedSkills,
+                                                                        AttPtsFree = chara.CharStats.AttPtsFree,
+                                                                        AttPtsTotal = chara.CharStats.AttPtsTotal,
+                                                                        SkillPtsFree = chara.CharStats.SkillPtsFree,
+                                                                        SkillPtsTotal = chara.CharStats.SkillPtsTotal,
+                                                                        Appearance = chara.CharStats.Appearance,
+                                                                        Position = {X = spawn.SpawnX, Y = spawn.SpawnY, PlaneZ = spawn.SpawnPlane},
+                                                                        Direction = new GWVector(0, 0, 0),
+                                                                        MoveState = MovementState.NotMoving,
+                                                                        IsRotating = false,
+                                                                        Rotation = BitConverter.ToSingle(new byte[] { 0xB6, 0xC0, 0x4F, 0xBF }, 0),
+                                                                        Speed = 288F,
+                                                                        ChatPrefix = chara.CharStats.ChatPrefix,
+                                                                        ChatColor = chara.CharStats.ChatColor,
+                                                                        Commands = chara.CharStats.Commands,
+                                                                }
+                                                };
+                                                
                                                 // add the char
                                                 World.UpdateChar(chara , newChar);
 
@@ -161,92 +154,88 @@ namespace GameServer.Packets.FromClient
                                 }
                         }
 
+                        // refresh client and character
                         client = World.GetClient(Clients.NetID, message.NetID);
-                        lock (client)
-                        {
-                                var chara = World.GetCharacter(Chars.NetID, message.NetID);
-                                lock (chara)
-                                {
-                                        if (client.Status == SyncState.ConnectionEstablished)
-                                        {
-                                                client.InitCryptSeed = ((PacketSt16896)message.PacketTemplate).Seed;
-
-                                                // send server seed:
-                                                //
-                                                var msg = new NetworkMessage(message.NetID);
-                                                // set the message type
-                                                msg.PacketTemplate = new NotEncP5633_ServerSeed.PacketSt5633();
-                                                // set the message data
-                                                ((NotEncP5633_ServerSeed.PacketSt5633)msg.PacketTemplate).Seed = new byte[20];
-                                                // send it
-                                                QueuingService.PostProcessingQueue.Enqueue(msg);
-
-                                                client.Status = SyncState.TriesToLoadInstance;
-
-                                                // send first instance load packets
-                                                bool isOutpost = chara.IsAtOutpost;
-
-                                                // Note: INSTANCE LOAD HEADER
-                                                var ilHeader = new NetworkMessage(message.NetID);
-                                                ilHeader.PacketTemplate = new P370_InstanceLoadHead.PacketSt370();
-                                                // data
-                                                if (isOutpost)
-                                                {
-                                                        ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data1 = 0x3F;
-                                                        ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data2 = 0x3F;
-                                                }
-                                                else
-                                                {
-                                                        ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data1 = 0x1F;
-                                                        ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data2 = 0x1F;
-                                                }
-                                                ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data3 = 0x00;
-                                                ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data4 = 0x00;
-                                                // send it
-                                                QueuingService.PostProcessingQueue.Enqueue(ilHeader);
-
-                                                // Note: INSTANCE LOAD CHAR NAME
-                                                var ilChar = new NetworkMessage(message.NetID);
-                                                ilChar.PacketTemplate = new P371_InstanceLoadCharName.PacketSt371();
-                                                // data
-                                                ((P371_InstanceLoadCharName.PacketSt371)ilChar.PacketTemplate).CharName = (string)chara[Chars.Name];
-                                                // send it
-                                                QueuingService.PostProcessingQueue.Enqueue(ilChar);
-
-                                                // Note: INSTANCE LOAD DISTRICT INFO
-                                                var ilDInfo = new NetworkMessage(message.NetID);
-                                                ilDInfo.PacketTemplate = new P395_InstanceLoadDistrictInfo.PacketSt395();
-                                                // data
-                                                ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).LocalID = (uint)(int)chara[Chars.LocalID];
-                                                var gameMapID = (int)World.GetMap(Maps.MapID, chara.MapID)[Maps.GameMapID];
-                                                ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).GameMapID = (ushort)gameMapID;
-                                                if (isOutpost)
-                                                {
-                                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).DistrictNumber = 1;
-                                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).DistrictRegion = 0;
-                                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).IsOutpost = 0;
-                                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).ObserverMode = 0;
-                                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).Data1 = 0;
-                                                }
-                                                else
-                                                {
-                                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).DistrictNumber = 0;
-                                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).DistrictRegion = 0;
-                                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).IsOutpost = 1;
-                                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).ObserverMode = 0;
-                                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).Data1 = 3;
-                                                }
-                                                // send it
-                                                QueuingService.PostProcessingQueue.Enqueue(ilDInfo);
-
-
-                                                return true;
-                                        }
-                                        // if the client is in any different sync state, kick it
-                                        World.KickClient(Clients.NetID, message.NetID);
-                                }
-                        }
+                        chara = World.GetCharacter(Chars.CharID, client[Clients.CharID]);
                         
+                        if (client.Status == SyncState.ConnectionEstablished)
+                        {
+                                client.InitCryptSeed = ((PacketSt16896)message.PacketTemplate).Seed;
+
+                                // send server seed:
+                                //
+                                var msg = new NetworkMessage(message.NetID);
+                                // set the message type
+                                msg.PacketTemplate = new NotEncP5633_ServerSeed.PacketSt5633();
+                                // set the message data
+                                ((NotEncP5633_ServerSeed.PacketSt5633)msg.PacketTemplate).Seed = new byte[20];
+                                // send it
+                                QueuingService.PostProcessingQueue.Enqueue(msg);
+
+                                client.Status = SyncState.TriesToLoadInstance;
+
+                                // send first instance load packets
+                                bool isOutpost = chara.IsAtOutpost;
+
+                                // Note: INSTANCE LOAD HEADER
+                                var ilHeader = new NetworkMessage(message.NetID);
+                                ilHeader.PacketTemplate = new P370_InstanceLoadHead.PacketSt370();
+                                // data
+                                if (isOutpost)
+                                {
+                                        ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data1 = 0x3F;
+                                        ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data2 = 0x3F;
+                                }
+                                else
+                                {
+                                        ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data1 = 0x1F;
+                                        ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data2 = 0x1F;
+                                }
+                                ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data3 = 0x00;
+                                ((P370_InstanceLoadHead.PacketSt370)ilHeader.PacketTemplate).Data4 = 0x00;
+                                // send it
+                                QueuingService.PostProcessingQueue.Enqueue(ilHeader);
+
+                                // Note: INSTANCE LOAD CHAR NAME
+                                var ilChar = new NetworkMessage(message.NetID);
+                                ilChar.PacketTemplate = new P371_InstanceLoadCharName.PacketSt371();
+                                // data
+                                ((P371_InstanceLoadCharName.PacketSt371)ilChar.PacketTemplate).CharName = (string)chara[Chars.Name];
+                                // send it
+                                QueuingService.PostProcessingQueue.Enqueue(ilChar);
+
+                                // Note: INSTANCE LOAD DISTRICT INFO
+                                var ilDInfo = new NetworkMessage(message.NetID);
+                                ilDInfo.PacketTemplate = new P395_InstanceLoadDistrictInfo.PacketSt395();
+                                // data
+                                ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).LocalID = (uint)(int)chara[Chars.LocalID];
+                                var gameMapID = (int)World.GetMap(Maps.MapID, chara.MapID)[Maps.GameMapID];
+                                ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).GameMapID = (ushort)gameMapID;
+                                if (isOutpost)
+                                {
+                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).DistrictNumber = 1;
+                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).DistrictRegion = 0;
+                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).IsOutpost = 0;
+                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).ObserverMode = 0;
+                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).Data1 = 0;
+                                }
+                                else
+                                {
+                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).DistrictNumber = 0;
+                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).DistrictRegion = 0;
+                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).IsOutpost = 1;
+                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).ObserverMode = 0;
+                                        ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).Data1 = 3;
+                                }
+                                // send it
+                                QueuingService.PostProcessingQueue.Enqueue(ilDInfo);
+
+
+                                return true;
+                        }
+                        // if the client is in any different sync state, kick it
+                        World.KickClient(Clients.NetID, message.NetID);
+                                
                         return true;
                 }
 

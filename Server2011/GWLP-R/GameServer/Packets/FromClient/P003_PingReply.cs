@@ -30,16 +30,15 @@ namespace GameServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt3();
                         pParser((PacketSt3)message.PacketTemplate, message.PacketData);
 
-                        Character chara;
-                        lock (chara = World.GetCharacter(Chars.NetID, message.NetID))
+                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        
+                        var chatMsg = new NetworkMessage(message.NetID);
+                        chatMsg.PacketTemplate = new P002_PingReply.PacketSt2()
                         {
-                                var chatMsg = new NetworkMessage(message.NetID);
-                                chatMsg.PacketTemplate = new P002_PingReply.PacketSt2()
-                                {
-                                        Data1 = (uint)DateTime.Now.Subtract(chara.PingTime).TotalMilliseconds
-                                };
-                                QueuingService.PostProcessingQueue.Enqueue(chatMsg);
-                        }
+                                Data1 = (uint)DateTime.Now.Subtract(chara.PingTime).TotalMilliseconds
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(chatMsg);
+                        
 
                         return true;
                 }

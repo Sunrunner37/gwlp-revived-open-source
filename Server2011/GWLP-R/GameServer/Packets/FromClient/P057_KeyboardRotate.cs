@@ -31,23 +31,22 @@ namespace GameServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt57();
                         pParser((PacketSt57)message.PacketTemplate, message.PacketData);
 
-                        Character chara;
-                        lock (chara = World.GetCharacter(Chars.NetID, message.NetID))
+                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        
+                        chara.CharStats.Rotation = ((PacketSt57)message.PacketTemplate).Rotation;
+
+                        if (((PacketSt57) message.PacketTemplate).Rotation == float.PositiveInfinity)
                         {
-                                chara.CharStats.Rotation = ((PacketSt57)message.PacketTemplate).Rotation;
-
-                                if (((PacketSt57) message.PacketTemplate).Rotation == float.PositiveInfinity)
-                                {
-                                        chara.CharStats.IsRotating = true;
-                                }
-                                else
-                                {
-                                        chara.CharStats.IsRotating = false;
-                                }
-
-                                var action = new RotatePlayer((int) chara[Chars.CharID]);
-                                World.GetMap(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
+                                chara.CharStats.IsRotating = true;
                         }
+                        else
+                        {
+                                chara.CharStats.IsRotating = false;
+                        }
+
+                        var action = new RotatePlayer((int) chara[Chars.CharID]);
+                        World.GetMap(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
+                        
 
                         return true;
                 }

@@ -14,7 +14,19 @@ namespace GameServer.ServerData
                         Position = new GWVector(0, 0, 0);
                         LastValidPosition = Position.Clone();
                         Direction = new GWVector(0, 0, 0);
+                        SpeedModifier = 1F;
+                        Commands = new Dictionary<string, bool>();
                 }
+
+                public Dictionary<string, bool> Commands { get; set; }
+
+                public string ChatPrefix { get; set; }
+                public byte ChatColor { get; set; }
+
+                public int AttPtsFree { get; set; }
+                public int AttPtsTotal { get; set; }
+                public int SkillPtsFree { get; set; }
+                public int SkillPtsTotal { get; set; }
 
                 public byte[] Appearance { get; set; }
 
@@ -46,6 +58,10 @@ namespace GameServer.ServerData
                 public int MoveType { get; set; }
 
                 public float Speed { get; set; }
+                /// <summary>
+                ///  Used with movement
+                /// </summary>
+                public float SpeedModifier { get; set; }
                 public float Rotation { get; set; }
                 public bool IsRotating { get; set; }
         }

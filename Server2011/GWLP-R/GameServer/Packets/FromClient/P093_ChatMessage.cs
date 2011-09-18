@@ -32,12 +32,11 @@ namespace GameServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt93();
                         pParser((PacketSt93)message.PacketTemplate, message.PacketData);
 
-                        Character chara;
-                        lock (chara = World.GetCharacter(Chars.NetID, message.NetID))
-                        {
-                                var action = new ChatMessage((int) chara[Chars.CharID], ((PacketSt93)message.PacketTemplate).Message);
-                                World.GetMap(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
-                        }
+                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        
+                        var action = new ChatMessage((int) chara[Chars.CharID], ((PacketSt93)message.PacketTemplate).Message);
+                        World.GetMap(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
+                        
                         return true;
                 }
 

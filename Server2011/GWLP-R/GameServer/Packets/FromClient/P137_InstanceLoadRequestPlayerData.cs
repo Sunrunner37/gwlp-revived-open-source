@@ -68,158 +68,154 @@ namespace GameServer.Packets.FromClient
                         //QueuingService.PostProcessingQueue.Enqueue(zdHead);
 
                         // Note: Char specific packets
-                        Character chara;
-                        lock (chara = World.GetCharacter(Chars.NetID, message.NetID))
-                        {
-                                // Note: ZONE DATA BEGIN CHAR INFO
-                                var charInfo = new NetworkMessage(message.NetID);
-                                charInfo.PacketTemplate = new P230_ZoneDataBeginCharInfo.PacketSt230()
-                                                                  {
-                                                                          Data1 = 1886151033 //"yalp"
-                                                                  };
-                                QueuingService.PostProcessingQueue.Enqueue(charInfo);
+                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        
+                        // Note: ZONE DATA BEGIN CHAR INFO
+                        var charInfo = new NetworkMessage(message.NetID);
+                        charInfo.PacketTemplate = new P230_ZoneDataBeginCharInfo.PacketSt230()
+                                                                {
+                                                                        Data1 = 1886151033 //"yalp"
+                                                                };
+                        QueuingService.PostProcessingQueue.Enqueue(charInfo);
 
-                                // Note: UPDATE FREE ATTRIB PTS
-                                var attPts = new NetworkMessage(message.NetID);
-                                attPts.PacketTemplate = new P044_UpdateAttribPts.PacketSt44()
+                        // Note: UPDATE FREE ATTRIB PTS
+                        var attPts = new NetworkMessage(message.NetID);
+                        attPts.PacketTemplate = new P044_UpdateAttribPts.PacketSt44()
+                                                        {
+                                                                ID1 = (uint)(int)chara[Chars.AgentID],
+                                                                FreePts = (byte)chara.CharStats.AttPtsFree,
+                                                                MaxPts = (byte)chara.CharStats.AttPtsTotal
+                                                        };
+                        QueuingService.PostProcessingQueue.Enqueue(attPts);
+
+                        // Note: UPDATE PRIV PROF
+                        var professions = new NetworkMessage(message.NetID);
+                        professions.PacketTemplate = new P171_UpdatePrivProfessions.PacketSt171()
                                                                 {
                                                                         ID1 = (uint)(int)chara[Chars.AgentID],
-                                                                        FreePts = (byte)chara.AttPtsFree,
-                                                                        MaxPts = (byte)chara.AttPtsTotal
+                                                                        Prof1 = chara.CharStats.ProfessionPrimary,
+                                                                        Prof2 = chara.CharStats.ProfessionSecondary,
+                                                                        Data3 = 0
                                                                 };
-                                QueuingService.PostProcessingQueue.Enqueue(attPts);
+                        QueuingService.PostProcessingQueue.Enqueue(professions);
 
-                                // Note: UPDATE PRIV PROF
-                                var professions = new NetworkMessage(message.NetID);
-                                professions.PacketTemplate = new P171_UpdatePrivProfessions.PacketSt171()
-                                                                     {
-                                                                             ID1 = (uint)(int)chara[Chars.AgentID],
-                                                                             Prof1 = chara.CharStats.ProfessionPrimary,
-                                                                             Prof2 = chara.CharStats.ProfessionSecondary,
-                                                                             Data3 = 0
-                                                                     };
-                                QueuingService.PostProcessingQueue.Enqueue(professions);
+                        // Note: UPDATE SKILL BAR
+                        var skillbar = new NetworkMessage(message.NetID);
+                        skillbar.PacketTemplate = new P206_UpdateSkillBar.PacketSt206()
+                                                                {
+                                                                        ID1 = (uint)(int)chara[Chars.AgentID],
+                                                                        ArraySize1 = 8,
+                                                                        SkillBar = new uint[8],
+                                                                        ArraySize2 = 8,
+                                                                        SkillBarPvPMask = new uint[8],
+                                                                        Data3 = 1
+                                                                };
+                        QueuingService.PostProcessingQueue.Enqueue(skillbar);
 
-                                // Note: UPDATE SKILL BAR
-                                var skillbar = new NetworkMessage(message.NetID);
-                                skillbar.PacketTemplate = new P206_UpdateSkillBar.PacketSt206()
-                                                                  {
-                                                                          ID1 = (uint)(int)chara[Chars.AgentID],
-                                                                          ArraySize1 = 8,
-                                                                          SkillBar = new uint[8],
-                                                                          ArraySize2 = 8,
-                                                                          SkillBarPvPMask = new uint[8],
-                                                                          Data3 = 1
-                                                                  };
-                                QueuingService.PostProcessingQueue.Enqueue(skillbar);
+                        // Note: UPDATE GENERICVALUE ENERGY
+                        var genEne = new NetworkMessage(message.NetID);
+                        genEne.PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147()
+                                                        {
+                                                                ID1 =
+                                                                        (uint)
+                                                                        (int)
+                                                                        chara[Chars.AgentID],
+                                                                ValueID = (int)GenericValues.Energy,
+                                                                Value = (ushort)chara.CharStats.Energy
+                                                        };
+                        QueuingService.PostProcessingQueue.Enqueue(genEne);
 
-                                // Note: UPDATE GENERICVALUE ENERGY
-                                var genEne = new NetworkMessage(message.NetID);
-                                genEne.PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147()
+                        // Note: UPDATE GENERICVALUE ENERGYREGEN
+                        var genEneReg = new NetworkMessage(message.NetID);
+                        genEneReg.PacketTemplate = new P150_UpdateGenericValueFloat.PacketSt150()
                                                                 {
                                                                         ID1 =
                                                                                 (uint)
                                                                                 (int)
                                                                                 chara[Chars.AgentID],
-                                                                        ValueID = (int)GenericValues.Energy,
-                                                                        Value = (ushort)chara.CharStats.Energy
+                                                                        ValueID = (int)GenericValues.EnergyRegen,
+                                                                        Value = chara.CharStats.EnergyRegen
                                                                 };
-                                QueuingService.PostProcessingQueue.Enqueue(genEne);
+                        QueuingService.PostProcessingQueue.Enqueue(genEneReg);
 
-                                // Note: UPDATE GENERICVALUE ENERGYREGEN
-                                var genEneReg = new NetworkMessage(message.NetID);
-                                genEneReg.PacketTemplate = new P150_UpdateGenericValueFloat.PacketSt150()
-                                                                   {
-                                                                           ID1 =
-                                                                                   (uint)
-                                                                                   (int)
-                                                                                   chara[Chars.AgentID],
-                                                                           ValueID = (int)GenericValues.EnergyRegen,
-                                                                           Value = chara.CharStats.EnergyRegen
-                                                                   };
-                                QueuingService.PostProcessingQueue.Enqueue(genEneReg);
+                        // Note: UPDATE GENERICVALUE HEALTH
+                        var genHea = new NetworkMessage(message.NetID);
+                        genHea.PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147()
+                                                        {
+                                                                ID1 =
+                                                                        (uint)
+                                                                        (int)
+                                                                        chara[Chars.AgentID],
+                                                                ValueID = (int)GenericValues.Health,
+                                                                Value = (ushort)chara.CharStats.Health
+                                                        };
+                        QueuingService.PostProcessingQueue.Enqueue(genHea);
 
-                                // Note: UPDATE GENERICVALUE HEALTH
-                                var genHea = new NetworkMessage(message.NetID);
-                                genHea.PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147()
+                        // Note: UPDATE GENERICVALUE HEALTH REGEN
+                        var genHeaReg = new NetworkMessage(message.NetID);
+                        genHeaReg.PacketTemplate = new P150_UpdateGenericValueFloat.PacketSt150()
                                                                 {
-                                                                        ID1 =
-                                                                                (uint)
-                                                                                (int)
-                                                                                chara[Chars.AgentID],
-                                                                        ValueID = (int)GenericValues.Health,
-                                                                        Value = (ushort)chara.CharStats.Health
+                                                                        ID1 = (uint)(int)chara[Chars.AgentID],
+                                                                        ValueID = (int)GenericValues.HealthRegen,
+                                                                        Value = chara.CharStats.HealthRegen
                                                                 };
-                                QueuingService.PostProcessingQueue.Enqueue(genHea);
+                        QueuingService.PostProcessingQueue.Enqueue(genHeaReg);
 
-                                // Note: UPDATE GENERICVALUE HEALTH REGEN
-                                var genHeaReg = new NetworkMessage(message.NetID);
-                                genHeaReg.PacketTemplate = new P150_UpdateGenericValueFloat.PacketSt150()
-                                                                   {
-                                                                           ID1 = (uint)(int)chara[Chars.AgentID],
-                                                                           ValueID = (int)GenericValues.HealthRegen,
-                                                                           Value = chara.CharStats.HealthRegen
-                                                                   };
-                                QueuingService.PostProcessingQueue.Enqueue(genHeaReg);
+                        // Note: PREPARE MAP DATA
+                        var prepMap = new NetworkMessage(message.NetID);
+                        prepMap.PacketTemplate = new P127_ZoneDataPrepMapData.PacketSt127()
+                                                                {
+                                                                        Data1 = 64,
+                                                                        Data2 = 128,
+                                                                        Data3 = 27
+                                                                };
+                        QueuingService.PostProcessingQueue.Enqueue(prepMap);
 
-                                // Note: PREPARE MAP DATA
-                                var prepMap = new NetworkMessage(message.NetID);
-                                prepMap.PacketTemplate = new P127_ZoneDataPrepMapData.PacketSt127()
-                                                                 {
-                                                                         Data1 = 64,
-                                                                         Data2 = 128,
-                                                                         Data3 = 27
-                                                                 };
-                                QueuingService.PostProcessingQueue.Enqueue(prepMap);
+                        // Note: MAP DATA (exploration! this is empty)
+                        var mapData = new NetworkMessage(message.NetID);
+                        mapData.PacketTemplate = new P126_ZoneDataMapData.PacketSt126()
+                                                                {
+                                                                        ArraySize1 = 7,
+                                                                        Data1 = new byte[] 
+                                                                        {	
+                                                                        0x00, 0x00, 0x0B, 0x00, 0xFF, 0xFF, 0x54, 0x03, 
+                                                                        0x3B, 0x04, 0x3A, 0x04, 0x3A, 0x04, 0xE8, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17,
+                                                                        }
+                                                                };
+                        QueuingService.PostProcessingQueue.Enqueue(mapData);
 
-                                // Note: MAP DATA (exploration! this is empty)
-                                var mapData = new NetworkMessage(message.NetID);
-                                mapData.PacketTemplate = new P126_ZoneDataMapData.PacketSt126()
-                                                                 {
-                                                                         ArraySize1 = 7,
-                                                                         Data1 = new byte[] 
-                                                                         {	
-                                                                                0x00, 0x00, 0x0B, 0x00, 0xFF, 0xFF, 0x54, 0x03, 
-                                                                                0x3B, 0x04, 0x3A, 0x04, 0x3A, 0x04, 0xE8, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17,
-                                                                         }
-                                                                 };
-                                QueuingService.PostProcessingQueue.Enqueue(mapData);
+                        // Note: UPDATE FACTION PTS
+                        var faction = new NetworkMessage(message.NetID);
+                        faction.PacketTemplate = new P221_UpdateFactionPts.PacketSt221()
+                                                                {
+                                                                        KurzFree = 0,
+                                                                        KurzTotal = 0,
+                                                                        LuxFree = 0,
+                                                                        LuxTotal = 0,
+                                                                        ImpFree = 0,
+                                                                        ImpTotal = 0,
+                                                                        BalthFree = 0,
+                                                                        BalthTotal = 0,
+                                                                        Level = (ushort)chara.CharStats.Level,
+                                                                        Morale = 100,
+                                                                        Data1 = 0,
+                                                                        Data2 = 0
+                                                                };
+                        QueuingService.PostProcessingQueue.Enqueue(faction);
 
-                                // Note: UPDATE FACTION PTS
-                                var faction = new NetworkMessage(message.NetID);
-                                faction.PacketTemplate = new P221_UpdateFactionPts.PacketSt221()
-                                                                 {
-                                                                         KurzFree = 0,
-                                                                         KurzTotal = 0,
-                                                                         LuxFree = 0,
-                                                                         LuxTotal = 0,
-                                                                         ImpFree = 0,
-                                                                         ImpTotal = 0,
-                                                                         BalthFree = 0,
-                                                                         BalthTotal = 0,
-                                                                         Level = (ushort)chara.CharStats.Level,
-                                                                         Morale = 100,
-                                                                         Data1 = 0,
-                                                                         Data2 = 0
-                                                                 };
-                                QueuingService.PostProcessingQueue.Enqueue(faction);
+                        // Note: UPDATE AVAILABLE SKILLS
+                        var ulockSkills = new NetworkMessage(message.NetID);
+                        ulockSkills.PacketTemplate = new P207_UpdateAvailableSkills.PacketSt207()
+                                                                {
+                                                                        // ar size is actually for an UInt32[], so this has to be /4
+                                                                        ArraySize1 = (ushort)Math.Round((double)chara.CharStats.UnlockedSkills.Length / 4),
+                                                                        SkillsBitfield = chara.CharStats.UnlockedSkills
+                                                                };
+                        QueuingService.PostProcessingQueue.Enqueue(ulockSkills);
 
-                                // Note: UPDATE AVAILABLE SKILLS
-                                var ulockSkills = new NetworkMessage(message.NetID);
-                                ulockSkills.PacketTemplate = new P207_UpdateAvailableSkills.PacketSt207()
-                                                                     {
-                                                                             // ar size is actually for an UInt32[], so this has to be /4
-                                                                             ArraySize1 = (ushort)Math.Round((double)chara.CharStats.UnlockedSkills.Length / 4),
-                                                                             SkillsBitfield = chara.CharStats.UnlockedSkills
-                                                                     };
-                                QueuingService.PostProcessingQueue.Enqueue(ulockSkills);
-
-                                var action = new SpawnPlayer((int)chara[Chars.CharID]);
-                                World.GetMap(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
-
-                                
-                        }
+                        var action = new SpawnPlayer((int)chara[Chars.CharID]);
+                        World.GetMap(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
 
                         return true;
                 }

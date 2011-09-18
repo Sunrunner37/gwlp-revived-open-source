@@ -7,9 +7,9 @@ namespace GameServer.Enums
 {
         public enum MovementState
         {
-                NotMovingHandled,
-                MovingUnhandled,
-                MovingHandled,
+                NotMoving,
+                MoveChangeDir,
+                MoveKeepDir,
                 NotMovingUnhandled
         }
 
@@ -24,7 +24,6 @@ namespace GameServer.Enums
                 SideLeft = 7,
                 SideRight = 8,
                 Stop = 9,
-                FwCollision = 10,
-                DgCollision = 11,
+                Collision = 10,
         }
 }

@@ -67,11 +67,9 @@ namespace GameServer.Commands
                                 QueuingService.PostProcessingQueue.Enqueue(chatMsg);
 
                                 // free the agent ids
-                                Character chara;
-                                lock (chara = World.GetCharacter(Chars.CharID, newCharID))
-                                {
-                                        World.UnRegisterCharacterIDs((int)chara[Chars.LocalID], (int)chara[Chars.AgentID], (int)oldMap[Maps.MapID]);
-                                }
+                                var chara = World.GetCharacter(Chars.CharID, newCharID);
+                                
+                                 World.UnRegisterCharacterIDs((int)chara[Chars.LocalID], (int)chara[Chars.AgentID], (int)oldMap[Maps.MapID]);
                         }
                 }
         }

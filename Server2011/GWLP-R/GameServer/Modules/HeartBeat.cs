@@ -24,23 +24,22 @@ namespace GameServer.Modules
                                 var chara = World.GetCharacter(Chars.CharID, charID);
                                 if (chara != null)
                                 {
-                                        lock (chara)
+
+                                        var diff = DateTime.Now.Subtract(chara.LastHeartBeat).TotalMilliseconds;
+
+                                        if (diff > 500)
                                         {
-                                                var diff = DateTime.Now.Subtract(chara.LastHeartBeat).TotalMilliseconds;
-
-                                                if (diff > 500)
+                                                // Note: HEARTBEAT
+                                                var heartBeat = new NetworkMessage((int) chara[Chars.NetID]);
+                                                heartBeat.PacketTemplate = new P019_Heartbeat.PacketSt19()
                                                 {
-                                                        // Note: HEARTBEAT
-                                                        var heartBeat = new NetworkMessage((int) chara[Chars.NetID]);
-                                                        heartBeat.PacketTemplate = new P019_Heartbeat.PacketSt19()
-                                                                                           {
-                                                                                                   Data1 = (uint) diff
-                                                                                           };
-                                                        QueuingService.PostProcessingQueue.Enqueue(heartBeat);
+                                                        Data1 = (uint) diff
+                                                };
+                                                QueuingService.PostProcessingQueue.Enqueue(heartBeat);
 
-                                                        chara.LastHeartBeat = DateTime.Now;
-                                                }
+                                                chara.LastHeartBeat = DateTime.Now;
                                         }
+                                        
                                 }
                         }
                 }

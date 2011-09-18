@@ -32,16 +32,14 @@ namespace GameServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt64();
                         pParser((PacketSt64)message.PacketTemplate, message.PacketData);
 
-                        Character chara;
-                        lock (chara = World.GetCharacter(Chars.NetID, message.NetID))
-                        {
-                                chara.CharStats.Position = new GWVector(
-                                        ((PacketSt64)message.PacketTemplate).X,
-                                        ((PacketSt64)message.PacketTemplate).Y,
-                                        (int)((PacketSt64)message.PacketTemplate).Plane);
+                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        
+                        chara.CharStats.Position = new GWVector(
+                                ((PacketSt64)message.PacketTemplate).X,
+                                ((PacketSt64)message.PacketTemplate).Y,
+                                (int)((PacketSt64)message.PacketTemplate).Plane);
 
-                                chara.CharStats.MoveState = MovementState.NotMovingUnhandled;
-                        }
+                        chara.CharStats.MoveState = MovementState.NotMovingUnhandled;
 
                         return true;
                 }

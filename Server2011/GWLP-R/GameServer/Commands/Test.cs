@@ -89,43 +89,40 @@ namespace GameServer.Commands
                         //packet350.PacketData = new MemoryStream(rawData);
                         //QueuingService.NetOutQueue.Enqueue(packet350);
 
-                        Character chara;
-                        lock (chara = World.GetCharacter(Chars.NetID, netID))
-                        {
-                                var posX = BitConverter.GetBytes(chara.CharStats.Position.X);
-                                var posY = BitConverter.GetBytes(chara.CharStats.Position.Y);
-                                var plane = BitConverter.GetBytes(chara.CharStats.Position.PlaneZ);
+                        var chara = World.GetCharacter(Chars.NetID, netID);
 
-                                var packet21 = new NetworkMessage(netID);
-                                rawData = new byte[]{
-                                        0x15, 0x00, 
-                                        0x66, 0x00, 0x00, 0x00, 
-                                        0xA2, 0x03, 0x00, 0x00, //1d01
-                                        0x04, 
-                                        0x00, 
-                                        posX[0], posX[1],posX[2], posX[3], 
-                                        posY[0], posY[1],posY[2], posY[3], 
-                                        plane[0], plane[1], 
-                                        0x00, 0x00, 0x80, 0x3F, 
-                                        0x00, 0x00, 0x00, 0x00, 
-                                        0x01, 0x00, 0x00, 0x00, 
-                                        0x00, 
-                                        0x00, 0x00, 0x80, 0x3F, 
-                                        0x00, 0x00, 0x00, 0x34, 
-                                        0x00, 0x00, 0x00, 0x00, 0x00, 
-                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                        0x00, 0x00, 0x00, 
-                                        0x00, 0x00, 0x80, 0x7F, 
-                                        0x00, 0x00, 0x80, 0x7F, 
-                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                        0x00, 0x00, 0x80, 0x7F, 
-                                        0x00, 0x00, 0x80, 0x7F, 
-                                        0x00, 0x00, };
-                                packet21.PacketData = new MemoryStream(rawData);
-                                QueuingService.NetOutQueue.Enqueue(packet21);
-                        }
+                        var posX = BitConverter.GetBytes(chara.CharStats.Position.X);
+                        var posY = BitConverter.GetBytes(chara.CharStats.Position.Y);
+                        var plane = BitConverter.GetBytes(chara.CharStats.Position.PlaneZ);
 
+                        var packet21 = new NetworkMessage(netID);
+                        rawData = new byte[]{
+                                0x15, 0x00, 
+                                0x66, 0x00, 0x00, 0x00, 
+                                0xA2, 0x03, 0x00, 0x00, //1d01
+                                0x04, 
+                                0x00, 
+                                posX[0], posX[1],posX[2], posX[3], 
+                                posY[0], posY[1],posY[2], posY[3], 
+                                plane[0], plane[1], 
+                                0x00, 0x00, 0x80, 0x3F, 
+                                0x00, 0x00, 0x00, 0x00, 
+                                0x01, 0x00, 0x00, 0x00, 
+                                0x00, 
+                                0x00, 0x00, 0x80, 0x3F, 
+                                0x00, 0x00, 0x00, 0x34, 
+                                0x00, 0x00, 0x00, 0x00, 0x00, 
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                0x00, 0x00, 0x00, 
+                                0x00, 0x00, 0x80, 0x7F, 
+                                0x00, 0x00, 0x80, 0x7F, 
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                0x00, 0x00, 0x80, 0x7F, 
+                                0x00, 0x00, 0x80, 0x7F, 
+                                0x00, 0x00, };
+                        packet21.PacketData = new MemoryStream(rawData);
+                        QueuingService.NetOutQueue.Enqueue(packet21);
                 }
         }
 }

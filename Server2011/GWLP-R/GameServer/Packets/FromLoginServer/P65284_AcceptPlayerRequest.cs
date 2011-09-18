@@ -44,13 +44,12 @@ namespace GameServer.Packets.FromLoginServer
 
                         World.AddClient(newClient);
 
-                        lock (newClient)
-                        {
-                                // response
-                                var reply = new NetworkMessage(message.NetID) { PacketTemplate = new P65284_AcceptPlayerReply.PacketSt65284() };
-                                ((P65284_AcceptPlayerReply.PacketSt65284)reply.PacketTemplate).AccID = (UInt32)((int)newClient[Clients.AccID]);
-                                QueuingService.PostProcessingQueue.Enqueue(reply);
-                        }
+
+                        // response
+                        var reply = new NetworkMessage(message.NetID) { PacketTemplate = new P65284_AcceptPlayerReply.PacketSt65284() };
+                        ((P65284_AcceptPlayerReply.PacketSt65284)reply.PacketTemplate).AccID = (UInt32)((int)newClient[Clients.AccID]);
+                        QueuingService.PostProcessingQueue.Enqueue(reply);
+                        
 
                         return true;
                 }

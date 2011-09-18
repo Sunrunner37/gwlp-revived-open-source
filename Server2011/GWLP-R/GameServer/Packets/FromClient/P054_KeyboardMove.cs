@@ -35,23 +35,22 @@ namespace GameServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt54();
                         pParser((PacketSt54)message.PacketTemplate, message.PacketData);
 
-                        Character chara;
-                        lock (chara = World.GetCharacter(Chars.NetID, message.NetID))
-                        {
-                                chara.CharStats.Position = new GWVector(
-                                        ((PacketSt54) message.PacketTemplate).X,
-                                        ((PacketSt54) message.PacketTemplate).Y,
-                                        (int)((PacketSt54) message.PacketTemplate).Plane);
+                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        
+                        chara.CharStats.Position = new GWVector(
+                                ((PacketSt54) message.PacketTemplate).X,
+                                ((PacketSt54) message.PacketTemplate).Y,
+                                (int)((PacketSt54) message.PacketTemplate).Plane);
 
-                                chara.CharStats.Direction = new GWVector(
-                                        ((PacketSt54)message.PacketTemplate).DirX,
-                                        ((PacketSt54)message.PacketTemplate).DirY,
-                                        0);
+                        chara.CharStats.Direction = new GWVector(
+                                ((PacketSt54)message.PacketTemplate).DirX,
+                                ((PacketSt54)message.PacketTemplate).DirY,
+                                0);
 
-                                chara.CharStats.MoveType = (int)((PacketSt54) message.PacketTemplate).Type;
+                        chara.CharStats.MoveType = (int)((PacketSt54) message.PacketTemplate).Type;
 
-                                chara.CharStats.MoveState = MovementState.MovingUnhandled;
-                        }
+                        chara.CharStats.MoveState = MovementState.MoveChangeDir;
+                        
 
                         return true;
                 }

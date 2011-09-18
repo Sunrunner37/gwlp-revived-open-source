@@ -168,61 +168,58 @@ namespace GameServer.Modules
                 {
                         foreach (int charID in map.CharIDs)
                         {
-                                Character chara;
-                                lock (chara = World.GetCharacter(Chars.CharID, charID))
-                                {
-                                        // check for collision
-                                        chara.CharStats.Direction = chara.CharStats.Direction.UnitVector;
-                                        CheckCollision(chara, map);
+                                var chara = World.GetCharacter(Chars.CharID, charID);
+                                
+                                // check for collision
+                                chara.CharStats.Direction = chara.CharStats.Direction.UnitVector;
+                                CheckCollision(chara, map);
 
-                                        switch (chara.CharStats.MoveState)
-                                        {
-                                                case MovementState.MovingUnhandled:
+                                switch (chara.CharStats.MoveState)
+                                {
+                                        case MovementState.MoveChangeDir:
+                                                // Check if the we collide somewhere, if yes dont send anything cause the collision algo already did
+                                                if (chara.CharStats.MoveType != (int)MovementType.Collision)
+                                                {
+                                                        var aim = chara.CharStats.Position + (chara.CharStats.Direction * 512);
+                                                        var action = new MovePlayer((int)chara[Chars.CharID], aim);
+                                                        map.ActionQueue.Enqueue(action.Execute);
+                                                        // update movestate
+                                                        // NOT HERE: Will be set by MovePlayer later on
+                                                        //chara.CharStats.MoveState = MovementState.MoveKeepDir;
+                                                }
+                                                break;
+                                        case MovementState.MoveKeepDir:
+                                                if (DateTime.Now.Subtract(lastHandledMov).Milliseconds > 500)
+                                                {
                                                         // Check if the we collide somewhere, if yes dont send anything cause the collision algo already did
-                                                        if (chara.CharStats.MoveType != (int)MovementType.FwCollision && chara.CharStats.MoveType != (int)MovementType.DgCollision)
+                                                        if (chara.CharStats.MoveType != (int)MovementType.Collision)
                                                         {
                                                                 var aim = chara.CharStats.Position + (chara.CharStats.Direction * 512);
                                                                 var action = new MovePlayer((int)chara[Chars.CharID], aim);
                                                                 map.ActionQueue.Enqueue(action.Execute);
                                                                 // update movestate
                                                                 // NOT HERE: Will be set by MovePlayer later on
-                                                                //chara.CharStats.MoveState = MovementState.MovingHandled;
+                                                                //chara.CharStats.MoveState = MovementState.MoveKeepDir;
                                                         }
-                                                        break;
-                                                case MovementState.MovingHandled:
-                                                        if (DateTime.Now.Subtract(lastHandledMov).Milliseconds > 500)
-                                                        {
-                                                                // Check if the we collide somewhere, if yes dont send anything cause the collision algo already did
-                                                                if (chara.CharStats.MoveType != (int)MovementType.FwCollision && chara.CharStats.MoveType != (int)MovementType.DgCollision)
-                                                                {
-                                                                        var aim = chara.CharStats.Position + (chara.CharStats.Direction * 512);
-                                                                        var action = new MovePlayer((int)chara[Chars.CharID], aim);
-                                                                        map.ActionQueue.Enqueue(action.Execute);
-                                                                        // update movestate
-                                                                        // NOT HERE: Will be set by MovePlayer later on
-                                                                        //chara.CharStats.MoveState = MovementState.MovingHandled;
-                                                                }
 
-                                                                lastHandledMov = DateTime.Now;
-                                                        }
-                                                        break;
-                                                case MovementState.NotMovingUnhandled:
-                                                        {
-                                                                var action = new MovePlayer((int)chara[Chars.CharID], chara.CharStats.Position);
-                                                                map.ActionQueue.Enqueue(action.Execute);
-                                                                // update movestate
-                                                                chara.CharStats.MoveState = MovementState.NotMovingHandled;
-                                                        }
-                                                        break;
-                                        }
+                                                        lastHandledMov = DateTime.Now;
+                                                }
+                                                break;
+                                        case MovementState.NotMovingUnhandled:
+                                                {
+                                                        var action = new MovePlayer((int)chara[Chars.CharID], chara.CharStats.Position);
+                                                        map.ActionQueue.Enqueue(action.Execute);
+                                                        // update movestate
+                                                        chara.CharStats.MoveState = MovementState.NotMoving;
+                                                }
+                                                break;
                                 }
                         }
                 }
 
                 private static void CheckCollision(Character chara, Map map)
                 {
-                        var result = true;
-                        var predictedDist = 10; // same scale as speed
+                        var predictedDist = 5; // same scale as speed
 
                         PathingMap pmap = null;
                         // check if we've got a map of it
@@ -264,6 +261,7 @@ namespace GameServer.Modules
                                 if (trapIndex > 0 && trapIndex != 0xFFFFFFFF)
                                 {
                                         chara.CharStats.TrapezoidIndex = trapIndex;
+                                        chara.CharStats.Position.PlaneZ = pmap.Trapezoids[(int)trapIndex].Plane;
                                         chara.CharStats.LastValidPosition = chara.CharStats.Position;
                                 }
                                 else if (trapIndex == 0xFFFFFFFF)
@@ -272,7 +270,7 @@ namespace GameServer.Modules
                                 }
 
                                 // now same thing again if the client is moving
-                                if (chara.CharStats.MoveState == MovementState.MovingHandled || chara.CharStats.MoveState == MovementState.MovingUnhandled)
+                                if (chara.CharStats.MoveState == MovementState.MoveKeepDir || chara.CharStats.MoveState == MovementState.MoveChangeDir)
                                 {
                                         // check if the client is in the given predicted trapezoid
                                         state = InTrapezoid(pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex], chara.CharStats.Position + (chara.CharStats.Direction * predictedDist));
@@ -311,21 +309,30 @@ namespace GameServer.Modules
                                         if (trapIndex > 0 && trapIndex != 0xFFFFFFFF)
                                         {
                                                 chara.CharStats.TrapezoidIndex = trapIndex;
-                                                //chara.CharStats.LastValidPosition = chara.CharStats.Position;
+                                                chara.CharStats.Position.PlaneZ = pmap.Trapezoids[(int)trapIndex].Plane;
+                                                chara.CharStats.LastValidPosition = chara.CharStats.Position;
                                         }
                                         else if (trapIndex == 0xFFFFFFFF)
                                         {
+                                                chara.CharStats.Position = chara.CharStats.LastValidPosition;
+
                                                 // we have an invalid movement, get the current trapezoid 
                                                 var trap = pmap.Trapezoids[(int) chara.CharStats.TrapezoidIndex];
                                                 GWVector aim;
+                                                float speedModifier;
 
                                                 // and calculate the optimal aim the player will move to (edge point of trap)
-                                                chara.CharStats.MoveType = (int)GetCollisionMovementAim(chara.CharStats.Direction, trap, state, out aim);
+                                                chara.CharStats.MoveType = (int)GetCollisionMovementAim(chara.CharStats.Direction, trap, state, out aim, out speedModifier);
+                                                chara.CharStats.SpeedModifier = Math.Abs(speedModifier);
 
                                                 if (chara.CharStats.MoveType != (int)MovementType.Stop)
                                                 {
-                                                        if (chara.CharStats.MoveState == MovementState.MovingUnhandled || DateTime.Now.Subtract(lastHandledMov).Milliseconds > 500)
+                                                        if (chara.CharStats.MoveState == MovementState.MoveChangeDir || DateTime.Now.Subtract(lastHandledMov).Milliseconds > 500)
                                                         {
+                                                                chara.CharStats.Direction = aim - chara.CharStats.Position;
+                                                                chara.CharStats.MoveState = MovementState.MoveChangeDir;
+
+                                                                aim = chara.CharStats.Position + (chara.CharStats.Direction * 512);
                                                                 var action = new MovePlayer((int)chara[Chars.CharID], aim);
                                                                 map.ActionQueue.Enqueue(action.Execute);
 
@@ -402,10 +409,11 @@ namespace GameServer.Modules
                         return 0xFFFFFFFF;
                 }
 
-                private static MovementType GetCollisionMovementAim(GWVector dir, Trapezoid trap, int crossedBorder, out GWVector newAim)
+                private static MovementType GetCollisionMovementAim(GWVector dir, Trapezoid trap, int crossedBorder, out GWVector newAim, out float speedModifier)
                 {
                         var result = MovementType.Stop;
                         newAim = new GWVector(0, 0, 0);
+                        speedModifier = 1F;
 
                         // get the border vector (direction: trap borders count clockwise, like InTrapezoid)   
                         switch (crossedBorder)
@@ -415,27 +423,17 @@ namespace GameServer.Modules
                                                 var border = (trap.BottomRight - trap.BottomLeft);
 
                                                 // get the angle between border and move dir vector
-                                                var angle = border.AngleWith(dir);
+                                                speedModifier = border.CosWith(dir);
 
-                                                if (angle < Math.PI*0.2F)
+                                                result = MovementType.Collision;
+
+                                                if (speedModifier >= 0)
                                                 {
                                                         newAim = trap.BottomRight.Clone();
-                                                        result = MovementType.FwCollision;
                                                 }
-                                                else if (angle >= Math.PI*0.2F && angle < Math.PI*0.4F)
-                                                {
-                                                        newAim = trap.BottomRight.Clone();
-                                                        result = MovementType.DgCollision;
-                                                }
-                                                else if (angle <= Math.PI*0.8F && angle > Math.PI*0.6F)
+                                                if (speedModifier < 0)
                                                 {
                                                         newAim = trap.BottomLeft.Clone();
-                                                        result = MovementType.DgCollision;
-                                                }
-                                                else if (angle > Math.PI*0.8F)
-                                                {
-                                                        newAim = trap.BottomLeft.Clone();
-                                                        result = MovementType.FwCollision;
                                                 }
                                         }
                                         break;
@@ -444,27 +442,17 @@ namespace GameServer.Modules
                                                 var border = (trap.TopRight - trap.BottomRight);
 
                                                 // get the angle between border and move dir vector
-                                                var angle = border.AngleWith(dir);
+                                                speedModifier = border.CosWith(dir);
 
-                                                if (angle < Math.PI*0.2F)
+                                                result = MovementType.Collision;
+
+                                                if (speedModifier >= 0)
                                                 {
                                                         newAim = trap.TopRight.Clone();
-                                                        result = MovementType.FwCollision;
                                                 }
-                                                else if (angle >= Math.PI*0.2F && angle < Math.PI*0.4F)
-                                                {
-                                                        newAim = trap.TopRight.Clone();
-                                                        result = MovementType.DgCollision;
-                                                }
-                                                else if (angle <= Math.PI*0.8F && angle > Math.PI*0.6F)
+                                                if (speedModifier < 0)
                                                 {
                                                         newAim = trap.BottomRight.Clone();
-                                                        result = MovementType.DgCollision;
-                                                }
-                                                else if (angle > Math.PI*0.8F)
-                                                {
-                                                        newAim = trap.BottomRight.Clone();
-                                                        result = MovementType.FwCollision;
                                                 }
                                         }
                                         break;
@@ -473,27 +461,17 @@ namespace GameServer.Modules
                                                 var border = (trap.TopLeft - trap.TopRight);
 
                                                 // get the angle between border and move dir vector
-                                                var angle = border.AngleWith(dir);
+                                                speedModifier = border.CosWith(dir);
 
-                                                if (angle < Math.PI*0.2F)
+                                                result = MovementType.Collision;
+
+                                                if (speedModifier >= 0)
                                                 {
                                                         newAim = trap.TopLeft.Clone();
-                                                        result = MovementType.FwCollision;
                                                 }
-                                                else if (angle >= Math.PI*0.2F && angle < Math.PI*0.4F)
-                                                {
-                                                        newAim = trap.TopLeft.Clone();
-                                                        result = MovementType.DgCollision;
-                                                }
-                                                else if (angle <= Math.PI*0.8F && angle > Math.PI*0.6F)
+                                                if (speedModifier < 0)
                                                 {
                                                         newAim = trap.TopRight.Clone();
-                                                        result = MovementType.DgCollision;
-                                                }
-                                                else if (angle > Math.PI*0.8F)
-                                                {
-                                                        newAim = trap.TopRight.Clone();
-                                                        result = MovementType.FwCollision;
                                                 }
                                         }
                                         break;
@@ -502,27 +480,17 @@ namespace GameServer.Modules
                                                 var border = (trap.BottomLeft - trap.TopLeft);
 
                                                 // get the angle between border and move dir vector
-                                                var angle = border.AngleWith(dir);
+                                                speedModifier = border.CosWith(dir);
 
-                                                if (angle < Math.PI*0.2F)
+                                                result = MovementType.Collision;
+
+                                                if (speedModifier >= 0)
                                                 {
                                                         newAim = trap.BottomLeft.Clone();
-                                                        result = MovementType.FwCollision;
                                                 }
-                                                else if (angle >= Math.PI*0.2F && angle < Math.PI*0.4F)
-                                                {
-                                                        newAim = trap.BottomLeft.Clone();
-                                                        result = MovementType.DgCollision;
-                                                }
-                                                else if (angle <= Math.PI*0.8F && angle > Math.PI*0.6F)
+                                                if (speedModifier < 0)
                                                 {
                                                         newAim = trap.TopLeft.Clone();
-                                                        result = MovementType.DgCollision;
-                                                }
-                                                else if (angle > Math.PI*0.8F)
-                                                {
-                                                        newAim = trap.TopLeft.Clone();
-                                                        result = MovementType.FwCollision;
                                                 }
                                         }
                                         break;
