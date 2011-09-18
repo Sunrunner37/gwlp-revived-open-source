@@ -8,7 +8,7 @@ using ServerEngine.PacketManagement.Definitions;
 namespace LoginServer.Packets.FromClient
 {
         [PacketAttributes(IsIncoming = true, Header = 13)]
-        public class P13_AccountLogout : IPacket
+        public class P13_Logout : IPacket
         {
                 public class PacketSt13 : IPacketTemplate
                 {
@@ -29,17 +29,15 @@ namespace LoginServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt13();
                         pParser((PacketSt13)message.PacketTemplate, message.PacketData);
 
-                        Client client;
-                        lock (client = World.GetClient(Idents.Clients.NetID, message.NetID))
+                        var client = World.GetClient(Idents.Clients.NetID, message.NetID);
+                        
+                        if (client.Status != SyncState.PossibleQuit)
                         {
-                                if (client.Status != SyncState.PossibleQuit)
-                                {
-                                        client.LoginCount++;
-                                        client.Email = "";
-                                        client.Password = "";
-                                        // reset status
-                                        client.Status = SyncState.EncryptionEstablished;
-                                }
+                                client.LoginCount++;
+                                client.Email = "";
+                                client.Password = "";
+                                // reset status
+                                client.Status = SyncState.EncryptionEstablished;
                         }
 
                         return true;

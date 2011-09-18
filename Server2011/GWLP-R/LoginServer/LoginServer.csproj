@@ -63,7 +63,7 @@
     <Compile Include="Packets\FromClient\NotEncP1024_ClientVersion.cs" />
     <Compile Include="Packets\FromClient\Packet11.cs" />
     <Compile Include="Packets\FromClient\Packet12.cs" />
-    <Compile Include="Packets\FromClient\P13_AccountLogout.cs" />
+    <Compile Include="Packets\FromClient\P13_Logout.cs" />
     <Compile Include="Packets\FromClient\P14_ExitOrConnectionUpdate.cs" />
     <Compile Include="Packets\FromClient\P15_ComputerHardware.cs" />
     <Compile Include="Packets\FromClient\Packet16.cs" />
