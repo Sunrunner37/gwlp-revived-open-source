@@ -27,7 +27,7 @@ namespace GameServer.Modules
 
                                         var diff = DateTime.Now.Subtract(chara.LastHeartBeat).TotalMilliseconds;
 
-                                        if (diff > 500)
+                                        if (diff > 250)
                                         {
                                                 // Note: HEARTBEAT
                                                 var heartBeat = new NetworkMessage((int) chara[Chars.NetID]);
