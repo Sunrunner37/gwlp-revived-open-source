@@ -5,25 +5,28 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.ToClient
 {
-        [PacketAttributes(IsIncoming = false, Header = 22)]
-        public class Packet22 : IPacket
+        [PacketAttributes(IsIncoming = false, Header = 33)]
+        public class P033_UpdateAgentPosition : IPacket
         {
-                public class PacketSt22 : IPacketTemplate
+                public class PacketSt33 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 22; } }
-                        public UInt32 Data1;
+                        public UInt16 Header { get { return 33; } }
+                        public UInt32 AgentID;
+                        public Single PosX;
+                        public Single PosY;
+                        public UInt16 Plane;
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt22>)parser;
+                        pParser = (PacketParser<PacketSt33>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
 
                 public bool Handler(ref NetworkMessage message)
                 {
-                        pParser((PacketSt22)message.PacketTemplate, message.PacketData);
+                        pParser((PacketSt33)message.PacketTemplate, message.PacketData);
                         QueuingService.NetOutQueue.Enqueue(message);
                         return true;
                 }
@@ -32,7 +35,7 @@ namespace GameServer.Packets.ToClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt22> pParser;
+                private PacketParser<PacketSt33> pParser;
 
         }
 }

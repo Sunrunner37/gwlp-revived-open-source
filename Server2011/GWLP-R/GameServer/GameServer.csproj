@@ -59,6 +59,7 @@
     <Compile Include="Actions\RotatePlayer.cs" />
     <Compile Include="Actions\SpawnPlayer.cs" />
     <Compile Include="Commands\CommandAttribute.cs" />
+    <Compile Include="Commands\GWStuck.cs" />
     <Compile Include="Commands\HelpMe.cs" />
     <Compile Include="Commands\ChangeMap.cs" />
     <Compile Include="Commands\SetSpawn.cs" />
@@ -405,7 +406,7 @@
     <Compile Include="Packets\ToClient\Packet217.cs" />
     <Compile Include="Packets\ToClient\Packet218.cs" />
     <Compile Include="Packets\ToClient\Packet219.cs" />
-    <Compile Include="Packets\ToClient\Packet22.cs" />
+    <Compile Include="Packets\ToClient\P022_FIXMEInvalidateAgentModel.cs" />
     <Compile Include="Packets\ToClient\Packet220.cs" />
     <Compile Include="Packets\ToClient\P221_UpdateFactionPts.cs" />
     <Compile Include="Packets\ToClient\Packet222.cs" />
@@ -524,7 +525,7 @@
     <Compile Include="Packets\ToClient\Packet327.cs" />
     <Compile Include="Packets\ToClient\Packet328.cs" />
     <Compile Include="Packets\ToClient\Packet329.cs" />
-    <Compile Include="Packets\ToClient\Packet33.cs" />
+    <Compile Include="Packets\ToClient\P033_UpdateAgentPosition.cs" />
     <Compile Include="Packets\ToClient\Packet330.cs" />
     <Compile Include="Packets\ToClient\Packet331.cs" />
     <Compile Include="Packets\ToClient\Packet332.cs" />

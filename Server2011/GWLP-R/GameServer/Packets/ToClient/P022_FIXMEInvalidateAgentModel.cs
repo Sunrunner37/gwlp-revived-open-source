@@ -5,28 +5,25 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.ToClient
 {
-        [PacketAttributes(IsIncoming = false, Header = 33)]
-        public class Packet33 : IPacket
+        [PacketAttributes(IsIncoming = false, Header = 22)]
+        public class P022_FIXMEInvalidateAgentModel : IPacket
         {
-                public class PacketSt33 : IPacketTemplate
+                public class PacketSt22 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 33; } }
-                        public UInt32 Data1;
-                        public Single Data2;
-                        public Single Data3;
-                        public UInt16 Data4;
+                        public UInt16 Header { get { return 22; } }
+                        public UInt32 AgentID;
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt33>)parser;
+                        pParser = (PacketParser<PacketSt22>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
 
                 public bool Handler(ref NetworkMessage message)
                 {
-                        pParser((PacketSt33)message.PacketTemplate, message.PacketData);
+                        pParser((PacketSt22)message.PacketTemplate, message.PacketData);
                         QueuingService.NetOutQueue.Enqueue(message);
                         return true;
                 }
@@ -35,7 +32,7 @@ namespace GameServer.Packets.ToClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt33> pParser;
+                private PacketParser<PacketSt22> pParser;
 
         }
 }

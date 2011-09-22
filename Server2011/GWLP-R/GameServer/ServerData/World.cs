@@ -20,10 +20,18 @@ namespace GameServer.ServerData
                 static World()
                 {
                         ChatCommandsDict = new Dictionary<string, Type>();
+
+                        // HelpMe (most necessary)
+                        ChatCommandsDict.Add("HelpMe", typeof(HelpMe));
+
+                        // Custom commands, alphabetical order
                         ChatCommandsDict.Add("ChangeMap", typeof(ChangeMap));
-                        ChatCommandsDict.Add("HelpMe", typeof (HelpMe));
                         ChatCommandsDict.Add("SetSpawn", typeof(SetSpawn));
                         ChatCommandsDict.Add("Test", typeof (Test));
+
+                        // GW commands alphabetical order
+                        ChatCommandsDict.Add("stuck", typeof(GWStuck));
+
 
                         clients = new MultiKeyDictionary<Clients, Client>();
                         chars = new MultiKeyDictionary<Chars, Character>();

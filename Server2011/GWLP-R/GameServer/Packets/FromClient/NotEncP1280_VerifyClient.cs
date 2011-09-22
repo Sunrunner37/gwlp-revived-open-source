@@ -96,12 +96,10 @@ namespace GameServer.Packets.FromClient
                                         var spawns = from s in map.Spawns.Values
                                                      where s.IsOutpost && s.IsPvE
                                                      select s;
-
-                                        var spawn = spawns.First();
                                         
-                                        if (spawns.Count() == 0)
-                                        {
-                                                spawn = new MapSpawn()
+                                        var spawn = spawns.Count() != 0? spawns.First() :
+
+                                                new MapSpawn()
                                                 {
                                                         IsOutpost = true,
                                                         IsPvE = true,
@@ -112,7 +110,7 @@ namespace GameServer.Packets.FromClient
                                                         SpawnY = 0,
                                                         TeamSpawnNumber = 0,
                                                 };
-                                        }
+                                        
 
                                         // get the chat stuff
                                         var accID = (int)newClient[Clients.AccID];

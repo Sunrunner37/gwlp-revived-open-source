@@ -84,7 +84,7 @@ CREATE TABLE `chars_masterdata` (
 
 /*Data for the table `chars_masterdata` */
 
-insert  into `chars_masterdata`(`CharID`,`CharName`,`AccountID`,`MapID`,`Level`,`ProfessionPrimary`,`ProfessionSecondary`,`IsPvP`,`InventoryGold`,`ExperiencePts`,`AttrPtsFree`,`AttrPtsTotal`,`SkillPtsFree`,`SkillPtsTotal`,`SkillBar`,`SkillsAvailable`,`LookCampaign`,`LookFace`,`LookHairColor`,`LookHairStyle`,`LookHeight`,`LookSex`,`LookSkinColor`,`ShowHelm`,`ArmorHead`,`ArmorChest`,`ArmorArms`,`ArmorLegs`,`ArmorFeet`,`WeaponPrimary`,`WeaponSecondary`) values (10,'Gwlp Rulez',10,55,1,5,2,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(11,'Test Lolz',11,2,1,5,2,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(12,'Test Chara',10,2,1,9,1,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+insert  into `chars_masterdata`(`CharID`,`CharName`,`AccountID`,`MapID`,`Level`,`ProfessionPrimary`,`ProfessionSecondary`,`IsPvP`,`InventoryGold`,`ExperiencePts`,`AttrPtsFree`,`AttrPtsTotal`,`SkillPtsFree`,`SkillPtsTotal`,`SkillBar`,`SkillsAvailable`,`LookCampaign`,`LookFace`,`LookHairColor`,`LookHairStyle`,`LookHeight`,`LookSex`,`LookSkinColor`,`ShowHelm`,`ArmorHead`,`ArmorChest`,`ArmorArms`,`ArmorLegs`,`ArmorFeet`,`WeaponPrimary`,`WeaponSecondary`) values (10,'Gwlp Rulez',10,55,1,5,2,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(11,'Test Lolz',11,55,1,5,2,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(12,'Test Chara',10,2,1,9,1,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
 /*Table structure for table `groups_commands` */
 
@@ -95,11 +95,11 @@ CREATE TABLE `groups_commands` (
   `CommandName` char(16) NOT NULL,
   `GroupID` int(11) NOT NULL,
   PRIMARY KEY  (`CommandID`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `groups_commands` */
 
-insert  into `groups_commands`(`CommandID`,`CommandName`,`GroupID`) values (1,'HelpMe',2),(2,'ChangeMap',5),(3,'Test',5),(4,'SetSpawn',5);
+insert  into `groups_commands`(`CommandID`,`CommandName`,`GroupID`) values (1,'HelpMe',2),(2,'ChangeMap',5),(3,'Test',5),(4,'SetSpawn',5),(5,'stuck',2);
 
 /*Table structure for table `groups_masterdata` */
 
