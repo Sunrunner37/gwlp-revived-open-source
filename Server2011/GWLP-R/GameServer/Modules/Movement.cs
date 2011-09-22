@@ -22,6 +22,9 @@ namespace GameServer.Modules
                         // init the dict
                         maps = new Dictionary<int, PathingMap>();
 
+                        // failcheck
+                        if (!Directory.Exists(pmapsDir)) return;
+
                         // get the file names (include sub directories)
                         var pmapPaths = Directory.GetFiles(pmapsDir, "*.pmap", SearchOption.AllDirectories);
 
@@ -64,8 +67,8 @@ namespace GameServer.Modules
                                                 using (var db = (MySQL)DataBaseProvider.GetDataBase())
                                                 {
                                                         var map = from m in db.mapsMasterData
-                                                                where m.gameMapFileID == newMap.GameFileHash
-                                                                select m;
+                                                                  where m.gameMapFileID == newMap.GameFileHash
+                                                                  select m;
 
                                                         if (map.Count() != 0)
                                                         {
@@ -115,13 +118,13 @@ namespace GameServer.Modules
                                                                 var trapezoid = trapezoids[i];
 
                                                                 var newTrapezoid = new Trapezoid()
-                                                                {
-                                                                        TrapezoidID = (uint)i,
-                                                                        BottomRight = new GWVector(trapezoid.XBR, trapezoid.YB, trapezoid.Plane),
-                                                                        BottomLeft = new GWVector(trapezoid.XBL, trapezoid.YB, trapezoid.Plane),
-                                                                        TopRight = new GWVector(trapezoid.XTR, trapezoid.YT, trapezoid.Plane),
-                                                                        TopLeft = new GWVector(trapezoid.XBL, trapezoid.YT, trapezoid.Plane),
-                                                                };
+                                                                                           {
+                                                                                                   TrapezoidID = (uint)i,
+                                                                                                   BottomRight = new GWVector(trapezoid.XBR, trapezoid.YB, trapezoid.Plane),
+                                                                                                   BottomLeft = new GWVector(trapezoid.XBL, trapezoid.YB, trapezoid.Plane),
+                                                                                                   TopRight = new GWVector(trapezoid.XTR, trapezoid.YT, trapezoid.Plane),
+                                                                                                   TopLeft = new GWVector(trapezoid.XBL, trapezoid.YT, trapezoid.Plane),
+                                                                                           };
 
                                                                 for (int j = 0; j < trapezoid.AdjacentsCount; j++)
                                                                 {
