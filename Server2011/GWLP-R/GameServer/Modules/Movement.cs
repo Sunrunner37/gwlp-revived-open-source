@@ -175,10 +175,11 @@ namespace GameServer.Modules
                                 var chara = World.GetCharacter(Chars.CharID, charID);
                                 int distanceToBorder = 320;
 
+                                chara.CharStats.Direction = chara.CharStats.Direction.UnitVector;
+
                                 if (chara.CharStats.MoveState != MovementState.NotMoving)
                                 {
                                         // check for collision
-                                        chara.CharStats.Direction = chara.CharStats.Direction.UnitVector;
                                         CheckCollision(chara, map, out distanceToBorder);
                                 }
 
@@ -205,9 +206,6 @@ namespace GameServer.Modules
                                                                 var aim = chara.CharStats.Position + (chara.CharStats.Direction * distanceToBorder);
                                                                 var action = new MovePlayer((int)chara[Chars.CharID], aim);
                                                                 map.ActionQueue.Enqueue(action.Execute);
-                                                                // update movestate
-                                                                // NOT HERE: Will be set by MovePlayer later on
-                                                                //chara.CharStats.MoveState = MovementState.MoveKeepDir;
                                                         }
 
                                                         lastHandledMov = DateTime.Now;
@@ -239,7 +237,7 @@ namespace GameServer.Modules
                                 // get the distance to the border (value between 0[at border] to 320)
                                 distanceToBorder = DistanceToBorder(chara, pmap);
 
-                                //check for collition
+                                //check for collision
                                 if (distanceToBorder == 0)
                                 {
                                         // try to somehow emulate the strave effekt: EXPERIMENTAL
