@@ -151,12 +151,15 @@ namespace GameServer.Modules
                         }
                 }
 
-                private static DateTime lastHandledMov;
-                private static DateTime lastHandledCollision;
+                private static DateTime lastCycle;
+                private static float dt; // time per cycle
                 private static Dictionary<int, PathingMap> maps;
 
                 public void Execute()
                 {
+                        dt = 0.001F * DateTime.Now.Subtract(lastCycle).Milliseconds;
+                        lastCycle = DateTime.Now;
+
                         World.GetMaps().AsParallel().ForAll(ProcessMovePackets);
                 }
 
@@ -165,47 +168,54 @@ namespace GameServer.Modules
                         foreach (int charID in map.CharIDs)
                         {
                                 var chara = World.GetCharacter(Chars.CharID, charID);
-                                GWVector newAim = chara.CharStats.Position;
 
-                                //make sure we always have a unit vector
-                                if (chara.CharStats.Direction.X != 0 || chara.CharStats.Direction.Y != 0)
-                                    chara.CharStats.Direction = chara.CharStats.Direction.UnitVector;
+                                var state = chara.CharStats.MoveState;
 
-                                if (chara.CharStats.MoveState != MovementState.NotMoving)
+                                if (state != MovementState.NotMoving)
                                 {
-                                        CheckCollision(chara, map, out newAim);
+                                        CalculatePosition(chara);
                                 }
 
-                                switch (chara.CharStats.MoveState)
+                                switch (state)
                                 {
                                         case MovementState.MoveChangeDir:
                                                 {
-                                                        var action = new MovePlayer((int)chara[Chars.CharID], newAim);
+                                                        var action = new MovePlayer((int)chara[Chars.CharID], chara.CharStats.Position);
                                                         map.ActionQueue.Enqueue(action.Execute);
+
                                                         chara.CharStats.MoveState = MovementState.MoveKeepDir;
+                                                        chara.CharStats.LastMovement = DateTime.Now;
                                                 }
                                                 break;
                                         case MovementState.MoveKeepDir:
-                                                if (DateTime.Now.Subtract(lastHandledMov).Milliseconds > 250)
                                                 {
-                                                        var action = new MovePlayer((int)chara[Chars.CharID], newAim);
-                                                        map.ActionQueue.Enqueue(action.Execute);
+                                                        if (DateTime.Now.Subtract(chara.CharStats.LastMovement).Milliseconds > 250)
+                                                        {
+                                                                var action = new MovePlayer((int)chara[Chars.CharID], chara.CharStats.Position);
+                                                                map.ActionQueue.Enqueue(action.Execute);
 
-                                                        lastHandledMov = DateTime.Now;
+                                                                chara.CharStats.LastMovement = DateTime.Now;
+                                                        }
                                                 }
                                                 break;
-                                        case MovementState.NotMovingUnhandled: // c
+                                        case MovementState.NotMovingUnhandled:
                                                 {
                                                         var action = new MovePlayer((int)chara[Chars.CharID], chara.CharStats.Position);
                                                         map.ActionQueue.Enqueue(action.Execute);
+
+                                                        chara.CharStats.Rotation = (float)Math.Atan2(chara.CharStats.Direction.Y, chara.CharStats.Direction.X);
+                                                        var action2 = new RotatePlayer((int)chara[Chars.CharID]);
+                                                        map.ActionQueue.Enqueue(action2.Execute);
+
                                                         chara.CharStats.MoveState = MovementState.NotMoving;
+                                                        chara.CharStats.LastMovement = DateTime.Now;
                                                 }
                                                 break;
                                 }
                         }
                 }
 
-                private static void CheckCollision(Character chara, Map map, out GWVector newAim)
+                private static void CalculatePosition(Character chara)
                 {
                         PathingMap pmap = null;
 
@@ -215,63 +225,94 @@ namespace GameServer.Modules
                                 // update chara's Trapezoid
                                 UpdateTrapezoidIndex(chara, pmap);
 
-                                // get the distance to the border (value between 0[at border] to 320)
-                                int distanceToBorder;
-                                newAim = AimToBorder(chara, chara.CharStats.Direction, pmap, out distanceToBorder);
-
-                                //check for collition
-                                if (distanceToBorder == 0)
+                                if (chara.CharStats.MoveState == MovementState.MoveKeepDir)
                                 {
-                                    if (DateTime.Now.Subtract(lastHandledCollision).Milliseconds > 500)
-                                    {
-                                        if (chara.CharStats.AtBorder)
+                                        var dir = chara.CharStats.Direction * (chara.CharStats.Speed * dt);
+                                        var newPos = dir + chara.CharStats.Position;
+
+                                        GWVector crossedBorder;
+                                        var outOfBorder = GetOutOfBorders(newPos, pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex], pmap, out crossedBorder);
+
+                                        if (outOfBorder)
                                         {
-                                                GWVector deltaPos = chara.CharStats.Position - chara.CharStats.LastCollisionPosition;
+                                            float length = crossedBorder.Length;
 
-                                                if (deltaPos.X != 0 || deltaPos.Y != 0)
-                                                    deltaPos = newAim.UnitVector;
+                                            if (length != 0)
+                                            {
+                                                float f = (crossedBorder.X * dir.X + crossedBorder.Y * dir.Y) / (length * length);
 
-                                                newAim = AimToBorder(chara, deltaPos, pmap, out distanceToBorder);
+                                                GWVector newDir = crossedBorder * f;
 
-                                                float speedModifier;
-                                                var trap = pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex];
-
-                                                GetCollisionMovement(chara.CharStats.Direction, trap, out speedModifier);
-
-                                                if (Math.Abs(speedModifier) < 0.5)
+                                                if (newDir.X != 0 || newDir.Y != 0)
                                                 {
-                                                    chara.CharStats.SpeedModifier = 0.35F;
-                                                }
-                                                else
-                                                {
-                                                    chara.CharStats.SpeedModifier = 0.7F;
-                                                }
+                                                    newPos = newDir + chara.CharStats.Position;
 
+                                                    var angle = newDir.CosWith(dir);
 
-                                                var action = new MovePlayer((int)chara[Chars.CharID], newAim);
-                                                map.ActionQueue.Enqueue(action.Execute);
+                                                    chara.CharStats.SpeedModifier = Math.Max(0.33F, angle);
+                                                    chara.CharStats.MoveType = (int)MovementType.Collision;
+
+                                                    outOfBorder = GetOutOfBorders(newPos, pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex], pmap, out crossedBorder);
+
+                                                    if (!outOfBorder)
+                                                    {
+                                                        chara.CharStats.Position = newPos;
+                                                    }
+                                                }
+                                            }
                                         }
                                         else
                                         {
-                                            chara.CharStats.AtBorder = true;
+                                            chara.CharStats.Position = newPos;
                                         }
 
-                                        // report collision
-                                        chara.CharStats.LastCollisionPosition = chara.CharStats.Position;
-                                        chara.CharStats.MoveType = (int)MovementType.Collision;
-                                        lastHandledCollision = DateTime.Now;
-                                    }
                                 }
-                                else
+                        }
+                }
+
+                private static bool GetOutOfBorders(GWVector pos, Trapezoid currentTrap, PathingMap pmap, out GWVector crossedBorder)
+                {
+                        var state = InTrapezoid(currentTrap, pos);
+                        IEnumerable<uint> trapezoids;
+
+                        switch (state)
+                        {
+                            case 0:
+                                crossedBorder = new GWVector(0, 0, 0);
+                                return false;
+                            case 1:
                                 {
-                                    chara.CharStats.AtBorder = false;
-                                    chara.CharStats.SpeedModifier = 1F; //dunno if unnecessary
+                                    crossedBorder = currentTrap.BottomLeft - currentTrap.BottomRight;
+                                    trapezoids = currentTrap.AdjacentsBottom;
                                 }
+                                break;
+                            case 2:
+                                {
+                                    crossedBorder = currentTrap.BottomRight - currentTrap.TopRight;
+                                    return true;
+                                }
+                            case 3:
+                                {
+                                    crossedBorder = currentTrap.TopRight - currentTrap.TopLeft;
+                                    trapezoids = currentTrap.AdjacentsTop;
+                                }
+                                break;
+                            default: //case 4
+                                {
+                                    crossedBorder = currentTrap.TopLeft - currentTrap.BottomLeft;
+                                    return true;
+                                }
+                        }
+
+                        uint trapIndex = SearchTrapezoid(pmap, trapezoids, pos);
+
+                        if (trapIndex == 0xFFFFFFFF)
+                        {
+                            return true;
                         }
                         else
                         {
-                                // no pmap, no collision check
-                                newAim = chara.CharStats.Position;
+                            return false;
                         }
                 }
 
@@ -310,60 +351,6 @@ namespace GameServer.Modules
                                 chara.CharStats.TrapezoidIndex = trapIndex;
                                 chara.CharStats.Position.PlaneZ = pmap.Trapezoids[(int)trapIndex].Plane;
                         }
-                }
-
-                private static GWVector AimToBorder(Character chara, GWVector direction, PathingMap pmap, out int distanceToBorder)
-                {
-                        GWVector dir = direction * 32;
-                        GWVector targetLoc = chara.CharStats.Position;
-                        GWVector aimToBorder = targetLoc;
-                        uint trapIndex = chara.CharStats.TrapezoidIndex;
-                        uint lastTrapIndex = trapIndex;
-
-                        for (int i = 0; i < 10; i++)
-                        {
-                                lastTrapIndex = trapIndex;
-                                aimToBorder = targetLoc;
-                                targetLoc = aimToBorder + dir;
-
-                                switch (InTrapezoid(pmap.Trapezoids[(int)trapIndex], targetLoc))
-                                {
-                                        case 0: // the targetLoc is inside trapezoid, everything ok.
-                                                break;
-                                        case 1: // the targetLoc is under the trapezoid, we need to change traps
-                                                {
-                                                        trapIndex = SearchTrapezoid(pmap, pmap.Trapezoids[(int)trapIndex].AdjacentsBottom, targetLoc);
-                                                        if (trapIndex == 0xFFFFFFFF)
-                                                        {
-                                                            aimToBorder.PlaneZ = chara.CharStats.Position.PlaneZ; // pmap.Trapezoids[(int)lastTrapIndex].Plane;
-                                                            distanceToBorder = i;
-                                                            return aimToBorder;
-                                                        }
-                                                }
-                                                break;
-                                        case 3: // the targetLoc is above the trapezoid, we need to change traps
-                                                {
-                                                        trapIndex = SearchTrapezoid(pmap, pmap.Trapezoids[(int)trapIndex].AdjacentsTop, targetLoc);
-                                                        if (trapIndex == 0xFFFFFFFF)
-                                                        {
-                                                            aimToBorder.PlaneZ = chara.CharStats.Position.PlaneZ; // pmap.Trapezoids[(int)lastTrapIndex].Plane;
-                                                            distanceToBorder = i;
-                                                            return aimToBorder;
-                                                        }
-                                                }
-                                                break;
-                                        default: // case 2 or 4: the char is out of the map borders
-                                                {
-                                                        aimToBorder.PlaneZ = chara.CharStats.Position.PlaneZ; // pmap.Trapezoids[(int)lastTrapIndex].Plane;
-                                                        distanceToBorder = i;
-                                                        return aimToBorder;
-                                                }
-                                }
-                        }
-
-                        aimToBorder.PlaneZ = chara.CharStats.Position.PlaneZ; // pmap.Trapezoids[(int)lastTrapIndex].Plane;
-                        distanceToBorder = 9;
-                        return aimToBorder;
                 }
 
                 /// <summary>
@@ -425,40 +412,6 @@ namespace GameServer.Modules
 
                         // if it isnt on the trapezoids anymore
                         return 0xFFFFFFFF;
-                }
-
-                private static void GetCollisionMovement(GWVector dir, Trapezoid trap, out float speedModifier)
-                {
-                        speedModifier = 1F;
-
-                        GWVector border;
-
-                        if (Math.Abs(dir.X) < Math.Abs(dir.Y))
-                        {
-                                if (dir.Y > 0)
-                                { //top border
-                                        border = (trap.TopLeft - trap.TopRight);
-                                        speedModifier = border.CosWith(dir);
-                                }
-                                else
-                                { //bottom border
-                                        border = (trap.BottomRight - trap.BottomLeft);
-                                        speedModifier = border.CosWith(dir);
-                                }
-                        }
-                        else
-                        {
-                                if (dir.X > 0)
-                                { //right border
-                                        border = (trap.TopRight - trap.BottomRight);
-                                        speedModifier = border.CosWith(dir);
-                                }
-                                else
-                                { //left border
-                                        border = (trap.BottomLeft - trap.TopLeft);
-                                        speedModifier = border.CosWith(dir);
-                                }
-                        }
                 }
 
                 private class PathingMap

@@ -42,10 +42,12 @@ namespace GameServer.Packets.FromClient
                                 ((PacketSt54) message.PacketTemplate).Y,
                                 (int)((PacketSt54) message.PacketTemplate).Plane);
 
-                        chara.CharStats.Direction = new GWVector(
+                        var dir = new GWVector(
                                 ((PacketSt54)message.PacketTemplate).DirX,
                                 ((PacketSt54)message.PacketTemplate).DirY,
                                 0);
+
+                        chara.CharStats.Direction = dir.UnitVector;
 
                         chara.CharStats.MoveType = (int)((PacketSt54) message.PacketTemplate).Type;
 

@@ -125,6 +125,12 @@ namespace ServerEngine.Tools
                         return (v1.X * v2.Y) - (v1.Y * v2.X);
                 }
 
-                
+                /// <summary>
+                ///   ToString overload.
+                /// </summary>
+                public override string ToString()
+                {
+                    return "[" + deltaX.ToString() + ", " + deltaY.ToString() + "]";
+                }
         }
 }

@@ -12,7 +12,6 @@ namespace GameServer.ServerData
                 public CharacterStats()
                 {
                         Position = new GWVector(0, 0, 0);
-                        LastCollisionPosition = Position.Clone();
                         Direction = new GWVector(0, 0, 0);
                         SpeedModifier = 1F;
                         Commands = new Dictionary<string, bool>();
@@ -48,7 +47,7 @@ namespace GameServer.ServerData
                 public int VitalStats { get; set; }
 
                 public GWVector Position { get; set; }
-                public GWVector LastCollisionPosition { get; set; }
+                public DateTime LastMovement { get; set; }
                 public bool AtBorder { get; set; }
                 /// <summary>
                 ///   Only used with module: Movement
