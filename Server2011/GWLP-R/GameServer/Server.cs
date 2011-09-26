@@ -59,12 +59,16 @@ namespace GameServer
                                 Debug.WriteLine(" ");
 
                                 // Hello message ;)
-                                Debug.WriteLine("##################################");
-                                Debug.WriteLine("#       --[GWLP: Revived]--      #");
-                                Debug.WriteLine("# GAME Server, v3.0.1            #");
-                                Debug.WriteLine("##################################");
-                                Debug.WriteLine("credits to _rusty, ACB, onyxphase");
-                                Debug.WriteLine("visit gamerevision.com");
+                                Debug.WriteLine(@"  _______________________________________");
+                                Debug.WriteLine(@" /                                       \");
+                                Debug.WriteLine(@"<          --[ GWLP: Revived ]--          >");
+                                Debug.WriteLine(@" \_______________________________________/");
+                                Debug.WriteLine(@"  < Serv:    [" + Assembly.GetExecutingAssembly().GetName().Name + "] >");
+                                Debug.WriteLine(@"  < Vers:    [" + Assembly.GetExecutingAssembly().GetName().Version + "] >");
+                                Debug.WriteLine(@"  -");
+                                Debug.WriteLine(@"  < By [ _rusty ] [ ACB ] [ miracle444 ] [ onyxphase ] >");
+                                Debug.WriteLine(@"  -");
+                                Debug.WriteLine(@"  < [www.GameRevision.com] >");
                                 Debug.WriteLine(" ");
 
                                 Debug.Indent();
