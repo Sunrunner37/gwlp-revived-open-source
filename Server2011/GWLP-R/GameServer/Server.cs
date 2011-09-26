@@ -2,17 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
-using System.Net.Mime;
-using System.Net.Sockets;
 using System.Reflection;
-using System.Threading.Tasks;
 using GameServer.DataBase;
 using GameServer.Modules;
 using GameServer.Packets.ToLoginServer;
 using GameServer.ServerData;
 using MySql.Data.MySqlClient;
-using ServerEngine;
 using ServerEngine.DataBase;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement;
@@ -22,33 +17,35 @@ using ServerEngine.ProcessorQueues;
 
 namespace GameServer
 {
-
-        class Server
+        static class Server
         {
-                private ConfigFile localConfig;
+                private static readonly ConfigFile localConfig;
 
-                private static PacketManager packetMan;
+                private static readonly PacketManager packetMan;
 
-                const string ConfigFile = "GameConfig.xml";
-                const string LogFile = "GameLog.xml";
+                private static readonly List<Action> serverTasks;
 
-                private static List<Action> serverTasks;
+                private static readonly string initFail = "";
 
                 /// <summary>
-                ///   This creates the most necessary objects.
+                ///   Creates a new instance of the class
                 /// </summary>
-                /// <returns>
-                ///   Returns false if something fails to initialize
-                /// </returns>
-                private bool Initialize()
+                static Server()
                 {
                         try
                         {
+                                // Change console stats
+                                #if !MONO_STRICT
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.Clear();
+                                        Console.SetWindowSize(Console.WindowWidth + 25, Console.WindowHeight);
+                                #endif
+
                                 // Init the debug writers
                                 Debug.AutoFlush = true;
                                 Debug.IndentSize = 4;
                                 var consoleWriter = new TextWriterTraceListener(Console.Out);
-                                var fileWriter = new TextWriterTraceListener(LogFile);
+                                var fileWriter = new TextWriterTraceListener(Properties.Settings.Default.LogFile);
                                 Debug.Listeners.Add(consoleWriter);
                                 Debug.Listeners.Add(fileWriter);
 
@@ -76,13 +73,13 @@ namespace GameServer
 
                                 // Init the local config class
                                 //Debug.Listeners
-                                Debug.Write("Gathering local config file data...");
-                                localConfig = new ConfigFile(ConfigFile);
+                                Debug.Write("Gathering local config file data...   ");
+                                localConfig = new ConfigFile(Properties.Settings.Default.ConfigFile);
 
-                                Debug.WriteLine("\t\t[done]");
+                                Debug.WriteLine("[done]");
 
                                 // Init the db connection
-                                Debug.Write("Initializing database provider...");
+                                Debug.Write("Initializing database provider...     ");
                                 DataBaseProvider.InitProvider(new MySqlConnection(
                                         "server=" + localConfig.DataBaseIP +
                                         ";database=" + localConfig.DataBaseName +
@@ -90,43 +87,50 @@ namespace GameServer
                                         ";pwd=" + localConfig.DataBasePwd + ";"),
                                         typeof(MySQL));
 
-                                Debug.WriteLine("\t\t[done]");
+                                Debug.WriteLine("[done]");
 
                                 // Load the packet manager
-                                Debug.Write("Creating packet manager...");
+                                Debug.Write("Creating packet manager...            ");
                                 var packets = Assembly.GetExecutingAssembly().GetTypes().Where(type => ((typeof(IPacket)).IsAssignableFrom(type))).ToList();
                                 packetMan = new PacketManager(packets.ToArray());
 
-                                Debug.WriteLine("\t\t\t[done]");
+                                Debug.WriteLine("[done]");
                                 
 
                                 // Init the network manager
-                                Debug.Write("Creating network manager...");
+                                Debug.Write("Creating network manager...           ");
                                 NetworkManager.Instance.Init(localConfig.SrvMaxClients);
                                 NetworkManager.Instance.StartListeners(localConfig.SrvPort);
 
-                                Debug.WriteLine("\t\t\t[done]");
+                                Debug.WriteLine("[done]");
 
                                 // Try to create a login server connection
-                                Debug.Write("Creating login server connection...");
+                                Debug.Write("Creating login server connection...   ");
                                 var netID = NetworkManager.Instance.CreateConnection(localConfig.LoginSrvIP, localConfig.LoginSrvPort);
-                                var handshake = new NetworkMessage(netID)
-                                                        {
-                                                                PacketTemplate = new P65281_HandshakeRequest.PacketSt65281()
-                                                        };
-#warning Not implemented server security keys:
-                                ((P65281_HandshakeRequest.PacketSt65281)handshake.PacketTemplate).SecurityKey1 = new byte[8];
-                                ((P65281_HandshakeRequest.PacketSt65281)handshake.PacketTemplate).SecurityKey2 = new byte[8];
-                                ((P65281_HandshakeRequest.PacketSt65281)handshake.PacketTemplate).Port = (uint)localConfig.SrvPort;
+                                
+                                // Note: HANDSHAKE REQUEST
+                                var handshake = new NetworkMessage(netID);
+                                handshake.PacketTemplate = new P65281_HandshakeRequest.PacketSt65281()
+                                {
+#warning SECURITY: Not implemented server security keys:
+                                        SecurityKey1 = new byte[8],
+                                        SecurityKey2 = new byte[8],
+                                        Port = (uint) localConfig.SrvPort,
+                                };
                                 QueuingService.PostProcessingQueue.Enqueue(handshake);
 
                                 // dont forget to save the netID for communication later on
                                 World.LoginSrvNetID = netID;
 
-                                Debug.WriteLine("\t\t[done]");
+                                Debug.WriteLine("[done]");
+
+                                // Try to load the pmaps (init movement)
+                                Debug.Write("Loading pathing maps...               ");
+                                var movement = new Movement(Properties.Settings.Default.PathingMapsDir);
+                                Debug.WriteLine("[done]");
 
                                 // Init the server tasks
-                                Debug.Write("Registering server tasks...");
+                                Debug.Write("Registering server tasks...           ");
                                 serverTasks = new List<Action>
                                                       {
                                                               // core features:
@@ -136,43 +140,34 @@ namespace GameServer
                                                               new ActionQueue().Execute,
                                                               new HeartBeat().Execute,
                                                               new Ping().Execute,
-                                                              new Movement(@"PMAPs\").Execute
+                                                              movement.Execute
                                                       };
 
-                                Debug.WriteLine("\t\t\t[done]");
+                                Debug.WriteLine("[done]");
 
                         }
                         catch (Exception e)
                         {
-                                Debug.Fail(e.ToString());
-
-                                return false;
+                                initFail = e.ToString();
                         }
-
-                        return true;
                 }
 
                 static void Main(string[] args)
                 {
                         // Check cmd line params
 
-                        // Change console stats
-                        // Note:This must be left out when using >Mono<
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Clear();
-                        Console.SetWindowSize(Console.WindowWidth + 25, Console.WindowHeight);
-
-                        // Init the server
-                        var server = new Server();
-                        // Note: Server specific data here
-                        if (!server.Initialize())
+                        // Init-Failcheck
+                        if (initFail != "")
                         {
+                                Debug.WriteLine(" ");
+                                Debug.WriteLine("ERROR: " + initFail);
                                 Debug.WriteLine(" ");
                                 Debug.WriteLine("Terminating application");
                                 Debug.WriteLine("- press any key to continue -");
                                 Console.ReadKey();
                                 Environment.Exit(1);
                         }
+                        Debug.WriteLine(" ");
 
                         // Main loop here...);
                         while (true)
@@ -180,9 +175,10 @@ namespace GameServer
                                 try
                                 {
                                         // execute all subscribers in the server task list
+#warning PERFORMANCE This is blocking! All threads are being executed only once per cycle!
                                         serverTasks.AsParallel().ForAll(action => action());
 
-#warning Let the CPU have a pause
+#warning PERFORMANCE This may be left out depending on the system.
                                         System.Threading.Thread.Sleep(1);
                                 }
                                 catch (Exception e)

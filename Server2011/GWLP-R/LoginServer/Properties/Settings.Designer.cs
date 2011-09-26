@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GameServer.Properties {
+namespace LoginServer.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -25,7 +25,7 @@ namespace GameServer.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("GameLog.log")]
+        [global::System.Configuration.DefaultSettingValueAttribute("LoginLog.log")]
         public string LogFile {
             get {
                 return ((string)(this["LogFile"]));
@@ -34,19 +34,10 @@ namespace GameServer.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("GameConfig.xml")]
+        [global::System.Configuration.DefaultSettingValueAttribute("LoginConfig.xml")]
         public string ConfigFile {
             get {
                 return ((string)(this["ConfigFile"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("PMAPs\\")]
-        public string PathingMapsDir {
-            get {
-                return ((string)(this["PathingMapsDir"]));
             }
         }
     }

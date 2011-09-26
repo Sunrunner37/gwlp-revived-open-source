@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using LoginServer.DataBase;
-using LoginServer.ServerData;
 using MySql.Data.MySqlClient;
-using ServerEngine;
 using ServerEngine.DataBase;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement;
@@ -16,33 +13,35 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace LoginServer
 {
-
-        class Server
+        static class Server
         {
-                private ConfigFile localConfig;
+                private static readonly ConfigFile localConfig;
 
-                private static PacketManager packetMan;
+                private static readonly PacketManager packetMan;
 
-                const string ConfigFile = "LoginConfig.xml";
-                const string LogFile = "LoginLog.xml";
+                private static readonly List<Action> serverTasks;
 
-                private static List<Action> serverTasks;
+                private static readonly string initFail = "";
 
                 /// <summary>
-                ///   This creates the most necessary objects.
+                ///   Creates a new instance of the class
                 /// </summary>
-                /// <returns>
-                ///   Returns false if something fails to initialize
-                /// </returns>
-                private bool Initialize()
+                static Server()
                 {
                         try
                         {
+                                // Change console stats
+                                #if !MONO_STRICT
+                                        Console.ForegroundColor = ConsoleColor.Blue;
+                                        Console.Clear();
+                                        Console.SetWindowSize(Console.WindowWidth + 25, Console.WindowHeight);
+                                #endif
+
                                 // Init the debug writers
                                 Debug.AutoFlush = true;
                                 Debug.IndentSize = 4;
                                 var consoleWriter = new TextWriterTraceListener(Console.Out);
-                                var fileWriter = new TextWriterTraceListener(LogFile);
+                                var fileWriter = new TextWriterTraceListener(Properties.Settings.Default.LogFile);
                                 Debug.Listeners.Add(consoleWriter);
                                 Debug.Listeners.Add(fileWriter);
 
@@ -70,13 +69,13 @@ namespace LoginServer
 
                                 // Init the local config class
                                 //Debug.Listeners
-                                Debug.Write("Gathering local config file data...");
-                                localConfig = new ConfigFile(ConfigFile);
+                                Debug.Write("Gathering local config file data...   ");
+                                localConfig = new ConfigFile(Properties.Settings.Default.ConfigFile);
 
-                                Debug.WriteLine("\t\t[done]");
+                                Debug.WriteLine("[done]");
 
                                 // Init the db connection
-                                Debug.Write("Initializing database provider...");
+                                Debug.Write("Initializing database provider...     ");
                                 DataBaseProvider.InitProvider(new MySqlConnection(
                                         "server=" + localConfig.DataBaseIP +
                                         ";database=" + localConfig.DataBaseName +
@@ -84,24 +83,24 @@ namespace LoginServer
                                         ";pwd=" + localConfig.DataBasePwd + ";"),
                                         typeof(MySQL));
 
-                                Debug.WriteLine("\t\t[done]");
+                                Debug.WriteLine("[done]");
 
                                 // Load the packet manager
-                                Debug.Write("Creating packet manager...");
+                                Debug.Write("Creating packet manager...            ");
                                 var packets = Assembly.GetExecutingAssembly().GetTypes().Where(type => ((typeof(IPacket)).IsAssignableFrom(type))).ToList();
                                 packetMan = new PacketManager(packets.ToArray());
 
-                                Debug.WriteLine("\t\t\t[done]");
+                                Debug.WriteLine("[done]");
 
                                 // Init the network manager
-                                Debug.Write("Creating network manager...");
+                                Debug.Write("Creating network manager...           ");
                                 NetworkManager.Instance.Init(localConfig.SrvMaxClients);
                                 NetworkManager.Instance.StartListeners(localConfig.SrvPort);
 
-                                Debug.WriteLine("\t\t\t[done]");
+                                Debug.WriteLine("[done]");
 
                                 // Init the server tasks
-                                Debug.Write("Registering server tasks...");
+                                Debug.Write("Registering server tasks...           ");
                                 serverTasks = new List<Action>
                                                       {
                                                               // core features:
@@ -109,55 +108,47 @@ namespace LoginServer
                                                               NetworkManager.Instance.MainTask,
                                                       };
 
-                                Debug.WriteLine("\t\t\t[done]");
+                                Debug.WriteLine("[done]");
 
                         }
                         catch (Exception e)
                         {
-                                Debug.Fail(e.ToString());
-
-                                return false;
+                                initFail = e.ToString();
                         }
-
-                        return true;
                 }
 
                 static void Main(string[] args)
                 {
                         // Check cmd line params
 
-                        // Change console stats
-                        // Note:This must be left out when using >Mono<
-                        Console.ForegroundColor = ConsoleColor.Blue;
-                        Console.Clear();
-                        Console.SetWindowSize(Console.WindowWidth + 25, Console.WindowHeight);
-
-                        // Init the server
-                        var server = new Server();
-                        // Note: Server specific data here
-                        if (!server.Initialize())
+                        // Init-Failcheck
+                        if (initFail != "")
                         {
+                                Debug.WriteLine(" ");
+                                Debug.WriteLine("ERROR: " + initFail);
                                 Debug.WriteLine(" ");
                                 Debug.WriteLine("Terminating application");
                                 Debug.WriteLine("- press any key to continue -");
                                 Console.ReadKey();
                                 Environment.Exit(1);
                         }
+                        Debug.WriteLine(" ");
 
-                        // Main loop here...
+                        // Main loop here...);
                         while (true)
                         {
                                 try
                                 {
                                         // execute all subscribers in the server task list
+#warning PERFORMANCE This is blocking! All threads are being executed only once per cycle!
                                         serverTasks.AsParallel().ForAll(action => action());
 
-#warning Let the CPU have a pause
+#warning PERFORMANCE This may be left out depending on the system.
                                         System.Threading.Thread.Sleep(1);
                                 }
                                 catch (Exception e)
                                 {
-                                        Debug.WriteLine(e.ToString());
+                                        Debug.WriteLine(e.Message);
                                 }
                         }
                 }
