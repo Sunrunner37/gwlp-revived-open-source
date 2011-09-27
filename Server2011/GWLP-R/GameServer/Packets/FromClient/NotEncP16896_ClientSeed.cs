@@ -36,7 +36,7 @@ namespace GameServer.Packets.FromClient
                         pParser((PacketSt16896)message.PacketTemplate, message.PacketData);
 
                         var client = World.GetClient(Clients.NetID, message.NetID);
-                        var chara = World.GetCharacter(Chars.CharID, client[Clients.CharID]);
+                        Character chara;
 
                         // unkown client, probably a dispatching client
                         if (client == null)
@@ -67,6 +67,9 @@ namespace GameServer.Packets.FromClient
                                                 };
 
                                                 World.UpdateClient(dispatchedClient, newClient);
+
+                                                // get the char
+                                                chara = World.GetCharacter(Chars.CharID, newClient[Clients.CharID]);
 
                                                 // and the char object as well
                                                 // get some necessary IDs
