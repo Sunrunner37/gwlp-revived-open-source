@@ -21,6 +21,9 @@ namespace GameServer.Modules
                 {
                         // init the dict
                         maps = new Dictionary<int, PathingMap>();
+                        
+                        // failcheck
+                        if (!Directory.Exists(pmapsDir)) return;
 
                         // get the file names (include sub directories)
                         var pmapPaths = Directory.GetFiles(pmapsDir, "*.pmap", SearchOption.AllDirectories);
