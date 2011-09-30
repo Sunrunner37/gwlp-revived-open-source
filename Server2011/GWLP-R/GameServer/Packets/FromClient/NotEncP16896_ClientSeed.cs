@@ -68,6 +68,9 @@ namespace GameServer.Packets.FromClient
 
                                                 World.UpdateClient(dispatchedClient, newClient);
 
+                                                // also, we can safely terminate the dispatchedClient
+                                                NetworkManager.Instance.RemoveClient((int)dispatchedClient[Clients.NetID]);
+
                                                 // get the char
                                                 chara = World.GetCharacter(Chars.CharID, newClient[Clients.CharID]);
 

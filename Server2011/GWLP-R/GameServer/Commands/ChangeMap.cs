@@ -69,7 +69,7 @@ namespace GameServer.Commands
                                 // free the agent ids
                                 var chara = World.GetCharacter(Chars.CharID, newCharID);
                                 
-                                 World.UnRegisterCharacterIDs((int)chara[Chars.LocalID], (int)chara[Chars.AgentID], (int)oldMap[Maps.MapID]);
+                                World.UnRegisterCharacterIDs((int)chara[Chars.LocalID], (int)chara[Chars.AgentID], (int)oldMap[Maps.MapID]);
                         }
                 }
         }

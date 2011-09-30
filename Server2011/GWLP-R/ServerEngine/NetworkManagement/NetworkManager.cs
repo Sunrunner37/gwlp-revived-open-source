@@ -98,7 +98,7 @@ namespace ServerEngine.NetworkManagement
 
                                 // Create a new ClientConnetion object, pass the tcpClient
                                 var tmpNetID = netIDs.RequestID();
-                                clients.Add(tmpNetID, new ClientConnection(tmpNetID, newClient));
+                                clients.Add(tmpNetID, new ClientConnection(tmpNetID, newClient) {IsPaused = false});
                         }
 
                         // Distribute the client messages
@@ -164,6 +164,33 @@ namespace ServerEngine.NetworkManagement
                                 netIDs.FreeID(netID);
                         }
 
+                }
+
+                /// <summary>
+                ///   Pauses a client. It cannot send/recieve anything, but it cannot be terminated automatically too.
+                ///   Returns true if successfully paused, otherwise the client may have terminated.
+                /// </summary>
+                /// <param name="netID">
+                ///   The network ID of the client.
+                /// </param>
+                public bool PauseClient(int netID)
+                {
+                        if (!isInitialized) throw new Exception("Not initialized. Call Init() first.");
+
+                        lock (objLock)
+                        {
+                                ClientConnection client;
+                                if (!clients.TryGetValue(netID, out client)) return false;
+
+                                // Check client for termination first
+                                if (!client.IsTerminated)
+                                {
+                                        client.IsPaused = true;
+                                        return true;
+                                }
+                        }
+
+                        return false;
                 }
 
                 /// <summary>

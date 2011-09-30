@@ -6,8 +6,8 @@ using System.Text;
 namespace ServerEngine.Tools
 {
         public class MultiKeyDictionary<TKeyIdentifier, TValue>
-                where TKeyIdentifier : struct, IComparable, IFormattable, IConvertible
-                where TValue : IIdentifiable<TKeyIdentifier> // because one cant use ": Enum"
+                where TKeyIdentifier : struct, IComparable, IFormattable, IConvertible // because one cant use ": Enum"
+                where TValue : IIdentifiable<TKeyIdentifier> 
         {
                 public MultiKeyDictionary()
                 {
@@ -72,7 +72,15 @@ namespace ServerEngine.Tools
                         return typeof(TValue);
                 }
 
-                public IEnumerable<TValue> Values { get { return dict.Values; } }
+                public IEnumerable<TValue> Values
+                {
+                        get
+                        {
+                                // NOTE: BUG: THE FOLLOWING NEEDS TO RETURN AN ENUMERATION THAT WILL NOT UPDATE WHEN dict.Values CHANGES!
+                                var values = dict.Values.Distinct(new KeyEqualityComparer<TValue>(x => x.IdentifierKeyEnumeration.ElementAt(0)));
+                                return values.ToList();
+                        }
+                }
 
                 /// <summary>
                 ///   Creates an int packed with id and id type to be used as a dictionary key.
@@ -86,5 +94,27 @@ namespace ServerEngine.Tools
 
                         return result;
                 }
+
+                #region Nested Class: Distinct Helper Class
+                public class KeyEqualityComparer<T> : IEqualityComparer<T>
+                {
+                        private readonly Func<T, object> keyExtractor;
+
+                        public KeyEqualityComparer(Func<T, object> keyExtractor)
+                        {
+                                this.keyExtractor = keyExtractor;
+                        }
+
+                        public bool Equals(T x, T y)
+                        {
+                                return this.keyExtractor(x).Equals(this.keyExtractor(y));
+                        }
+
+                        public int GetHashCode(T obj)
+                        {
+                                return this.keyExtractor(obj).GetHashCode();
+                        }
+                }
+                #endregion
         }
 }

@@ -77,7 +77,7 @@ namespace GameServer.Modules
                                                         else
                                                         {
                                                                 mapID = 0;
-                                                                Debug.WriteLine(string.Format("Database incomplete! Cannot load pathing map file '{0}', but continuing with next file", pmapPath));
+                                                                Debug.WriteLine(string.Format("DB Data missing for '{0}' [skipped]", pmapPath));
                                                         }
                                                 }
                                                 newMap.MapID = mapID;

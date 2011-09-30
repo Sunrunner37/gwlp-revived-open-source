@@ -55,6 +55,11 @@ namespace GameServer.Packets.FromClient
                                         Data1 = 250
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(heartBeat);
+
+                                // also, set the client to 'paused'
+                                // this should prevent us from loosing data because of the network manager deleting stuff.
+                                // (at least till the client rejoined, then we can safely terminate it)
+                                NetworkManager.Instance.PauseClient(message.NetID);
                         }
 
                         if (kick)

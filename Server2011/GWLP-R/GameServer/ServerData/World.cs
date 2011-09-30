@@ -169,7 +169,7 @@ namespace GameServer.ServerData
 
                 public static IEnumerable<Map> GetMaps()
                 {
-                        return maps.Values.Distinct();
+                        return maps.Values;
                 }
 
                 public static void RegisterCharacterIDs(out int localID, out int agentID, int mapIDToRegisterWith)

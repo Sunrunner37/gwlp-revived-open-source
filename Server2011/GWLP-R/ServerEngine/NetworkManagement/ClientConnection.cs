@@ -48,6 +48,13 @@ namespace ServerEngine.NetworkManagement
                 public bool IsTerminated { get; private set; }
 
                 /// <summary>
+                ///   This property determines whether a client connection has been paused.
+                ///   Paused clients dont do a connection checks, but try to send data if possible.
+                ///   Paused clients also do not terminate themselfes automatically. 
+                /// </summary>
+                public bool IsPaused { get; set; }
+
+                /// <summary>
                 ///   This property contains the network ID of the client
                 /// </summary>
                 public int NetID
@@ -89,6 +96,9 @@ namespace ServerEngine.NetworkManagement
                 /// </returns>
                 public bool Refresh()
                 {
+                        // If is connected
+                        if (IsTerminated) return IsTerminated;
+
                         // Check for connection
                         if(DateTime.Now.Subtract(lastConCheck).TotalMilliseconds > 10 && !IsTerminated && !IsConnected())
                         {
@@ -96,28 +106,29 @@ namespace ServerEngine.NetworkManagement
                         }
                         lastConCheck = DateTime.Now;
 
-                        // If is connected
-                        if (!IsTerminated)
+                        // read data if possible
+                        if (netStream.DataAvailable)
                         {
-                                // read data if possible
-                                if (netStream.DataAvailable)
+                                var tmpPck = ReadPacket();
+
+                                // failcheck
+                                if (tmpPck != null)
                                 {
-                                        QueuingService.NetInQueue.Enqueue(ReadPacket());
+                                        QueuingService.NetInQueue.Enqueue(tmpPck);
                                 }
+                        }
 
-                                // recalculate the timespan between now and the last written packet:
-                                int timeSpan = (int) DateTime.Now.Subtract(lastRefresh).TotalMilliseconds;
+                        // recalculate the timespan between now and the last written packet:
+                        int timeSpan = (int) DateTime.Now.Subtract(lastRefresh).TotalMilliseconds;
 
-                                // if theres a packet in the private queue and the time span is high enough
-                                if ((timeSpan > 10) && (conOutQueue.Count != 0))
-                                {
-                                        lastRefresh = DateTime.Now;
+                        // if theres a packet in the private queue and the time span is high enough
+                        if ((timeSpan > 10) && (conOutQueue.Count != 0))
+                        {
+                                lastRefresh = DateTime.Now;
 
-                                        // send this packet
-                                        NetworkMessage tmpMsg = conOutQueue.Dequeue();
-                                        WritePacket(tmpMsg);
-                                }
-
+                                // send this packet
+                                NetworkMessage tmpMsg = conOutQueue.Dequeue();
+                                WritePacket(tmpMsg);
                         }
 
                         return !IsTerminated;
@@ -128,6 +139,8 @@ namespace ServerEngine.NetworkManagement
                 /// </summary>
                 public void Terminate()
                 {
+                        if (IsPaused) Debug.WriteLine("Terminating paused (!) client...", netID);
+
                         IsTerminated = true;
 
                         netStream.Close();
@@ -145,6 +158,9 @@ namespace ServerEngine.NetworkManagement
                 /// </returns>
                 private NetworkMessage ReadPacket()
                 {
+                        // pause check
+                        if (IsPaused) return null;
+
                         var result = new List<byte>();
 
                         while (netStream.DataAvailable)
@@ -165,6 +181,9 @@ namespace ServerEngine.NetworkManagement
                 /// </param>
                 private void WritePacket(NetworkMessage netMessage)
                 {
+                        //// pause check
+                        //if (IsPaused) return;
+
                         try
                         {
                                 tcpConnection.Client.Send(netMessage.PacketData.ToArray());//, 0, (int)netMessage.PacketData.Length);
@@ -175,8 +194,8 @@ namespace ServerEngine.NetworkManagement
                         catch (Exception)
                         {
                                 
-                                Debug.WriteLine("Failed to send data to Client[{0}]: Terminated", netID);
-                                Terminate();
+                                Debug.WriteLine("Failed to send data to Client[{0}]", netID);
+                                if (!IsPaused) Terminate();
                         }
                         
                 }
@@ -189,11 +208,18 @@ namespace ServerEngine.NetworkManagement
                 /// </returns>
                 private bool IsConnected()
                 {
+                        // pause check
+                        if (IsPaused) return true;
+
                         try
                         {
                                 return !(tcpConnection.Client.Poll(1, SelectMode.SelectRead) && tcpConnection.Client.Available == 0);
                         }
-                        catch (SocketException) { return false; }
+                        catch (SocketException)
+                        {
+                                Debug.WriteLine("Failed to send connection-check data to Client[{0}]", netID);
+                                return false;
+                        }
                 }
         }
 }
