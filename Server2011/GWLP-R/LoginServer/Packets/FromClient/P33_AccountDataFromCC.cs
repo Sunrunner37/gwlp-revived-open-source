@@ -1,6 +1,6 @@
 using System;
 using LoginServer.ServerData;
-using ServerEngine.ProcessorQueues;
+using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
@@ -26,12 +26,14 @@ namespace LoginServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt33();
-                        pParser((PacketSt33)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt33();
+                        pParser(pack, message.PacketData);
 
-                        var client = World.GetClient(Idents.Clients.NetID, message.NetID);
+                        // get the client
+                        var client = LoginServerWorld.Instance.Get<DataClient>(message.NetID);
                         
-                        client.LoginCount = (int)((PacketSt33)message.PacketTemplate).LoginCount;
+                        // update the sync count
+                        client.Data.SyncCount = pack.LoginCount;
                         
                         return true;
                 }

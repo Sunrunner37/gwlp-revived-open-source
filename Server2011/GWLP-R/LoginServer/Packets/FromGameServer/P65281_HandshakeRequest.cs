@@ -1,8 +1,9 @@
 using System;
 using LoginServer.Packets.ToGameServer;
 using LoginServer.ServerData;
+using ServerEngine;
+using ServerEngine.DataManagement.DataWrappers;
 using ServerEngine.NetworkManagement;
-using ServerEngine.ProcessorQueues;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
@@ -31,25 +32,34 @@ namespace LoginServer.Packets.FromGameServer
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt65281();
-                        pParser((PacketSt65281)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt65281();
+                        pParser(pack, message.PacketData);
 
 #warning No security check here
 
                         // we've got a new game server, lets get the network data of it:
                         byte[] ip;
-                        int port;
+                        uint port;
                         if (NetworkManager.Instance.GetClientInfo(message.NetID, out ip, out port))
                         {
                                 // if the client is valid (or even existing)
                                 // Note: use the port from the packet here, because we dont want to have the port that the game server uses to connect to us
-                                var server = new GameServer(message.NetID, ip, (int)((PacketSt65281)message.PacketTemplate).Port);
+                                var data = new GameServerData
+                                {
+                                        NetID = message.NetID,
+                                        IPAddress = new IPAddress(ip),
+                                        Port = new Port(pack.Port)
+                                };
+                                var server = new DataGameServer(data);
 
-                                World.AddGameServer(server);
+                                // add the server
+                                LoginServerWorld.Instance.Add(server);
 
                                 // create reply
                                 var reply = new NetworkMessage(message.NetID)
-                                                    {PacketTemplate = new P65281_HandshakeReply.PacketSt65281()};
+                                {
+                                        PacketTemplate = new P65281_HandshakeReply.PacketSt65281()
+                                };
                                 QueuingService.PostProcessingQueue.Enqueue(reply);
                         }
 

@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 using LoginServer.ServerData;
-using ServerEngine.ProcessorQueues;
+using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
@@ -26,8 +26,10 @@ namespace LoginServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt35();
-                        pParser((PacketSt35)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt35();
+                        pParser(pack, message.PacketData);
+
+#warning WTF is that?
 
                         return true;
                 }

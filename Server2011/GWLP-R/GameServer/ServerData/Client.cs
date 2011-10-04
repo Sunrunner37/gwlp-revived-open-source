@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using GameServer.Enums;
-using ServerEngine.Tools;
 
 namespace GameServer.ServerData
 {
-        public sealed class Client : IIdentifiable<Clients>
+        public sealed class Client : IIdentifiable
         {
 
                 private readonly object objLock = new object();

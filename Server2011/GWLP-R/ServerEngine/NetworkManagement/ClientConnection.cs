@@ -5,7 +5,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Timers;
-using ServerEngine.ProcessorQueues;
+using ServerEngine.DataManagement.DataWrappers;
 
 namespace ServerEngine.NetworkManagement
 {
@@ -96,15 +96,16 @@ namespace ServerEngine.NetworkManagement
                 /// </returns>
                 public bool Refresh()
                 {
-                        // If is connected
-                        if (IsTerminated) return IsTerminated;
-
                         // Check for connection
                         if(DateTime.Now.Subtract(lastConCheck).TotalMilliseconds > 10 && !IsTerminated && !IsConnected())
                         {
                                 Terminate();
                         }
                         lastConCheck = DateTime.Now;
+
+                        // check for termination
+                        // check here because of the code above
+                        if (IsTerminated) return IsTerminated;
 
                         // read data if possible
                         if (netStream.DataAvailable)
@@ -170,7 +171,10 @@ namespace ServerEngine.NetworkManagement
 
                         Debug.WriteLine("-->"+BitConverter.ToString(result.ToArray()).Replace("-", " "));
 
-                        return new NetworkMessage(netID) {PacketData = new MemoryStream(result.ToArray())};
+                        return new NetworkMessage(new NetID(netID))
+                        {
+                                PacketData = new MemoryStream(result.ToArray())
+                        };
                 }
 
                 /// <summary>

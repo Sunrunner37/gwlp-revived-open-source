@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
-using ServerEngine.ProcessorQueues;
-using ServerEngine.Tools;
+using ServerEngine.DataManagement.DataWrappers;
+using IPAddress = System.Net.IPAddress;
 
 namespace ServerEngine.NetworkManagement
 {
@@ -106,7 +104,7 @@ namespace ServerEngine.NetworkManagement
                         if (QueuingService.NetOutQueue.TryPeek(out netMsg))
                         {
                                 ClientConnection client;
-                                if (clients.TryGetValue(netMsg.NetID, out client))
+                                if (clients.TryGetValue(netMsg.NetID.Value, out client))
                                 {
                                         // Enqueue a new message from the global message queue
                                         if (QueuingService.NetOutQueue.TryDequeue(out netMsg))
@@ -143,14 +141,14 @@ namespace ServerEngine.NetworkManagement
                 /// <param name="netID">
                 ///   The unique network interface ID of the client
                 /// </param>
-                public void RemoveClient(int netID)
+                public void RemoveClient(NetID netID)
                 {
                         if (!isInitialized) throw new Exception("Not initialized. Call Init() first."); 
 
                         lock (objLock)
                         {
                                 ClientConnection client;
-                                if (!clients.TryGetValue(netID, out client)) return;
+                                if (!clients.TryGetValue(netID.Value, out client)) return;
 
                                 // Check client for termination first
                                 if (!client.IsTerminated)
@@ -159,9 +157,9 @@ namespace ServerEngine.NetworkManagement
                                 }
 
                                 // Remove it
-                                clients.Remove(netID);
+                                clients.Remove(netID.Value);
                                 // Free netID
-                                netIDs.FreeID(netID);
+                                netIDs.FreeID(netID.Value);
                         }
 
                 }
@@ -173,14 +171,14 @@ namespace ServerEngine.NetworkManagement
                 /// <param name="netID">
                 ///   The network ID of the client.
                 /// </param>
-                public bool PauseClient(int netID)
+                public bool PauseClient(NetID netID)
                 {
                         if (!isInitialized) throw new Exception("Not initialized. Call Init() first.");
 
                         lock (objLock)
                         {
                                 ClientConnection client;
-                                if (!clients.TryGetValue(netID, out client)) return false;
+                                if (!clients.TryGetValue(netID.Value, out client)) return false;
 
                                 // Check client for termination first
                                 if (!client.IsTerminated)
@@ -211,7 +209,7 @@ namespace ServerEngine.NetworkManagement
                 /// <summary>
                 ///   Reply to the requested utilization ratio packet
                 /// </summary>
-                public bool GetClientInfo(int netID, out byte[] clientIP, out int clientPort)
+                public bool GetClientInfo(NetID netID, out byte[] clientIP, out uint clientPort)
                 {
                         if (!isInitialized) throw new Exception("Not initialized. Call Init() first."); 
 
@@ -221,11 +219,11 @@ namespace ServerEngine.NetworkManagement
                                 clientPort = 0;
 
                                 ClientConnection client;
-                                if (!clients.TryGetValue(netID, out client)) return false;
+                                if (!clients.TryGetValue(netID.Value, out client)) return false;
                                 if (!client.IsTerminated)
                                 {
                                         clientIP = client.IP;
-                                        clientPort = client.Port;
+                                        clientPort = (uint)client.Port;
                                         return true;
                                 }
 

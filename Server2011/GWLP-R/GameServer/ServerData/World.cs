@@ -8,10 +8,10 @@ using GameServer.DataBase;
 using GameServer.Enums;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
-using ServerEngine.DataBase;
+using ServerEngine;
+using ServerEngine.DataManagement;
 using ServerEngine.NetworkManagement;
-using ServerEngine.ProcessorQueues;
-using ServerEngine.Tools;
+using ServerEngine.GuildWars.Tools;
 
 namespace GameServer.ServerData
 {
@@ -32,18 +32,14 @@ namespace GameServer.ServerData
                         // GW commands alphabetical order
                         ChatCommandsDict.Add("stuck", typeof(GWStuck));
 
-
-                        clients = new MultiKeyDictionary<Clients, Client>();
-                        chars = new MultiKeyDictionary<Chars, Character>();
-                        maps = new MultiKeyDictionary<Maps, Map>();
                         charLocalIDs = new IDManager(1, 10000);
                 }
 
-                public static Dictionary<string, Type> ChatCommandsDict { get; private set; } 
-                private static readonly MultiKeyDictionary<Clients, Client> clients;
-                private static readonly MultiKeyDictionary<Chars, Character> chars;
-                private static readonly MultiKeyDictionary<Maps, Map> maps;
-                private static IDManager charLocalIDs;
+                public Dictionary<string, Type> ChatCommandsDict { get; private set; }
+
+                private Dictionary<Type, MultiKeyDictionary<IEnumerable<IWrapper>>> worldData;
+
+                private IDManager charLocalIDs;
 
                 public static int LoginSrvNetID { get; set;}
 

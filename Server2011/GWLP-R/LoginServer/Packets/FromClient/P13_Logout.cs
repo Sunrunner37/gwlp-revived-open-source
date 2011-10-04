@@ -1,7 +1,7 @@
 using System;
 using LoginServer.Enums;
 using LoginServer.ServerData;
-using ServerEngine.ProcessorQueues;
+using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
@@ -26,18 +26,19 @@ namespace LoginServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt13();
-                        pParser((PacketSt13)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt13();
+                        pParser(pack, message.PacketData);
 
-                        var client = World.GetClient(Idents.Clients.NetID, message.NetID);
+                        // get client
+                        var client = LoginServerWorld.Instance.Get<DataClient>(message.NetID);
                         
-                        if (client.Status != SyncState.PossibleQuit)
+                        if (client.Data.Status != SyncStatus.PossibleQuit)
                         {
-                                client.LoginCount++;
-                                client.Email = "";
-                                client.Password = "";
+                                client.Data.SyncCount++;
+                                client.Data.Email = "";
+                                client.Data.Password = "";
                                 // reset status
-                                client.Status = SyncState.EncryptionEstablished;
+                                client.Data.Status = SyncStatus.EncryptionEstablished;
                         }
 
                         return true;

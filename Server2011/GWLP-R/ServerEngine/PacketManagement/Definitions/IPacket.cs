@@ -1,4 +1,4 @@
-﻿using ServerEngine.ProcessorQueues;
+﻿using ServerEngine.NetworkManagement;
 
 namespace ServerEngine.PacketManagement.Definitions
 {

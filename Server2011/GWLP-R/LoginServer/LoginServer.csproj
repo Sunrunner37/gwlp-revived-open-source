@@ -54,11 +54,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataBase\MySQL.cs" />
-    <Compile Include="Enums\SyncState.cs" />
+    <Compile Include="Enums\SyncStatus.cs" />
     <Compile Include="Packets\FromClient\NotEncP16896_ClientSeed.cs" />
     <Compile Include="Packets\FromClient\P00_KeepAlive.cs" />
     <Compile Include="Packets\FromClient\P01_ComputerUser.cs" />
-    <Compile Include="Packets\FromClient\P010_CharacterPlayName.cs" />
+    <Compile Include="Packets\FromClient\P10_CharacterPlayName.cs" />
     <Compile Include="Packets\FromClient\NotEncP1024_ClientVersion.cs" />
     <Compile Include="Packets\FromClient\Packet11.cs" />
     <Compile Include="Packets\FromClient\Packet12.cs" />
@@ -163,12 +163,20 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Server.cs" />
-    <Compile Include="ServerData\Client.cs" />
-    <Compile Include="ServerData\GameServer.cs" />
-    <Compile Include="ServerData\Idents.cs" />
-    <Compile Include="ServerData\World.cs" />
+    <Compile Include="ServerData\DataClient.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasAccountData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasEncryptionData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasGameServerData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasSyncStatusData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasTransferSecurityData.cs" />
+    <Compile Include="ServerData\DataGameServer.cs" />
+    <Compile Include="ServerData\LoginServerWorld.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ServerEngine.GuildWars\ServerEngine.GuildWars.csproj">
+      <Project>{0F84942E-D64E-4997-80EE-13FE215975CB}</Project>
+      <Name>ServerEngine.GuildWars</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ServerEngine\ServerEngine.csproj">
       <Project>{A08F6CA4-E560-4703-82E7-50E7921A8D66}</Project>
       <Name>ServerEngine</Name>

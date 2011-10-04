@@ -2,7 +2,8 @@ using System;
 using LoginServer.Enums;
 using LoginServer.Packets.ToClient;
 using LoginServer.ServerData;
-using ServerEngine.ProcessorQueues;
+using ServerEngine;
+using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
@@ -27,31 +28,42 @@ namespace LoginServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt14();
-                        pParser((PacketSt14)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt14();
+                        pParser(pack, message.PacketData);
                         
-                        // 0=exit
-                        var client= World.GetClient(Idents.Clients.NetID, message.NetID);
-                        switch (((PacketSt14)message.PacketTemplate).ExitCode)
+                        var client= LoginServerWorld.Instance.Get<DataClient>(message.NetID);
+                        switch (pack.ExitCode)
                         {
+                                // possible exit
                                 case 0:
-                                        client.Status = SyncState.PossibleQuit;
-
-                                        var msg = new NetworkMessage(message.NetID);
-                                        msg.PacketTemplate = new P03_StreamTerminator.PacketSt3()
                                         {
-                                                LoginCount = (uint)client.LoginCount,
-                                                ErrorCode = 0
-                                        };
-                                        QueuingService.PostProcessingQueue.Enqueue(msg);
-                                                
+                                                client.Data.Status = SyncStatus.PossibleQuit;
+
+                                                // Note: STREAM TERMINATOR
+                                                var msg = new NetworkMessage(message.NetID)
+                                                {
+                                                        PacketTemplate = new P03_StreamTerminator.PacketSt3()
+                                                        {
+                                                                LoginCount = client.Data.SyncCount,
+                                                                ErrorCode = 0
+                                                        }
+                                                };
+                                                QueuingService.PostProcessingQueue.Enqueue(msg);
+                                        }
                                         break;
+                                // loads instance
                                 case 1:
-                                        client.Status = SyncState.TriesToLoadInstance;
-                                        
+                                        {
+                                                client.Data.Status = SyncStatus.TriesToLoadInstance;
+                                        }
                                         break;
+                                // strange stuff, kick client
                                 default:
-                                        throw new NotImplementedException();
+                                        {
+                                                // the client has send strange data, so kick it
+                                                LoginServerWorld.Instance.Kick(client);
+                                        }
+                                        break;
                         }
 
                         return true;

@@ -1,6 +1,8 @@
 using System;
 using LoginServer.ServerData;
-using ServerEngine.ProcessorQueues;
+using LoginServer.ServerData.DataInterfaces;
+using ServerEngine.NetworkManagement;
+using ServerEngine.DataManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
@@ -9,13 +11,29 @@ namespace LoginServer.Packets.FromGameServer
         [PacketAttributes(IsIncoming = true, Header = 65282)]
         public class P65282_ServerStatsReply : IPacket
         {
-                public class PacketSt65282 : IPacketTemplate
+                public class PacketSt65282 : IPacketTemplate, IHasGameServerData
                 {
                         public UInt16 Header { get { return 65282; } }
-                        public byte Utilization;
+                        public byte SrvUtilization;
                         public UInt16 ArraySize1;
                         [PacketFieldType(ConstSize = false, MaxSize = 1024)]
                         public UInt16[] MapIDs;
+
+                        #region Implementation of IHasGameServerData
+
+                        public byte Utilization 
+                        { 
+                                get { return SrvUtilization; }
+                                set { SrvUtilization = value; }
+                        }
+
+                        public ushort[] AvailableMaps
+                        {
+                                get { return MapIDs; }
+                                set { MapIDs = value; }
+                        }
+
+                        #endregion
                 }
 
                 public void InitPacket(object parser)
@@ -28,16 +46,15 @@ namespace LoginServer.Packets.FromGameServer
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt65282();
-                        pParser((PacketSt65282)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt65282();
+                        pParser(pack, message.PacketData);
 
-                        GameServer gameServer;
-                        lock (gameServer = World.GetGameServer(Idents.GameServers.NetID, message.NetID))
-                        {
-                                gameServer.Utilization = ((PacketSt65282) message.PacketTemplate).Utilization;
-                                gameServer.AvailableMaps = ((PacketSt65282) message.PacketTemplate).MapIDs;
-                        }
+                        // get the game server
+                        var dataGameServer = LoginServerWorld.Instance.Get<DataGameServer>(message.NetID);
 
+                        // paste the data
+                        dataGameServer.Data.Paste<IHasGameServerData>(pack);
+                        
                         return true;
                 }
 

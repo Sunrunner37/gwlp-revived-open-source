@@ -1,10 +1,10 @@
 using System;
 using GameServer.Enums;
 using GameServer.ServerData;
-using ServerEngine.ProcessorQueues;
+using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
-using ServerEngine.Tools;
+using ServerEngine.GuildWars.Tools;
 
 namespace GameServer.Packets.FromClient
 {

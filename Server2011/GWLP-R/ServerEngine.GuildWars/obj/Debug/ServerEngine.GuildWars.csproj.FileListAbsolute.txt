@@ -1,0 +1,8 @@
+C:\Users\Administrator\Documents\Projects\GWLP Revived\GWLPR-OS\Server2011\GWLP-R\ServerEngine.GuildWars\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Administrator\Documents\Projects\GWLP Revived\GWLPR-OS\Server2011\GWLP-R\ServerEngine.GuildWars\bin\Debug\ServerEngine.GuildWars.dll
+C:\Users\Administrator\Documents\Projects\GWLP Revived\GWLPR-OS\Server2011\GWLP-R\ServerEngine.GuildWars\bin\Debug\ServerEngine.GuildWars.pdb
+C:\Users\Administrator\Documents\Projects\GWLP Revived\GWLPR-OS\Server2011\GWLP-R\ServerEngine.GuildWars\bin\Debug\ServerEngine.dll
+C:\Users\Administrator\Documents\Projects\GWLP Revived\GWLPR-OS\Server2011\GWLP-R\ServerEngine.GuildWars\bin\Debug\MySql.Data.dll
+C:\Users\Administrator\Documents\Projects\GWLP Revived\GWLPR-OS\Server2011\GWLP-R\ServerEngine.GuildWars\bin\Debug\ServerEngine.pdb
+C:\Users\Administrator\Documents\Projects\GWLP Revived\GWLPR-OS\Server2011\GWLP-R\ServerEngine.GuildWars\obj\Debug\ServerEngine.GuildWars.dll
+C:\Users\Administrator\Documents\Projects\GWLP Revived\GWLPR-OS\Server2011\GWLP-R\ServerEngine.GuildWars\obj\Debug\ServerEngine.GuildWars.pdb

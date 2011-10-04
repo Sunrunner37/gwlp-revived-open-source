@@ -5,10 +5,9 @@ using System.Linq;
 using System.Reflection;
 using LoginServer.DataBase;
 using MySql.Data.MySqlClient;
-using ServerEngine.DataBase;
+using ServerEngine;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement;
-using ServerEngine.OfflineSettings;
 using ServerEngine.PacketManagement.Definitions;
 
 namespace LoginServer

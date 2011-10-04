@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using LoginServer.Enums;
 using LoginServer.Packets.ToClient;
 using LoginServer.ServerData;
-using ServerEngine.ProcessorQueues;
+using ServerEngine;
+using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
@@ -30,30 +30,31 @@ namespace LoginServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt16896();
-                        pParser((PacketSt16896)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt16896();
+                        pParser(pack, message.PacketData);
 
                         // check the sync state of the client
-                        var client = World.GetClient(Idents.Clients.NetID, message.NetID);
+                        var client = LoginServerWorld.Instance.Get<DataClient>(message.NetID);
 
-                        if (client.Status == SyncState.ConnectionEstablished)
+                        if (client.Data.Status == SyncStatus.ConnectionEstablished)
                         {
-                                client.InitCryptSeed = ((PacketSt16896) message.PacketTemplate).Seed;
+                                client.Data.EncryptionSeed = pack.Seed;
 
-                                // send server seed:
-                                //
-                                var msg = new NetworkMessage(message.NetID);
-                                // set the message type
-                                msg.PacketTemplate = new NotEncP5633_ServerSeed.PacketSt5633();
-                                // set the message data
-                                ((NotEncP5633_ServerSeed.PacketSt5633)msg.PacketTemplate).Seed = new byte[20];
-                                // send it
+                                // Note: SERVER SEED
+                                var msg = new NetworkMessage(message.NetID)
+                                {
+                                        PacketTemplate = new NotEncP5633_ServerSeed.PacketSt5633
+                                        {
+                                                Seed = new byte[20]
+                                        }
+                                };
                                 QueuingService.PostProcessingQueue.Enqueue(msg);
 
                                 return true;
                         }
+
                         // if the client is in any different sync state, kick it
-                        World.KickClient(Idents.Clients.NetID, message.NetID);
+                        LoginServerWorld.Instance.Kick(client);
                         
                         return true;
                 }

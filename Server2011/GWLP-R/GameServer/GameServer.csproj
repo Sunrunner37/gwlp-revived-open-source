@@ -80,7 +80,6 @@
     <Compile Include="Commands\Test.cs" />
     <Compile Include="Enums\ItemStorage.cs" />
     <Compile Include="Enums\ItemType.cs" />
-    <Compile Include="Enums\ObjectIdentification.cs" />
     <Compile Include="Interfaces\IAction.cs" />
     <Compile Include="Interfaces\IModule.cs" />
     <Compile Include="Modules\ActionQueue.cs" />
@@ -783,6 +782,10 @@
     <Compile Include="ServerData\World.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ServerEngine.GuildWars\ServerEngine.GuildWars.csproj">
+      <Project>{0F84942E-D64E-4997-80EE-13FE215975CB}</Project>
+      <Name>ServerEngine.GuildWars</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ServerEngine\ServerEngine.csproj">
       <Project>{A08F6CA4-E560-4703-82E7-50E7921A8D66}</Project>
       <Name>ServerEngine</Name>

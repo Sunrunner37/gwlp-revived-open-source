@@ -2,7 +2,7 @@ using System;
 using GameServer.Actions;
 using GameServer.Enums;
 using GameServer.ServerData;
-using ServerEngine.ProcessorQueues;
+using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 

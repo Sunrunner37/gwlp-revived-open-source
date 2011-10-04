@@ -4,6 +4,9 @@ using System.Text;
 
 namespace ServerEngine.PacketManagement.StaticConvert
 {
+        /// <summary>
+        ///   Note that this class is GuildWars-protocol dependant
+        /// </summary>
         public static class RawConverter
         {
                 public static void ReadByte(ref byte toData, MemoryStream fromRaw)

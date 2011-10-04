@@ -1,5 +1,5 @@
 using System;
-using ServerEngine.ProcessorQueues;
+using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
@@ -24,8 +24,8 @@ namespace LoginServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt0();
-                        pParser((PacketSt0)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt0();
+                        pParser(pack, message.PacketData);
 
                         return true;
                 }

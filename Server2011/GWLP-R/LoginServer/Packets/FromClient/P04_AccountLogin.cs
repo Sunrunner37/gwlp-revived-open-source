@@ -5,8 +5,14 @@ using LoginServer.DataBase;
 using LoginServer.Enums;
 using LoginServer.Packets.ToClient;
 using LoginServer.ServerData;
-using ServerEngine.DataBase;
-using ServerEngine.ProcessorQueues;
+using LoginServer.ServerData.DataInterfaces;
+using ServerEngine;
+using ServerEngine.DataManagement.DataInterfaces;
+using ServerEngine.GuildWars.DataInterfaces;
+using ServerEngine.GuildWars.DataWrappers.Clients;
+using ServerEngine.GuildWars.DataWrappers.Maps;
+using ServerEngine.NetworkManagement;
+using ServerEngine.DataManagement;
 using ServerEngine.PacketManagement.StaticConvert;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
@@ -16,20 +22,45 @@ namespace LoginServer.Packets.FromClient
         [PacketAttributes(IsIncoming = true, Header = 4)]
         public class P04_AccountLogin : IPacket
         {
-                public class PacketSt4 : IPacketTemplate
+                public class PacketSt4 : IPacketTemplate, IHasAccountData
                 {
                         public UInt16 Header { get { return 4; } }
                         public UInt32 LoginCount;
                         //public UInt32 PwSize;
                         //[PacketFieldType(ConstSize = true, MaxSize = 20)]
                         [PacketFieldType(ConstSize = true, MaxSize = 24)]
-                        public byte[] Password;
+                        public byte[] ClPassword;
                         [PacketFieldType(ConstSize = false, MaxSize = 64)]
-                        public string Email;
+                        public string ClEmail;
                         [PacketFieldType(ConstSize = false, MaxSize = 20)]
                         public string Data2;
                         [PacketFieldType(ConstSize = false, MaxSize = 20)]
                         public string CharName;
+
+                        #region Implementation of IHasAccountData
+
+                        public string Email
+                        {
+                                get { return ClEmail; }
+                                set { ClEmail = value; }
+                        }
+
+                        public string Password
+                        {
+                                get
+                                {
+                                        var pw = "";
+                                        var raw = (byte[])ClPassword.Clone();
+                                        raw[0] /= 2; // because UTF16 has 2 bytes per character
+                                        raw[1] = 0;  // because that was not set correctly by the client
+                                        RawConverter.ReadUTF16(ref pw, new MemoryStream(raw));
+                                        return pw;
+
+                                }
+                                set { ClPassword =new byte[0]; }
+                        }
+
+                        #endregion
                 }
 
                 public void InitPacket(object parser)
@@ -42,34 +73,27 @@ namespace LoginServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt4();
-                        pParser((PacketSt4)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt4();
+                        pParser(pack, message.PacketData);
 
-                        var clientOld = World.GetClient(Idents.Clients.NetID, message.NetID);
+                        var oldClient = LoginServerWorld.Instance.Get<DataClient>(message.NetID);
                         
                         // refresh login counter
-                        clientOld.LoginCount = (int)((PacketSt4) message.PacketTemplate).LoginCount;
+                        oldClient.Data.SyncCount = pack.LoginCount;
 
-                        // get the email
-                        clientOld.Email = ((PacketSt4) message.PacketTemplate).Email;
-
-                        // get the pw Note: dirty pw encryption workaround here...
-                        string pw = "";
-                        ((PacketSt4)message.PacketTemplate).Password[0] /= 2; // because UTF16 has 2 bytes per character
-                        ((PacketSt4)message.PacketTemplate).Password[1] = 0; // because that was not set correctly by the client
-                        RawConverter.ReadUTF16(ref pw, new MemoryStream(((PacketSt4) message.PacketTemplate).Password));
-                        clientOld.Password = pw;
+                        // get the account data
+                        oldClient.Data.Paste<IHasAccountData>(pack);
 
                         // check the login with database values
                         using (var db = (MySQL) DataBaseProvider.GetDataBase())
                         {
                                 var dbClient = from acc in db.accountsMasterData
-                                                where (acc.email == clientOld.Email
-                                                        && acc.password == clientOld.Password)
+                                                where (acc.email == oldClient.Data.Email
+                                                        && acc.password == oldClient.Data.Password)
                                                 select acc;
 
                                 // check for typical errors
-                                var errorcode = 0;
+                                var errorcode = (uint)0;
                                 if (dbClient.Count() == 0)
                                 {
                                         errorcode = 227;
@@ -82,77 +106,75 @@ namespace LoginServer.Packets.FromClient
                                 // if an error occured
                                 if (errorcode != 0)
                                 {
-                                        // send a stream terminator:
+                                        // Note: STREAM TERMINATOR
                                         var msg = new NetworkMessage(message.NetID)
                                         {
                                                 PacketTemplate = new P03_StreamTerminator.PacketSt3()
+                                                {
+                                                        LoginCount = oldClient.Data.SyncCount,
+                                                        ErrorCode = errorcode
+                                                }
                                         };
-                                        // set the message data
-                                        ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).LoginCount = (uint)clientOld.LoginCount;
-                                        ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).ErrorCode = (uint)errorcode;
-                                        // send it
                                         QueuingService.PostProcessingQueue.Enqueue(msg);
 
                                         // reset the security data
-                                        clientOld.Email = "";
-                                        clientOld.Password = "";
+                                        oldClient.Data.Email = "";
+                                        oldClient.Data.Password = "";
                                 }
                                 // if login data is valid and user has not been banned
                                 else
                                 {
-                                        var accountID = dbClient.First().accountID;
-                                        var charID = dbClient.First().charID ?? 0;
+                                        var accountID = (uint)dbClient.First().accountID;
+                                        var charID = (uint)(dbClient.First().charID ?? 0);
 
-                                        // Note: does this really generate different random numbers each time?
+                                        // generate some random numbers
                                         var ran = new Random();
-                                        ran.NextBytes(clientOld.SecurityKeys[0]);
-                                        ran.NextBytes(clientOld.SecurityKeys[1]);
+                                        ran.NextBytes(oldClient.Data.SecurityKeys[0]);
+                                        ran.NextBytes(oldClient.Data.SecurityKeys[1]);
 
-                                        clientOld.Status = SyncState.UpdateClientLogin;
+                                        oldClient.Data.Status = SyncStatus.UpdateClientLogin;
                                                 
-                                        // Note IMPORTANT: RESET THE CLIENT WITHIN WORLD, CAUSE ACCID AND CHARID NEED TO BE ADDED!
-                                        Client client = new Client(message.NetID, accountID, charID)
-                                                                {
-                                                                        Email = clientOld.Email,
-                                                                        InitCryptSeed = clientOld.InitCryptSeed,
-                                                                        LoginCount = clientOld.LoginCount,
-                                                                        Password = clientOld.Password,
-                                                                        SecurityKeys = clientOld.SecurityKeys,
-                                                                        Status = SyncState.AtCharView,
-                                                                };
+                                        //create a new client and add the new references
+                                        var newClient = new DataClient(
+                                                new ClientData
+                                                {
+                                                        AccID = new AccID(accountID),
+                                                        CharID = new CharID(charID)
+                                                });
 
-                                        World.UpdateClient(clientOld, client);
+                                        // copy the old data
+                                        newClient.Data.Paste<IHasNetworkData>(oldClient.Data);
+                                        newClient.Data.Paste<IHasAccountData>(oldClient.Data);
+                                        newClient.Data.Paste<IHasMapData>(oldClient.Data);
+                                        newClient.Data.Paste<IHasEncryptionData>(oldClient.Data);
+                                        newClient.Data.Paste<IHasTransferSecurityData>(oldClient.Data);
+                                        newClient.Data.Paste<IHasSyncStatusData>(oldClient.Data);
+
+                                        // replace the old client with the new one
+                                        LoginServerWorld.Instance.Update(oldClient, newClient);
+
+                                        // update the client sync status
+                                        newClient.Data.Status = SyncStatus.AtCharView;
 
                                         // send charinfo packets if necessary);
-                                        if ((int)client[Idents.Clients.CharID] != 0)
+                                        if (newClient.Data.CharID.Value != 0)
                                         {
-                                                var accID = (int)client[Idents.Clients.AccID];
-
+                                                // get the characters from the db
                                                 var dbChars = from c in db.charsMasterData
-                                                                where c.accountID == accID
+                                                                where c.accountID == accountID
                                                                 select c;
 
                                                 foreach (var dbChar in dbChars)
                                                 {
-                                                        // update the client if this was the default selected char
-                                                        if (dbChar.charID == ((int)client[Idents.Clients.CharID]))
+                                                        // update the newClient if this was the default selected char
+                                                        if (dbChar.charID == newClient.Data.CharID.Value)
                                                         {
-                                                                client.MapID = dbChar.mapID;
+                                                                newClient.Data.MapID = new MapID((uint)dbChar.mapID);
                                                         }
 
-                                                        // send a char info packet:
-                                                        var charAppearance = new NetworkMessage(message.NetID)
-                                                                                {
-                                                                                        PacketTemplate =new P07_CharacterInfo.PacketSt7()
-                                                                                };
-                                                        // set the message data
-                                                        ((P07_CharacterInfo.PacketSt7) charAppearance.PacketTemplate).LoginCount = (uint) client.LoginCount;
-                                                        ((P07_CharacterInfo.PacketSt7) charAppearance.PacketTemplate).StaticHash1 = new byte[16];
-                                                        ((P07_CharacterInfo.PacketSt7) charAppearance.PacketTemplate).StaticData1 = 0;
-                                                        ((P07_CharacterInfo.PacketSt7) charAppearance.PacketTemplate).CharName = dbChar.charName;
-                                                                
                                                         // create the appearance bytearray
                                                         #region appearance
+
                                                         byte remainderLen = 0;
 
                                                         if (dbChar.armorHead.Length != 0) remainderLen++;
@@ -164,7 +186,7 @@ namespace LoginServer.Packets.FromClient
                                                         var appearance = new MemoryStream();
                                                         RawConverter.WriteUInt16(6, appearance);
                                                         RawConverter.WriteUInt16((ushort)(from m in db.mapsMasterData where m.gameMapID == dbChar.mapID select m).First().gameMapID, appearance);
-                                                        RawConverter.WriteByteAr(new byte[] {0x33, 0x36, 0x31, 0x30,}, appearance);
+                                                        RawConverter.WriteByteAr(new byte[] { 0x33, 0x36, 0x31, 0x30, }, appearance);
                                                         RawConverter.WriteByte((byte)((dbChar.lookHeight << 4) | dbChar.lookSex), appearance);
                                                         RawConverter.WriteByte((byte)((dbChar.lookHairColor << 4) | dbChar.lookSkinColor), appearance);
                                                         RawConverter.WriteByte((byte)((dbChar.professionPrimary << 4) | dbChar.lookHairStyle), appearance);
@@ -173,7 +195,7 @@ namespace LoginServer.Packets.FromClient
                                                         RawConverter.WriteByte((byte)((dbChar.level << 4) | dbChar.lookCampaign), appearance);
                                                         RawConverter.WriteByte((byte)
                                                                 ((128) |
-                                                                (dbChar.showHelm == 1? 64 : 0) |
+                                                                (dbChar.showHelm == 1 ? 64 : 0) |
                                                                 (dbChar.professionSecondary << 2) |
                                                                 (dbChar.isPvP == 1 ? 2 : 0) |
                                                                 (dbChar.level > 15 ? 1 : 0)),
@@ -186,69 +208,81 @@ namespace LoginServer.Packets.FromClient
                                                         if (dbChar.armorArms != null) RawConverter.WriteByteAr(dbChar.armorArms, appearance);
                                                         if (dbChar.armorLegs != null) RawConverter.WriteByteAr(dbChar.armorLegs, appearance);
                                                         if (dbChar.armorFeet != null) RawConverter.WriteByteAr(dbChar.armorFeet, appearance);
+
                                                         #endregion appearance
 
-                                                        ((P07_CharacterInfo.PacketSt7)charAppearance.PacketTemplate).ArraySize1 = (ushort)appearance.Length;
-                                                        ((P07_CharacterInfo.PacketSt7)charAppearance.PacketTemplate).Appearance = appearance.ToArray();
-                                                        // send it
+                                                        // Note: CHAR INFO PACKET
+                                                        var charAppearance = new NetworkMessage(message.NetID)
+                                                        {
+                                                                PacketTemplate = new P07_CharacterInfo.PacketSt7
+                                                                {
+                                                                        // set the message data
+                                                                        LoginCount = newClient.Data.SyncCount,
+                                                                        StaticHash1 = new byte[16],
+                                                                        StaticData1 = 0,
+                                                                        CharName = dbChar.charName,
+                                                                        ArraySize1 = (ushort)appearance.Length,
+                                                                        Appearance = appearance.ToArray(),
+                                                                }
+                                                        };
                                                         QueuingService.PostProcessingQueue.Enqueue(charAppearance);
                                                 }
-
-                                                // send a account data packet:
-                                                var accountData = new NetworkMessage(message.NetID)
-                                                {
-                                                        PacketTemplate =new P22_AccountGuiSettings.PacketSt22()
-                                                };
-                                                // add data
-                                                ((P22_AccountGuiSettings.PacketSt22)accountData.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                                ((P22_AccountGuiSettings.PacketSt22)accountData.PacketTemplate).RawData = dbClient.First().guiSettings;
-                                                ((P22_AccountGuiSettings.PacketSt22)accountData.PacketTemplate).ArraySize1 = (ushort)((P22_AccountGuiSettings.PacketSt22)accountData.PacketTemplate).RawData.Length;
-                                                // send it
-                                                QueuingService.PostProcessingQueue.Enqueue(accountData);
-
-                                                // send a friendslist end packet:
-                                                var friendsListEnd = new NetworkMessage(message.NetID)
-                                                {
-                                                        PacketTemplate = new P20_FriendsListEnd.PacketSt20()
-                                                };
-                                                // add data
-                                                ((P20_FriendsListEnd.PacketSt20)friendsListEnd.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                                ((P20_FriendsListEnd.PacketSt20)friendsListEnd.PacketTemplate).StaticData1 = 1;
-                                                // send it
-                                                QueuingService.PostProcessingQueue.Enqueue(friendsListEnd);
-
-                                                // send a acc permissions packet:
-                                                var accountPermissions = new NetworkMessage(message.NetID)
-                                                {
-                                                        PacketTemplate = new P17_AccountPermissions.PacketSt17()
-                                                };
-                                                // add data
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).Territory = 2; // sd america
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).TerritoryChanges = 4;
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).Data1 = new byte[] { 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).Data2 = new byte[] { 0x80, 0x3F, 0x02, 0x00, 0x03, 0x00, 0x08, 0x00 };
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).Data3 = new byte[] { 0x37, 0x4B, 0x09, 0xBB, 0xC2, 0xF6, 0x74, 0x43, 0xAA, 0xAB, 0x35, 0x4D, 0xEE, 0xB7, 0xAF, 0x08 };
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).Data4 = new byte[] { 0x55, 0xB6, 0x77, 0x59, 0x0C, 0x0C, 0x15, 0x46, 0xAD, 0xAA, 0x33, 0x43, 0x4A, 0x91, 0x23, 0x6A };
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).ChangeAccSettings = 8;
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).ArraySize1 = 8;
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).AddedKeys = new byte[] { 0x01, 0x00, 0x06, 0x00, 0x57, 0x00, 0x01, 0x00 };
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).EulaAccepted = 23;
-                                                ((P17_AccountPermissions.PacketSt17)accountPermissions.PacketTemplate).Data5 = 0;
-                                                // send it
-                                                QueuingService.PostProcessingQueue.Enqueue(accountPermissions);
-
-                                                // send a stream terminator:
-                                                var msg = new NetworkMessage(message.NetID)
-                                                {
-                                                        PacketTemplate = new P03_StreamTerminator.PacketSt3()
-                                                };
-                                                // set the message data
-                                                ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).LoginCount = (uint)client.LoginCount;
-                                                ((P03_StreamTerminator.PacketSt3)msg.PacketTemplate).ErrorCode = 0;
-                                                // send it
-                                                QueuingService.PostProcessingQueue.Enqueue(msg);
                                         }
+
+                                        // Note: ACCOUNT GUI SETTINGS
+                                        var accountData = new NetworkMessage(message.NetID)
+                                        {
+                                                PacketTemplate = new P22_AccountGuiSettings.PacketSt22
+                                                {
+                                                        LoginCount = newClient.Data.SyncCount,
+                                                        RawData = dbClient.First().guiSettings,
+                                                        ArraySize1 = (ushort)dbClient.First().guiSettings.Length                     
+                                                }
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(accountData);
+
+                                        // Note: FRIENDSLIST END
+                                        var friendsListEnd = new NetworkMessage(message.NetID)
+                                        {
+                                                PacketTemplate = new P20_FriendsListEnd.PacketSt20
+                                                {
+                                                        LoginCount = newClient.Data.SyncCount,
+                                                        StaticData1 = 1
+                                                }
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(friendsListEnd);
+
+                                        // Note: ACCOUNT PERMISSIONS
+                                        var accountPermissions = new NetworkMessage(message.NetID)
+                                        {
+                                                PacketTemplate = new P17_AccountPermissions.PacketSt17
+                                                {
+                                                        LoginCount = newClient.Data.SyncCount,
+                                                        Territory = 2, // sd america
+                                                        TerritoryChanges = 4,
+                                                        Data1 = new byte[] { 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+                                                        Data2 = new byte[] { 0x80, 0x3F, 0x02, 0x00, 0x03, 0x00, 0x08, 0x00 },
+                                                        Data3 = new byte[] { 0x37, 0x4B, 0x09, 0xBB, 0xC2, 0xF6, 0x74, 0x43, 0xAA, 0xAB, 0x35, 0x4D, 0xEE, 0xB7, 0xAF, 0x08 },
+                                                        Data4 = new byte[] { 0x55, 0xB6, 0x77, 0x59, 0x0C, 0x0C, 0x15, 0x46, 0xAD, 0xAA, 0x33, 0x43, 0x4A, 0x91, 0x23, 0x6A },
+                                                        ChangeAccSettings = 8,
+                                                        ArraySize1 = 8,
+                                                        AddedKeys = new byte[] { 0x01, 0x00, 0x06, 0x00, 0x57, 0x00, 0x01, 0x00 },
+                                                        EulaAccepted = 23,
+                                                        Data5 = 0,     
+                                                }
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(accountPermissions);
+
+                                        // Note: STREAM TERMINATOR
+                                        var msg = new NetworkMessage(message.NetID)
+                                        {
+                                                PacketTemplate = new P03_StreamTerminator.PacketSt3()
+                                                {
+                                                        LoginCount = newClient.Data.SyncCount,
+                                                        ErrorCode = 0
+                                                }
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(msg);
                                 }
                                 
                         }
