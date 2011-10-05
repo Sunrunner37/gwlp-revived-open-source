@@ -69,7 +69,7 @@ namespace GameServer.Packets.FromClient
                         //QueuingService.PostProcessingQueue.Enqueue(zdHead);
 
                         // Note: Char specific packets
-                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, message.NetID);
                         
                         // Note: ZONE DATA BEGIN CHAR INFO
                         var charInfo = new NetworkMessage(message.NetID);
@@ -216,7 +216,7 @@ namespace GameServer.Packets.FromClient
                         QueuingService.PostProcessingQueue.Enqueue(ulockSkills);
 
                         var action = new SpawnPlayer((int)chara[Chars.CharID]);
-                        World.GetMap(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
+                        GameServerWorld.Instance.Get<DataMap>(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
 
                         return true;
                 }

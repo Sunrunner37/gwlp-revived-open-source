@@ -5,7 +5,7 @@ using System.Text;
 
 namespace GameServer.Enums
 {
-        enum ItemType
+        public enum ItemType
         {
                 Salvage = 0,
                 Rune = 8,

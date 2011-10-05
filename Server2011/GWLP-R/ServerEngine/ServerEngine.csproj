@@ -49,7 +49,6 @@
     <Compile Include="DataManagement\DataInterfaces\IHasNetworkData.cs" />
     <Compile Include="DataManagement\DataWrappers\IPAddress.cs" />
     <Compile Include="DataManagement\DataWrappers\Port.cs" />
-    <Compile Include="DataManagement\IDataInterface.cs" />
     <Compile Include="DataManagement\IIdentifiableData.cs" />
     <Compile Include="DataManagement\InterfaceExtensions.cs" />
     <Compile Include="DataManagement\IWrapper.cs" />

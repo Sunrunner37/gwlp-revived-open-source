@@ -31,7 +31,7 @@ namespace GameServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt3();
                         pParser((PacketSt3)message.PacketTemplate, message.PacketData);
 
-                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, message.NetID);
                         
                         var chatMsg = new NetworkMessage(message.NetID);
                         chatMsg.PacketTemplate = new P002_PingReply.PacketSt2()

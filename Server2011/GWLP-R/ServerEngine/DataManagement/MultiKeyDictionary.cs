@@ -9,6 +9,8 @@ namespace ServerEngine.DataManagement
         public class MultiKeyDictionary<TValue>
                 where TValue: IEnumerable<IWrapper>
         {
+                private readonly object objLock = new object();
+
                 private readonly Dictionary<Type, Dictionary<int, TValue>> dicts;
 
                 /// <summary>
@@ -31,7 +33,7 @@ namespace ServerEngine.DataManagement
                         Contract.Requires(key != null);
                         Contract.Requires(value != null);
 
-                        lock (dicts)
+                        lock (objLock)
                         {
                                 Dictionary<int, TValue> tmpDict;
 
@@ -75,7 +77,7 @@ namespace ServerEngine.DataManagement
                 {
                         Contract.Requires(value != null);
 
-                        lock (dicts)
+                        lock (objLock)
                         {
                                 try
                                 {
@@ -110,7 +112,7 @@ namespace ServerEngine.DataManagement
                 public bool TryGetValue<TKey>(TKey key, out TValue value)
                         where TKey: IWrapper
                 {
-                        lock (dicts)
+                        lock (objLock)
                         {
                                 try
                                 {
@@ -138,7 +140,7 @@ namespace ServerEngine.DataManagement
                 public bool RemoveOnly<TKey>(TKey key)
                         where TKey : IWrapper
                 {
-                        lock (dicts)
+                        lock (objLock)
                         {
                                 try
                                 {
@@ -165,7 +167,7 @@ namespace ServerEngine.DataManagement
                 public bool RemoveAll<TKey>(TKey key)
                         where TKey : IWrapper
                 {
-                        lock (dicts)
+                        lock (objLock)
                         {
                                 try
                                 {
@@ -188,7 +190,7 @@ namespace ServerEngine.DataManagement
                 /// </summary>
                 public bool RemoveAll(TValue value)
                 {
-                        lock (dicts)
+                        lock (objLock)
                         {
                                 try
                                 {
@@ -218,19 +220,24 @@ namespace ServerEngine.DataManagement
                 {
                         get
                         {
-                                // NOTE: BUG: THE FOLLOWING NEEDS TO RETURN AN ENUMERATION THAT WILL NOT UPDATE WHEN dict.Values CHANGES!
-                                var values = new List<TValue>();
-                                
-                                // get all values
-                                foreach (var dict in dicts.Values)
+                                lock (objLock)
                                 {
-                                        values.AddRange(dict.Values);
-                                }
+                                        // NOTE: BUG: THE FOLLOWING NEEDS TO RETURN AN ENUMERATION THAT WILL NOT UPDATE WHEN dict.Values CHANGES!
+                                        var values = new List<TValue>();
 
-                                // remove redundant data
-                                values.Distinct(new KeyEqualityComparer<TValue>(x => x.GetEnumerator().Current.ToString()));
-                                
-                                return values.ToList();
+                                        // get all values
+                                        foreach (var dict in dicts.Values)
+                                        {
+                                                values.AddRange(dict.Values);
+                                        }
+
+                                        // remove redundant data
+                                        values.Distinct(
+                                                new KeyEqualityComparer<TValue>
+                                                (x => x.GetEnumerator().Current.ToString()));
+
+                                        return values.ToList();
+                                }
                         }
                 }
 

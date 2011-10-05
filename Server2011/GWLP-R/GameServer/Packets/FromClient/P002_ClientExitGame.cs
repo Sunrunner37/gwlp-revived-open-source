@@ -33,9 +33,9 @@ namespace GameServer.Packets.FromClient
 
                         bool kick = true;
 
-                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, message.NetID);
                         
-                        if (World.GetClient(Clients.NetID, message.NetID).Status == SyncState.Dispatching)
+                        if (GameServerWorld.Instance.Get<DataClient>(Clients.NetID, message.NetID).Status == SyncStatus.Dispatching)
                         {
                                 kick = false;
 #warning DEBUG
@@ -43,7 +43,7 @@ namespace GameServer.Packets.FromClient
                                 var ilChar = new NetworkMessage(message.NetID);
                                 ilChar.PacketTemplate = new P141_DispatchConnectionTermination.PacketSt141()
                                 {
-                                        GameMapID = (ushort)(int)World.GetMap(Maps.MapID, chara.MapID)[Maps.GameMapID],
+                                        GameMapID = (ushort)(int)GameServerWorld.Instance.Get<DataMap>(Maps.MapID, chara.MapID)[Maps.GameMapID],
                                         Data1 = 0
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(ilChar);

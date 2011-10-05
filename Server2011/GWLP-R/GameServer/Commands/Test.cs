@@ -24,7 +24,7 @@ namespace GameServer.Commands
 
                 public void Execute(Map map)
                 {
-                        var netID = (int)World.GetCharacter(Chars.CharID, newCharID)[Chars.NetID];
+                        var netID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID)[Chars.NetID];
 
                         //var packet323 = new NetworkMessage(netID);
                         //var rawData = new byte[]{
@@ -92,7 +92,7 @@ namespace GameServer.Commands
                         //packet350.PacketData = new MemoryStream(rawData);
                         //QueuingService.NetOutQueue.Enqueue(packet350);
 
-                        var chara = World.GetCharacter(Chars.NetID, netID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, netID);
 
                         var posX = BitConverter.GetBytes(chara.CharStats.Position.X);
                         var posY = BitConverter.GetBytes(chara.CharStats.Position.Y);

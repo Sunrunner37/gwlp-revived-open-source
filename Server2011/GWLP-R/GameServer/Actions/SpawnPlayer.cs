@@ -21,7 +21,7 @@ namespace GameServer.Actions
                         // spawn this player for himself
                         CreateSpawnPacketsFor(newCharID, newCharID);
 
-                        var chara = World.GetCharacter(Chars.CharID, newCharID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID);
 
                         // Note: FADE INTO MAP
                         var fadeIntoMap = new NetworkMessage((int)chara[Chars.NetID]);
@@ -34,15 +34,15 @@ namespace GameServer.Actions
                         
 
                         // spawn him for others & spawn others for him
-                        var mapID = World.GetCharacter(Chars.CharID, newCharID).MapID;
-                        foreach (var charID in World.GetMap(Maps.MapID, mapID).CharIDs)
+                        var mapID = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID).MapID;
+                        foreach (var charID in GameServerWorld.Instance.Get<DataMap>(Maps.MapID, mapID).CharIDs)
                         {
                                 CreateSpawnPacketsFor(newCharID, charID);
                                 CreateSpawnPacketsFor(charID, newCharID);
                         }
 
                         // ad him to the map
-                        World.GetMap(Maps.MapID, mapID).CharIDs.Add(newCharID);
+                        GameServerWorld.Instance.Get<DataMap>(Maps.MapID, mapID).CharIDs.Add(newCharID);
 
                         // spawn NPC's
                         foreach (var npc in map.Npcs.Values)
@@ -127,18 +127,18 @@ namespace GameServer.Actions
                         }
 
                         // update status
-                        World.GetClient(Clients.CharID, newCharID).Status = SyncState.Playing;
+                        GameServerWorld.Instance.Get<DataClient>(Clients.CharID, newCharID).Status = SyncStatus.Playing;
                 }
 
                 private static void CreateSpawnPacketsFor(int charID, int recipientCharID)
                 {
-                        var chara = World.GetCharacter(Chars.CharID, charID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
                         
                         // get the recipient of all those packets
                         int reNetID = 0;
                         if (recipientCharID != charID)
                         {
-                                reNetID = (int)World.GetCharacter(Chars.CharID, recipientCharID)[Chars.NetID];
+                                reNetID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, recipientCharID)[Chars.NetID];
                         }
                         else
                         {

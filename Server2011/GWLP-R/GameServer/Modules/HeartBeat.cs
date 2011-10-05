@@ -22,7 +22,7 @@ namespace GameServer.Modules
                 {
                         foreach (int charID in map.CharIDs)
                         {
-                                var chara = World.GetCharacter(Chars.CharID, charID);
+                                var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
                                 if (chara != null)
                                 {
 

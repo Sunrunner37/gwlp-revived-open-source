@@ -5,7 +5,7 @@ using System.Text;
 
 namespace GameServer.Enums
 {
-        enum ItemStorage
+        public enum ItemStorage
         {
                 Backpack = 1,
                 BeltPouch = 2,

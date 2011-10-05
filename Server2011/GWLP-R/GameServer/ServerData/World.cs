@@ -43,18 +43,18 @@ namespace GameServer.ServerData
 
                 public static int LoginSrvNetID { get; set;}
 
-                public static Client GetClient(Clients identType, object identKey)
+                public static DataClient GetClient(Clients identType, object identKey)
                 {
-                        Client result;
+                        DataClient result;
 
                         if (clients.TryGetValue(new KeyValuePair<Clients, object>(identType, identKey), out result))
                                 return result;
                         return null;
                 }
 
-                public static Character GetCharacter(Chars identType, object identKey)
+                public static DataCharacter GetCharacter(Chars identType, object identKey)
                 {
-                        Character result;
+                        DataCharacter result;
 
                         if (chars.TryGetValue(new KeyValuePair<Chars, object>(identType, identKey), out result))
                                 return result;
@@ -70,12 +70,12 @@ namespace GameServer.ServerData
                         return null;
                 }
 
-                public static void AddClient(Client client)
+                public static void AddClient(DataClient client)
                 {
                         clients.Add(client);
                 }
 
-                public static void AddChar(Character chara)
+                public static void AddChar(DataCharacter chara)
                 {
                         chars.Add(chara);
                 }
@@ -85,7 +85,7 @@ namespace GameServer.ServerData
                         maps.Add(map);
                 }
 
-                public static void UpdateClient(Client oldClient, Client newClient)
+                public static void UpdateClient(DataClient oldClient, DataClient newClient)
                 {
                         var identifier = oldClient.IdentifierKeyEnumeration.Intersect(newClient.IdentifierKeyEnumeration);
                         if (identifier.Count() > 0)
@@ -100,7 +100,7 @@ namespace GameServer.ServerData
                         }
                 }
 
-                public static void UpdateChar(Character oldChar, Character newChar)
+                public static void UpdateChar(DataCharacter oldChar, DataCharacter newChar)
                 {
                         var identifier = oldChar.IdentifierKeyEnumeration.Intersect(newChar.IdentifierKeyEnumeration);
                         if (identifier.Count() > 0)
@@ -128,10 +128,10 @@ namespace GameServer.ServerData
                         charLocalIDs.FreeID(localID);
                         map.CharAgentIDManager.FreeID(agentID);
 
-                        // kick client connection
+                        // kick DataClient connection
                         NetworkManager.Instance.RemoveClient(netID);
 
-                        // remove client
+                        // remove DataClient
                         clients.Remove(new KeyValuePair<Clients, object>(identType, identKey));
 
                         // remove character
@@ -140,20 +140,20 @@ namespace GameServer.ServerData
                         // remove from map
                         map.CharIDs.Remove(charID);
 
-                        Debug.WriteLine("Client[{0}] kicked.", netID);
+                        Debug.WriteLine("DataClient[{0}] kicked.", netID);
                 }
 
-                public static IEnumerable<Client> GetUnauthorizedClients()
+                public static IEnumerable<DataClient> GetUnauthorizedClients()
                 {
                         return (from c in clients.Values
-                               where c.Status == SyncState.Unauthorized
+                               where c.Status == SyncStatus.Unauthorized
                                select c).Distinct();
                 }
 
-                public static IEnumerable<Client> GetDispatchedClients()
+                public static IEnumerable<DataClient> GetDispatchedClients()
                 {
                         return (from c in clients.Values
-                                where c.Status == SyncState.Dispatching
+                                where c.Status == SyncStatus.Dispatching
                                 select c).Distinct();
                 }
 

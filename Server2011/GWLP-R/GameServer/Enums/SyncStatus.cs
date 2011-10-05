@@ -1,6 +1,6 @@
 ﻿namespace GameServer.Enums
 {
-        public enum SyncState
+        public enum SyncStatus
         {
                 Unauthorized,
                 ConnectionEstablished,

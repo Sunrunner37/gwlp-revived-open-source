@@ -170,7 +170,7 @@ namespace GameServer.Modules
                 {
                         foreach (int charID in map.CharIDs)
                         {
-                                var chara = World.GetCharacter(Chars.CharID, charID);
+                                var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
 
                                 var state = chara.CharStats.MoveState;
 
@@ -218,7 +218,7 @@ namespace GameServer.Modules
                         }
                 }
 
-                private static void CalculatePosition(Character chara)
+                private static void CalculatePosition(DataCharacter chara)
                 {
                         PathingMap pmap = null;
 
@@ -319,7 +319,7 @@ namespace GameServer.Modules
                         }
                 }
 
-                private static void UpdateTrapezoidIndex(Character chara, PathingMap pmap)
+                private static void UpdateTrapezoidIndex(DataCharacter chara, PathingMap pmap)
                 {
                         // check if the client is in the given trapezoid
                         var state = InTrapezoid(pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex], chara.CharStats.Position);

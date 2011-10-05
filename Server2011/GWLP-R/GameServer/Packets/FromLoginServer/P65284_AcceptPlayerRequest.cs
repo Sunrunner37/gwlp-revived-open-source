@@ -37,11 +37,11 @@ namespace GameServer.Packets.FromLoginServer
                         message.PacketTemplate = new PacketSt65284();
                         pParser((PacketSt65284)message.PacketTemplate, message.PacketData);
 
-                        var newClient = new Client(0, (int)((PacketSt65284)message.PacketTemplate).AccID, (int)((PacketSt65284)message.PacketTemplate).CharID);
+                        var newClient = new DataClient(0, (int)((PacketSt65284)message.PacketTemplate).AccID, (int)((PacketSt65284)message.PacketTemplate).CharID);
                         newClient.MapID = (ushort)((PacketSt65284) message.PacketTemplate).MapID;
                         newClient.SecurityKeys[0] = ((PacketSt65284)message.PacketTemplate).Key1;
                         newClient.SecurityKeys[1] = ((PacketSt65284)message.PacketTemplate).Key2;
-                        newClient.Status = SyncState.Unauthorized;
+                        newClient.Status = SyncStatus.Unauthorized;
 
                         World.AddClient(newClient);
 

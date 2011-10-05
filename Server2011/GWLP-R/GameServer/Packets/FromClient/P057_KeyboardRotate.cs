@@ -31,7 +31,7 @@ namespace GameServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt57();
                         pParser((PacketSt57)message.PacketTemplate, message.PacketData);
 
-                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, message.NetID);
                         
                         chara.CharStats.Rotation = ((PacketSt57)message.PacketTemplate).Rotation;
 
@@ -45,7 +45,7 @@ namespace GameServer.Packets.FromClient
                         }
 
                         var action = new RotatePlayer((int) chara[Chars.CharID]);
-                        World.GetMap(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
+                        GameServerWorld.Instance.Get<DataMap>(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
                         
 
                         return true;

@@ -39,11 +39,11 @@ namespace GameServer.Commands
                                 World.BuildMap(mapID);
                                 
                                 // alter status
-                                World.GetClient(Clients.CharID, newCharID).Status = SyncState.Dispatching;
+                                GameServerWorld.Instance.Get<DataClient>(Clients.CharID, newCharID).Status = SyncStatus.Dispatching;
 
                                 // alter mapID
-                                World.GetClient(Clients.CharID, newCharID).MapID = mapID;
-                                World.GetCharacter(Chars.CharID, newCharID).MapID = mapID;
+                                GameServerWorld.Instance.Get<DataClient>(Clients.CharID, newCharID).MapID = mapID;
+                                GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID).MapID = mapID;
 
                                 // create server connection array
                                 var con = new MemoryStream();
@@ -54,20 +54,20 @@ namespace GameServer.Commands
                                 RawConverter.WriteByteAr(new byte[16], con);
 
                                 // Note: DISPATCH
-                                var chatMsg = new NetworkMessage((int)World.GetCharacter(Chars.CharID, newCharID)[Chars.NetID]);
+                                var chatMsg = new NetworkMessage((int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID)[Chars.NetID]);
                                 chatMsg.PacketTemplate = new P406_Dispatch.PacketSt406()
                                 {
                                         ConnectionInfo = con.ToArray(),
-                                        Key1 = World.GetClient(Clients.CharID, newCharID).SecurityKeys[0],
-                                        Key2 = World.GetClient(Clients.CharID, newCharID).SecurityKeys[1],
-                                        ZoneID = (ushort)(int)World.GetMap(Maps.MapID, mapID)[Maps.GameMapID],
+                                        Key1 = GameServerWorld.Instance.Get<DataClient>(Clients.CharID, newCharID).SecurityKeys[0],
+                                        Key2 = GameServerWorld.Instance.Get<DataClient>(Clients.CharID, newCharID).SecurityKeys[1],
+                                        ZoneID = (ushort)(int)GameServerWorld.Instance.Get<DataMap>(Maps.MapID, mapID)[Maps.GameMapID],
                                         Region = 0,
                                         IsOutpost = 0
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(chatMsg);
 
                                 // free the agent ids
-                                var chara = World.GetCharacter(Chars.CharID, newCharID);
+                                var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID);
                                 
                                 World.UnRegisterCharacterIDs((int)chara[Chars.LocalID], (int)chara[Chars.AgentID], (int)oldMap[Maps.MapID]);
                         }

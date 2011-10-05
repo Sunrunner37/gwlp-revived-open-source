@@ -25,8 +25,8 @@ namespace GameServer.Commands
                 {
                         using (var db = (MySQL)DataBaseProvider.GetDataBase())
                         {
-                                var pos = World.GetCharacter(Chars.CharID, newCharID).CharStats.Position;
-                                var reNetID = (int)World.GetCharacter(Chars.CharID, newCharID)[Chars.NetID];
+                                var pos = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID).CharStats.Position;
+                                var reNetID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID)[Chars.NetID];
 
                                 var spawn = new mapsSpawns()
                                 {

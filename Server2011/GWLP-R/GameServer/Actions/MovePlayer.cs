@@ -34,13 +34,13 @@ namespace GameServer.Actions
 
                 private static void CreatePackets(int charID, int recipientCharID)
                 {
-                        var chara = World.GetCharacter(Chars.CharID, charID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
                     
                         // get the recipient of all those packets
                         int reNetID = 0;
                         if (recipientCharID != charID)
                         {
-                                reNetID = (int)World.GetCharacter(Chars.CharID, recipientCharID)[Chars.NetID];
+                                reNetID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, recipientCharID)[Chars.NetID];
                         }
                         else
                         {

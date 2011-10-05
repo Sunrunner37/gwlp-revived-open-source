@@ -58,11 +58,11 @@ namespace GameServer.Packets.FromClient
 
                         if (verfClient != null)
                         {
-                                var newClient = new Client(message.NetID,(int)verfClient[Clients.AccID],(int)verfClient[Clients.CharID])
+                                var newClient = new DataClient(message.NetID,(int)verfClient[Clients.AccID],(int)verfClient[Clients.CharID])
                                 {
                                         LoginCount = verfClient.LoginCount,
                                         SecurityKeys = verfClient.SecurityKeys,
-                                        Status = SyncState.ConnectionEstablished,
+                                        Status = SyncStatus.ConnectionEstablished,
                                         MapID = verfClient.MapID,
                                 };
 
@@ -91,7 +91,7 @@ namespace GameServer.Packets.FromClient
                                         RawConverter.WriteByte((byte)((ch.lookCampaign << 4) | ch.lookSex), appearance);
 
                                         // get the spawn point
-                                        var map = World.GetMap(Maps.MapID, newClient.MapID);
+                                        var map = GameServerWorld.Instance.Get<DataMap>(Maps.MapID, newClient.MapID);
 
                                         var spawns = from s in map.Spawns.Values
                                                      where s.IsOutpost && s.IsPvE
@@ -123,7 +123,7 @@ namespace GameServer.Packets.FromClient
                                                    select g).First();
                                                 
                                         // create the new char
-                                        var newChar = new Character(chID, 
+                                        var newChar = new DataCharacter(chID, 
                                                 (int)newClient[Clients.AccID], 
                                                 (int)newClient[Clients.NetID],
                                                 localID,

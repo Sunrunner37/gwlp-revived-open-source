@@ -90,7 +90,7 @@
     <Compile Include="Enums\ChatColors.cs" />
     <Compile Include="Enums\GenericValues.cs" />
     <Compile Include="Enums\Movement.cs" />
-    <Compile Include="Enums\SyncState.cs" />
+    <Compile Include="Enums\SyncStatus.cs" />
     <Compile Include="Enums\VitalStats.cs" />
     <Compile Include="Packets\FromClient\NotEncP1280_VerifyClient.cs" />
     <Compile Include="Packets\FromClient\NotEncP16896_ClientSeed.cs" />
@@ -772,9 +772,23 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Server.cs" />
-    <Compile Include="ServerData\Character.cs" />
-    <Compile Include="ServerData\CharacterStats.cs" />
-    <Compile Include="ServerData\Client.cs" />
+    <Compile Include="ServerData\DataCharacter.cs" />
+    <Compile Include="ServerData\DataClient.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasAccountData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasAttributeData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasCharAppearanceData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasChatData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasDistrictData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasEncryptionData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasGeneralCharData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasGenericValueData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasHeartbeatData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasMovementData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasPingData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasSkillData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasSyncStatusData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasTransferSecurityData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasVitalStatusData.cs" />
     <Compile Include="ServerData\Map.cs" />
     <Compile Include="ServerData\MapSpawn.cs" />
     <Compile Include="ServerData\NonPlayerChar.cs" />

@@ -32,7 +32,7 @@ namespace GameServer.Actions
                                 // send message to all available players
                                 string prefix;
                                 byte chatColor;
-                                var chara = World.GetCharacter(Chars.CharID, newCharID);
+                                var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID);
 
                                 prefix = chara.CharStats.ChatPrefix;
                                 chatColor = chara.CharStats.ChatColor != (byte)ChatColors.Yellow_White ? chara.CharStats.ChatColor : (byte)ChatColors.Yellow_White;
@@ -75,8 +75,8 @@ namespace GameServer.Actions
                         }
 
                         //// send message to all available players
-                        //var mapID = World.GetCharacter(Idents.Chars.CharID, newCharID).MapID;
-                        //foreach (var charID in World.GetMap(Idents.Maps.MapID, mapID).CharIDs)
+                        //var mapID = GameServerWorld.Instance.Get<DataCharacter>(Idents.Chars.CharID, newCharID).MapID;
+                        //foreach (var charID in GameServerWorld.Instance.Get<DataMap>(Idents.Maps.MapID, mapID).CharIDs)
                         //{
 
                         //}
@@ -84,13 +84,13 @@ namespace GameServer.Actions
 
                 private void CreateChatMessageFor(int charID, int recipientCharID, string message, string prefix ,byte color)
                 {
-                        var chara = World.GetCharacter(Chars.CharID, charID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
 
                         // get the recipient of all those packets
                         int reNetID = 0;
                         if (recipientCharID != charID)
                         {
-                                reNetID = (int)World.GetCharacter(Chars.CharID, recipientCharID)[Chars.NetID];
+                                reNetID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, recipientCharID)[Chars.NetID];
                         }
                         else
                         {
@@ -124,7 +124,7 @@ namespace GameServer.Actions
 
                 private static void ExecuteCommand(int charID, string message)
                 {
-                        var chara = World.GetCharacter(Chars.CharID, charID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
 
                         try
                         {
@@ -138,7 +138,7 @@ namespace GameServer.Actions
                                         Type commandType;
                                         World.ChatCommandsDict.TryGetValue(command, out commandType);
 
-                                        Map map = World.GetMap(Maps.MapID, chara.MapID);
+                                        Map map = GameServerWorld.Instance.Get<DataMap>(Maps.MapID, chara.MapID);
                                         
                                         var parameters = new List<object>(new object[] {charID});
                                         parameters.AddRange(parameter);

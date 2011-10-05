@@ -69,14 +69,14 @@ namespace GameServer.Packets.FromClient
                         //((P311_ItemStreamEnd.PacketSt311)end.PacketTemplate).GameMapID = 0;
                         //QueuingService.PostProcessingQueue.Enqueue(end);
 
-                        var chara = World.GetCharacter(Chars.NetID, message.NetID);
+                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, message.NetID);
                         
                         // Note: ITEM STREAM Terminator
                         var terminator = new NetworkMessage(message.NetID);
                         terminator.PacketTemplate = new P393_ItemStreamTerminator.PacketSt393();
                         // only works as terminator when this is 0
                         ((P393_ItemStreamTerminator.PacketSt393)terminator.PacketTemplate).Data1 = 0;
-                        ((P393_ItemStreamTerminator.PacketSt393)terminator.PacketTemplate).GameMapID = (ushort)(int)World.GetMap(Maps.MapID, chara.MapID)[Maps.GameMapID];
+                        ((P393_ItemStreamTerminator.PacketSt393)terminator.PacketTemplate).GameMapID = (ushort)(int)GameServerWorld.Instance.Get<DataMap>(Maps.MapID, chara.MapID)[Maps.GameMapID];
                         ((P393_ItemStreamTerminator.PacketSt393)terminator.PacketTemplate).Data3 = 0;
                         QueuingService.PostProcessingQueue.Enqueue(terminator);
                         

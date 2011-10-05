@@ -8,7 +8,7 @@ namespace GameServer.Enums
         /// <summary>
         ///   Color of (sender name)_(chat text)
         /// </summary>
-        internal enum ChatColors
+        public enum ChatColors
         {
                 /// <summary>
                 ///   Alliance Chat

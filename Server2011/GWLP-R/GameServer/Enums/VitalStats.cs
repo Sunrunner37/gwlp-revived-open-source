@@ -3,7 +3,7 @@
 namespace GameServer.Enums
 {
         [Flags]
-        internal enum VitalStatus : uint
+        public enum VitalStatus : uint
         {
                 // First byte
                 /// <summary>

@@ -35,8 +35,8 @@ namespace GameServer.Packets.FromClient
                         message.PacketTemplate = new PacketSt16896();
                         pParser((PacketSt16896)message.PacketTemplate, message.PacketData);
 
-                        var client = World.GetClient(Clients.NetID, message.NetID);
-                        Character chara;
+                        var client = GameServerWorld.Instance.Get<DataClient>(Clients.NetID, message.NetID);
+                        DataCharacter chara;
 
                         // unkown client, probably a dispatching client
                         if (client == null)
@@ -58,11 +58,11 @@ namespace GameServer.Packets.FromClient
                                         {
 
                                                 // we've found a match, now lets update the client object
-                                                var newClient = new Client(message.NetID, (int)dispatchedClient[Clients.AccID], (int)dispatchedClient[Clients.CharID])
+                                                var newClient = new DataClient(message.NetID, (int)dispatchedClient[Clients.AccID], (int)dispatchedClient[Clients.CharID])
                                                 {
                                                         LoginCount = dispatchedClient.LoginCount,
                                                         SecurityKeys = dispatchedClient.SecurityKeys,
-                                                        Status = SyncState.ConnectionEstablished,
+                                                        Status = SyncStatus.ConnectionEstablished,
                                                         MapID = dispatchedClient.MapID
                                                 };
 
@@ -72,7 +72,7 @@ namespace GameServer.Packets.FromClient
                                                 NetworkManager.Instance.RemoveClient((int)dispatchedClient[Clients.NetID]);
 
                                                 // get the char
-                                                chara = World.GetCharacter(Chars.CharID, newClient[Clients.CharID]);
+                                                chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newClient[Clients.CharID]);
 
                                                 // and the char object as well
                                                 // get some necessary IDs
@@ -80,7 +80,7 @@ namespace GameServer.Packets.FromClient
                                                 World.RegisterCharacterIDs(out localID, out agentID, newClient.MapID);
 
                                                 // get the spawn point
-                                                var map = World.GetMap(Maps.MapID, chara.MapID);
+                                                var map = GameServerWorld.Instance.Get<DataMap>(Maps.MapID, chara.MapID);
 #warning FIXME Supports currently Outposts (and PvE) zones only
                                                 MapSpawn spawn;
                                                 var spawnEnum = from s in map.Spawns.Values
@@ -102,7 +102,7 @@ namespace GameServer.Packets.FromClient
                                                 }
 
                                                 // create the character object
-                                                var newChar = new Character(
+                                                var newChar = new DataCharacter(
                                                         (int)newClient[Clients.CharID],
                                                         (int)newClient[Clients.AccID],
                                                         (int)newClient[Clients.NetID],
@@ -161,10 +161,10 @@ namespace GameServer.Packets.FromClient
                         }
 
                         // refresh client and character
-                        client = World.GetClient(Clients.NetID, message.NetID);
-                        chara = World.GetCharacter(Chars.CharID, client[Clients.CharID]);
+                        client = GameServerWorld.Instance.Get<DataClient>(Clients.NetID, message.NetID);
+                        chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, client[Clients.CharID]);
                         
-                        if (client.Status == SyncState.ConnectionEstablished)
+                        if (client.Status == SyncStatus.ConnectionEstablished)
                         {
                                 client.InitCryptSeed = ((PacketSt16896)message.PacketTemplate).Seed;
 
@@ -178,7 +178,7 @@ namespace GameServer.Packets.FromClient
                                 // send it
                                 QueuingService.PostProcessingQueue.Enqueue(msg);
 
-                                client.Status = SyncState.TriesToLoadInstance;
+                                client.Status = SyncStatus.TriesToLoadInstance;
 
                                 // send first instance load packets
                                 bool isOutpost = chara.IsAtOutpost;
@@ -215,7 +215,7 @@ namespace GameServer.Packets.FromClient
                                 ilDInfo.PacketTemplate = new P395_InstanceLoadDistrictInfo.PacketSt395();
                                 // data
                                 ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).LocalID = (uint)(int)chara[Chars.LocalID];
-                                var gameMapID = (int)World.GetMap(Maps.MapID, chara.MapID)[Maps.GameMapID];
+                                var gameMapID = (int)GameServerWorld.Instance.Get<DataMap>(Maps.MapID, chara.MapID)[Maps.GameMapID];
                                 ((P395_InstanceLoadDistrictInfo.PacketSt395)ilDInfo.PacketTemplate).GameMapID = (ushort)gameMapID;
                                 if (isOutpost)
                                 {

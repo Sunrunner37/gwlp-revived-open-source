@@ -30,8 +30,8 @@ namespace GameServer.Packets.FromClient
                 {
                         // nothing to parse here ;)
 
-                        var client = World.GetClient(Clients.NetID, message.NetID);
-                        var map = World.GetMap(Maps.MapID, client.MapID);
+                        var client = GameServerWorld.Instance.Get<DataClient>(Clients.NetID, message.NetID);
+                        var map = GameServerWorld.Instance.Get<DataMap>(Maps.MapID, client.MapID);
                         
 #warning Redundant spawn search here!
                         // execute this directly

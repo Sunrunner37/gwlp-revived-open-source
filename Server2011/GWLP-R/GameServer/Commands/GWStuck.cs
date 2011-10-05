@@ -24,12 +24,12 @@ namespace GameServer.Commands
                 public void Execute(Map map)
                 {
                         // get the net id of the recipient
-                        var netID = (int)World.GetCharacter(Chars.CharID, newCharID)[Chars.NetID];
+                        var netID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID)[Chars.NetID];
 
                         foreach (var charID in map.CharIDs)
                         {
                                 // get the char stuff of the agent we are updating
-                                var chara = World.GetCharacter(Chars.CharID, charID);
+                                var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
                                 var agentID = (uint)(int) chara[Chars.AgentID];
 
                                 // Note: FREEZE PLAYER

@@ -1,7 +1,7 @@
 ﻿
 namespace GameServer.Enums
 {
-        internal enum GenericValues
+        public enum GenericValues
         {
                 /// <summary>
                 ///   Freezes the player. Values: 

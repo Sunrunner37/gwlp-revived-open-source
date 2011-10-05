@@ -29,7 +29,7 @@ namespace GameServer.Commands
                                         var name = "[/" + cmd.Name + "]: ";
                                         var message = ((CommandAttribute)attributes[0]).Description;
 
-                                        var chara = World.GetCharacter(Chars.CharID, newCharID);
+                                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID);
                                         
                                         var reNetID = (int)chara[Chars.NetID];
 
