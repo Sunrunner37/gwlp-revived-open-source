@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using GameServer.Enums;
 using GameServer.Interfaces;
 using GameServer.Packets.ToClient;
@@ -137,6 +138,37 @@ namespace GameServer.Actions
                                         }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(charMain);
+                        }
+
+                        // send the message of the day ;)
+                        // get some info to display (srvInfo is of type string[] btw)
+                        var srvInfo = GameServerWorld.Instance.MessageOfTheDay;
+
+                        // iterate trough the lines, show each line as one chat message (with orange color)
+                        foreach (var info in srvInfo)
+                        {
+                                // Note: CHAT MESSAGE
+                                var chatMsg = new NetworkMessage(chara.Data.NetID)
+                                {
+                                        PacketTemplate = new P081_GeneralChatMessage.PacketSt81
+                                        {
+                                                Message = "Ĉć" +
+                                                        info +
+                                                        BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0)
+                                        }
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(chatMsg);
+
+                                // Note: CHAT MESSAGE NO OWNER
+                                var chatOwner = new NetworkMessage(chara.Data.NetID)
+                                {
+                                        PacketTemplate = new P082_GeneralChatNoOwner.PacketSt82
+                                        {
+                                                Data1 = 0,
+                                                Data2 = (byte)ChatColors.DarkOrange_DarkOrange
+                                        }
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(chatOwner);
                         }
 
                         // update client status

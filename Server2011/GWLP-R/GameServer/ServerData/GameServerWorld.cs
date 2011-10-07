@@ -31,6 +31,9 @@ namespace GameServer.ServerData
                         // set the start time
                         StartTime = DateTime.Now;
 
+                        // init the motd
+                        MessageOfTheDay = new string[0];
+
                         // add the chat commands below:
                         ChatCommandsDict = new Dictionary<string, Type>();
 

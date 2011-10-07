@@ -155,14 +155,13 @@ namespace GameServer
 
 
                                 // Load the message of the day, if there is any
-                                Debug.WriteLine("Loading the message of the day...     ");
+                                Debug.Write("Loading the message of the day...     ");
 
                                 var defaultMessage = new string[]
                                 {
                                         "You'r playing on:",
-                                        "< --[GWLP:R  v." + Assembly.GetExecutingAssembly().GetName().Version + "]-- >",
-                                        "Created by:",
-                                        "< --[ _rusty ] [ ACB ] [ miracle444 ] [ onyxphase ]-- >"
+                                        "< --[GWLP:R alpha v." + Assembly.GetExecutingAssembly().GetName().Version + "]-- >",
+                                        "< --[Credits] - [ _rusty ] [ ACB ] [ miracle444 ] [ onyxphase ]-- >"
                                 };
 
                                 if (File.Exists(Properties.Settings.Default.MotdFile))
@@ -181,9 +180,13 @@ namespace GameServer
                                         }
                                         else
                                         {
-                                                Debug.WriteLine("Error in mesage format: [<= 5 lines] [<= 56 characters]. Loading default.");
+                                                Debug.WriteLine("[error in msg format, using default]");
                                                 GameServerWorld.Instance.MessageOfTheDay = defaultMessage;
                                         }
+                                }
+                                else
+                                {
+                                        GameServerWorld.Instance.MessageOfTheDay = defaultMessage;
                                 }
 
                                 Debug.WriteLine("[done]");

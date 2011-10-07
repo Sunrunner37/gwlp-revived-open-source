@@ -95,11 +95,11 @@ CREATE TABLE `groups_commands` (
   `CommandName` char(16) NOT NULL,
   `GroupID` int(11) NOT NULL,
   PRIMARY KEY  (`CommandID`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `groups_commands` */
 
-insert  into `groups_commands`(`CommandID`,`CommandName`,`GroupID`) values (1,'HelpMe',2),(2,'ChangeMap',5),(3,'Test',5),(4,'SetSpawn',5),(5,'stuck',2);
+insert  into `groups_commands`(`CommandID`,`CommandName`,`GroupID`) values (1,'HelpMe',2),(2,'ChangeMap',5),(3,'Test',5),(4,'SetSpawn',5),(5,'stuck',2),(6,'ServerInfo',2);
 
 /*Table structure for table `groups_masterdata` */
 
