@@ -84,7 +84,7 @@ CREATE TABLE `chars_masterdata` (
 
 /*Data for the table `chars_masterdata` */
 
-insert  into `chars_masterdata`(`CharID`,`CharName`,`AccountID`,`MapID`,`Level`,`ProfessionPrimary`,`ProfessionSecondary`,`IsPvP`,`InventoryGold`,`ExperiencePts`,`AttrPtsFree`,`AttrPtsTotal`,`SkillPtsFree`,`SkillPtsTotal`,`SkillBar`,`SkillsAvailable`,`LookCampaign`,`LookFace`,`LookHairColor`,`LookHairStyle`,`LookHeight`,`LookSex`,`LookSkinColor`,`ShowHelm`,`ArmorHead`,`ArmorChest`,`ArmorArms`,`ArmorLegs`,`ArmorFeet`,`WeaponPrimary`,`WeaponSecondary`) values (10,'Gwlp Rulez',10,55,1,5,2,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(11,'Test Lolz',11,55,1,5,2,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(12,'Test Chara',10,2,1,9,1,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+insert  into `chars_masterdata`(`CharID`,`CharName`,`AccountID`,`MapID`,`Level`,`ProfessionPrimary`,`ProfessionSecondary`,`IsPvP`,`InventoryGold`,`ExperiencePts`,`AttrPtsFree`,`AttrPtsTotal`,`SkillPtsFree`,`SkillPtsTotal`,`SkillBar`,`SkillsAvailable`,`LookCampaign`,`LookFace`,`LookHairColor`,`LookHairStyle`,`LookHeight`,`LookSex`,`LookSkinColor`,`ShowHelm`,`ArmorHead`,`ArmorChest`,`ArmorArms`,`ArmorLegs`,`ArmorFeet`,`WeaponPrimary`,`WeaponSecondary`) values (10,'Gwlp Rulez',10,123,1,5,2,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(11,'Test Lolz',11,55,1,5,2,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(12,'Test Chara',10,2,1,9,1,0,0,0,0,0,0,0,NULL,NULL,0,1,0,4,9,1,4,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
 /*Table structure for table `groups_commands` */
 
@@ -203,6 +203,10 @@ CREATE TABLE `npcs_spawns` (
   `Speed` float NOT NULL,
   `Level` int(11) NOT NULL,
   `Profession` int(11) NOT NULL,
+  `AtOutpost` tinyint(1) NOT NULL,
+  `AtPvE` tinyint(1) NOT NULL,
+  `TeamID` int(11) NOT NULL,
+  `GroupSize` int(11) NOT NULL,
   PRIMARY KEY  (`NpcSpawnID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
