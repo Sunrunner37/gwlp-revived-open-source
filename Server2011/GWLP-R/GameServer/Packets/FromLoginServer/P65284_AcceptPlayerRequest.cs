@@ -3,6 +3,9 @@ using GameServer.Enums;
 using GameServer.Packets.ToLoginServer;
 using GameServer.ServerData;
 using ServerEngine;
+using ServerEngine.DataManagement;
+using ServerEngine.GuildWars.DataWrappers.Clients;
+using ServerEngine.GuildWars.DataWrappers.Maps;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
@@ -34,21 +37,31 @@ namespace GameServer.Packets.FromLoginServer
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt65284();
-                        pParser((PacketSt65284)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt65284();
+                        pParser(pack, message.PacketData);
 
-                        var newClient = new DataClient(0, (int)((PacketSt65284)message.PacketTemplate).AccID, (int)((PacketSt65284)message.PacketTemplate).CharID);
-                        newClient.MapID = (ushort)((PacketSt65284) message.PacketTemplate).MapID;
-                        newClient.SecurityKeys[0] = ((PacketSt65284)message.PacketTemplate).Key1;
-                        newClient.SecurityKeys[1] = ((PacketSt65284)message.PacketTemplate).Key2;
-                        newClient.Status = SyncStatus.Unauthorized;
+                        // create a new client
+                        var newClientData = new ClientData
+                        {
+                                AccID = new AccID(pack.AccID),
+                                CharID = new CharID(pack.CharID),
+                                MapID = new MapID(pack.MapID),
+                                SecurityKeys = new[]{pack.Key1, pack.Key2},
+                                Status = SyncStatus.Unauthorized,
+                        };             
 
-                        World.AddClient(newClient);
-
+                        // try to add the client
+                        var added = GameServerWorld.Instance.Add(new DataClient(newClientData));
 
                         // response
-                        var reply = new NetworkMessage(message.NetID) { PacketTemplate = new P65284_AcceptPlayerReply.PacketSt65284() };
-                        ((P65284_AcceptPlayerReply.PacketSt65284)reply.PacketTemplate).AccID = (UInt32)((int)newClient[Clients.AccID]);
+                        var reply = new NetworkMessage(message.NetID)
+                        {
+                                PacketTemplate = new P65284_AcceptPlayerReply.PacketSt65284
+                                {
+                                        AccID = newClientData.AccID.Value,
+                                        Success = (byte)(added? 1 : 0),
+                                }
+                        };
                         QueuingService.PostProcessingQueue.Enqueue(reply);
                         
 

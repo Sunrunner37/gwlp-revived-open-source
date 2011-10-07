@@ -1,15 +1,12 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
-using GameServer.DataBase;
 using GameServer.Enums;
 using GameServer.ServerData;
-using ServerEngine;
+using ServerEngine.DataManagement.DataWrappers;
 using ServerEngine.NetworkManagement;
-using ServerEngine.PacketManagement.StaticConvert;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
-using ServerEngine.GuildWars.Tools;
 
 namespace GameServer.Packets.FromClient
 {
@@ -45,134 +42,79 @@ namespace GameServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt1280();
-                        pParser((PacketSt1280)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt1280();
+                        pParser(pack, message.PacketData);
 
-                        var key1 = ((PacketSt1280) message.PacketTemplate).Key1;
-                        var key2 = ((PacketSt1280) message.PacketTemplate).Key2;
+                        var key1 = pack.Key1;
+                        var key2 = pack.Key2;
 
-                        var clients = World.GetUnauthorizedClients();
+                        IEnumerable<DataClient> clients;
+                        // get unauthorized clients or kick
+                        if (!GameServerWorld.Instance.ClientWhereStatus(SyncStatus.Unauthorized, out clients))
+                        {
+                                if (!GameServerWorld.Instance.ClientWhereStatus(SyncStatus.Dispatching, out clients))
+                                {
+                                        NetworkManager.Instance.RemoveClient(message.NetID);
 
-                        // check the security keys
-                        var verfClient = clients.FirstOrDefault(client => client.SecurityKeys[0].SequenceEqual(key1) && client.SecurityKeys[1].SequenceEqual(key2));
+                                        // tell the packetman that everything is OK
+                                        return true;
+                                }
+                        }
+
+                        // check if we've got a client with that keys
+                        var verfClient = clients.FirstOrDefault(c => c.Data.SecurityKeys[0].SequenceEqual(key1) && c.Data.SecurityKeys[1].SequenceEqual(key2));
 
                         if (verfClient != null)
                         {
-                                var newClient = new DataClient(message.NetID,(int)verfClient[Clients.AccID],(int)verfClient[Clients.CharID])
+                                // check if the map exists (necessary for dispatch clients)
+                                var map = GameServerWorld.Instance.Get<DataMap>(verfClient.Data.MapID);
+                                // kick the client if not
+                                if (map == null)
                                 {
-                                        LoginCount = verfClient.LoginCount,
-                                        SecurityKeys = verfClient.SecurityKeys,
+                                        NetworkManager.Instance.RemoveClient(message.NetID);
+
+                                        // tell the packetman that everything is OK
+                                        return true;
+                                }
+
+                                // get some network stuff
+                                byte[] ip;
+                                uint port;
+                                NetworkManager.Instance.GetClientInfo(message.NetID, out ip, out port);
+
+                                var newClientData = new ClientData
+                                {
+                                        NetID = message.NetID,
+                                        IPAddress = new IPAddress(ip),
+                                        Port = new Port(port),
+                                        AccID = verfClient.Data.AccID,
+                                        CharID = verfClient.Data.CharID,
+                                        SyncCount = verfClient.Data.SyncCount,
+                                        SecurityKeys = verfClient.Data.SecurityKeys,
                                         Status = SyncStatus.ConnectionEstablished,
-                                        MapID = verfClient.MapID,
+                                        MapID = map.Data.MapID,
+                                        GameMapID = map.Data.GameMapID,
+                                        GameFileID = map.Data.GameFileID
                                 };
 
-                                World.UpdateClient(verfClient, newClient);
+                                var newClient = new DataClient(newClientData);
+                                GameServerWorld.Instance.Update(verfClient, newClient);
 
-                                // add char
-                                using (var db = (MySQL)DataBaseProvider.GetDataBase())
+                                // add the character
+                                DataCharacter newChar;
+                                if (!map.LoadCharacter(newClient.Data.CharID, out newChar))
                                 {
-                                        // get the char id
-                                        var chID = (int)newClient[Clients.CharID];
-                                        
-                                        // get the char db object
-                                        var ch = (from c in db.charsMasterData
-                                                        where c.charID == chID
-                                                        select c).First();
-                                                
-                                        // get some necessary IDs
-                                        int localID, agentID;
-                                        World.RegisterCharacterIDs(out localID, out agentID, newClient.MapID);
+                                        // if the character cannot be added, kick the client
+                                        GameServerWorld.Instance.Kick(newClient);
+                                }
 
-                                        // get the appearance
-                                        var appearance = new MemoryStream();
-                                        RawConverter.WriteByte((byte)((ch.lookHeight << 4) | ch.lookSex), appearance);
-                                        RawConverter.WriteByte((byte)((ch.lookHairColor << 4) | ch.lookSkinColor), appearance);
-                                        RawConverter.WriteByte((byte)((ch.professionPrimary << 4) | ch.lookHairStyle), appearance);
-                                        RawConverter.WriteByte((byte)((ch.lookCampaign << 4) | ch.lookSex), appearance);
+                                // set the client's character
+                                newClient.Character = newChar;
 
-                                        // get the spawn point
-                                        var map = GameServerWorld.Instance.Get<DataMap>(Maps.MapID, newClient.MapID);
-
-                                        var spawns = from s in map.Spawns.Values
-                                                     where s.IsOutpost && s.IsPvE
-                                                     select s;
-                                        
-                                        var spawn = spawns.Count() != 0? spawns.First() :
-
-                                                new MapSpawn()
-                                                {
-                                                        IsOutpost = true,
-                                                        IsPvE = true,
-                                                        SpawnID = 0,
-                                                        SpawnPlane = 0,
-                                                        SpawnRadius = 0,
-                                                        SpawnX = 0,
-                                                        SpawnY = 0,
-                                                        TeamSpawnNumber = 0,
-                                                };
-                                        
-
-                                        // get the chat stuff
-                                        var accID = (int)newClient[Clients.AccID];
-                                        var accGrpID = (from a in db.accountsMasterData
-                                                        where a.accountID == accID
-                                                        select a).First().groupID;
-
-                                        var grp = (from g in db.groupsMasterData
-                                                   where g.groupID == accGrpID
-                                                   select g).First();
-                                                
-                                        // create the new char
-                                        var newChar = new DataCharacter(chID, 
-                                                (int)newClient[Clients.AccID], 
-                                                (int)newClient[Clients.NetID],
-                                                localID,
-                                                agentID,
-                                                ch.charName)
-                                        {
-                                                MapID = newClient.MapID,
-                                                IsAtOutpost = true,
-                                                LastHeartBeat = DateTime.Now,
-                                                PingTime = DateTime.Now,
-                                                CharStats =
-                                                {
-                                                        ProfessionPrimary = (byte)ch.professionPrimary,
-                                                        ProfessionSecondary = (byte)ch.professionSecondary,
-                                                        Level = ch.level,
-                                                        Morale = 100,
-                                                        SkillBar = ch.skillBar,
-                                                        UnlockedSkills = ch.skillsAvailable,
-                                                        AttPtsFree = ch.attrPtsFree,
-                                                        AttPtsTotal = ch.attrPtsTotal,
-                                                        SkillPtsFree = ch.skillPtsFree,
-                                                        SkillPtsTotal = ch.skillPtsTotal,
-                                                        Appearance = appearance.ToArray(),
-                                                        Position = {X = spawn.SpawnX, Y = spawn.SpawnY, PlaneZ = spawn.SpawnPlane},
-                                                        Direction = new GWVector(0, 0, 0),
-                                                        MoveState = MovementState.NotMoving,
-                                                        TrapezoidIndex = 0,
-                                                        IsRotating = false,
-                                                        Rotation = BitConverter.ToSingle(new byte[] { 0xB6, 0xC0, 0x4F, 0xBF }, 0),
-                                                        Speed = 288F,
-                                                        ChatPrefix = grp.groupPrefix,
-                                                        ChatColor = (byte)grp.groupChatColor,
-                                                }
-                                        };
-
-                                        
-
-                                        // dont forget to add available commands (its easier after the creation of newChar)
-                                        var cmds = from g in db.groupsCommands
-                                                        select g;
-
-                                        var grpID = grp.groupID;
-                                        foreach (var cmd in cmds)
-                                        {
-                                                newChar.CharStats.Commands.Add(cmd.commandName, (grpID >= cmd.groupID));  
-                                        }
-
-                                        // add the char
-                                        World.AddChar(newChar);
+                                // finally, kick the old socket if we had a dispatching client)
+                                if (verfClient.Data.Status == SyncStatus.Dispatching && verfClient.Data.NetID.Value != 0)
+                                {
+                                        NetworkManager.Instance.RemoveClient(verfClient.Data.NetID);
                                 }
                         }
 

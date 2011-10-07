@@ -20,6 +20,7 @@ namespace LoginServer.Packets.FromGameServer
                 {
                         public UInt16 Header { get { return 65284; } }
                         public UInt32 AccID;
+                        public byte Success;
                 }
 
                 public void InitPacket(object parser)
@@ -37,6 +38,14 @@ namespace LoginServer.Packets.FromGameServer
 
                         // get the client
                         var client = LoginServerWorld.Instance.Get<DataClient>(new AccID(pack.AccID));
+
+                        // check if the game server successfully added it
+                        if (pack.Success == 0)
+                        {
+                                // kick the client, cause the game server couldnt add it
+                                LoginServerWorld.Instance.Kick(client);
+                                return true;
+                        }
                         
                         // get the game server that accepted the client
                         var gameServer = LoginServerWorld.Instance.Get<DataGameServer>(message.NetID);

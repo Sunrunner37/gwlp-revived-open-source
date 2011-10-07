@@ -11,5 +11,8 @@
     <Setting Name="PathingMapsDir" Type="System.String" Scope="Application">
       <Value Profile="(Default)">PMAPs\</Value>
     </Setting>
+    <Setting Name="MotdFile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">motd.txt</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

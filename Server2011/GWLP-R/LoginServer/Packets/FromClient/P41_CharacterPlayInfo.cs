@@ -52,7 +52,9 @@ namespace LoginServer.Packets.FromClient
                                 {
                                         PacketTemplate =new P65283_BuildMapRequest.PacketSt65283
                                         {
-                                                MapID = client.Data.MapID.Value
+                                                MapID = client.Data.MapID.Value,
+                                                IsOutpost = 1,
+                                                IsPvE = 1
                                         }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(buildMap);

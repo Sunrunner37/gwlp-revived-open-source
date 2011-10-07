@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using ServerEngine.DataManagement;
 using ServerEngine.GuildWars.DataWrappers.Maps;
@@ -35,6 +36,13 @@ namespace LoginServer.ServerData
                 /// </summary>
                 public bool GetBestGameServer(MapID mapID, out DataGameServer gs)
                 {
+                        // failcheck
+                        if (mapID == null)
+                        {
+                                gs = null;
+                                return false;
+                        }
+
                         // get the right dict
                         MultiKeyDictionary<IEnumerable<IWrapper>> tmpDict; 
 
@@ -44,6 +52,7 @@ namespace LoginServer.ServerData
                         }
                         catch (Exception)
                         {
+                                // we've got no game servers
                                 gs = null;
                                 return false;
                         }

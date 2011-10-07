@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using GameServer.Enums;
 using GameServer.ServerData.DataInterfaces;
 using ServerEngine.DataManagement;
@@ -25,7 +26,12 @@ namespace GameServer.ServerData
                 /// </summary>
                 public DataCharacter(CharacterData data)
                 {
-                        this.data = data;
+                        lock (objLock)
+                        {
+                                this.data = data;
+
+                                Debug.WriteLine(string.Format("Created new {0}", GetType().Name));
+                        }
                 }
 
                 #region Implementation of IEnumerable
@@ -77,17 +83,32 @@ namespace GameServer.ServerData
                 IHasCharData,
                 IHasAttributeData,
                 IHasChatData,
-                IHasCharAppearanceData,
+                IHasAppearanceData,
                 IHasDistrictData,
                 IHasGeneralCharData,
                 IHasGenericValueData,
                 IHasHeartbeatData,
                 IHasMapData,
                 IHasMovementData,
-                IHasPingData,
+                IHasPlayStatusData,
                 IHasSkillData,
+                IHasTeamData,
                 IHasVitalStatusData
         {
+                public CharacterData()
+                {
+                        Attributes = new Dictionary<int, int>();
+                        ChatCommands = new Dictionary<string, bool>();
+                        Appearance = new byte[0];
+                        LastHeartBeat = DateTime.Now;
+                        Position = new GWVector(0,0,0);
+                        Direction = new GWVector(0,0,0);
+                        LastMovement = DateTime.Now;
+                        MoveState = MovementState.NotMoving;
+                        SkillBar = new byte[8];
+                        UnlockedSkills = new byte[4];
+                }
+
                 #region Implementation of IHasNetworkData
 
                 public NetID NetID { get; set; }
@@ -122,12 +143,14 @@ namespace GameServer.ServerData
                 #region Implementation of IHasChatData
 
                 public Dictionary<string, bool> ChatCommands { get; set; }
+                public bool ShowPrefix { get; set; }
                 public string ChatPrefix { get; set; }
+                public bool ShowColor { get; set; }
                 public byte ChatColor { get; set; }
 
                 #endregion
 
-                #region Implementation of IHasCharAppearanceData
+                #region Implementation of IHasAppearanceData
 
                 public byte[] Appearance { get; set; }
 
@@ -136,7 +159,7 @@ namespace GameServer.ServerData
                 #region Implementation of IHasDistrictData
 
                 public bool IsOutpost { get; set; }
-                public bool IsPvP { get; set; }
+                public bool IsPvE { get; set; }
                 public int DistrictCountry { get; set; }
                 public int DistrictNumber { get; set; }
 
@@ -146,8 +169,8 @@ namespace GameServer.ServerData
 
                 public byte ProfessionPrimary { get; set; }
                 public byte ProfessionSecondary { get; set; }
-                public int Level { get; set; }
-                public int Morale { get; set; }
+                public uint Level { get; set; }
+                public uint Morale { get; set; }
 
                 #endregion
 
@@ -163,7 +186,6 @@ namespace GameServer.ServerData
 
                 #region Implementation of IHasHeartbeatData
 
-                public bool EnabledHartBeat { get; set; }
                 public DateTime LastHeartBeat { get; set; }
 
                 #endregion
@@ -184,7 +206,7 @@ namespace GameServer.ServerData
                 public DateTime LastMovement { get; set; }
                 public bool AtBorder { get; set; }
                 public MovementState MoveState { get; set; }
-                public int MoveType { get; set; }
+                public MovementType  MoveType { get; set; }
                 public float Speed { get; set; }
                 public float SpeedModifier { get; set; }
                 public float Rotation { get; set; }
@@ -192,9 +214,9 @@ namespace GameServer.ServerData
 
                 #endregion
 
-                #region Implementation of IHasPingData
+                #region Implementation of IHasPlayStatusData
 
-                public DateTime PingTime { get; set; }
+                public PlayStatus Player { get; set; }
 
                 #endregion
 
@@ -204,6 +226,12 @@ namespace GameServer.ServerData
                 public int SkillPtsTotal { get; set; }
                 public byte[] SkillBar { get; set; }
                 public byte[] UnlockedSkills { get; set; }
+
+                #endregion
+
+                #region Implementation of IHasTeamData
+
+                public int TeamNumber { get; set; }
 
                 #endregion
 

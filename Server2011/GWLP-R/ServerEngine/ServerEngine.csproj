@@ -52,6 +52,7 @@
     <Compile Include="DataManagement\IIdentifiableData.cs" />
     <Compile Include="DataManagement\InterfaceExtensions.cs" />
     <Compile Include="DataManagement\IWrapper.cs" />
+    <Compile Include="DataManagement\KeyEqualityComparer.cs" />
     <Compile Include="DataManagement\MultiKeyDictionary.cs" />
     <Compile Include="DataManagement\World.cs" />
     <Compile Include="DataManagement\WrapperExtensions.cs" />

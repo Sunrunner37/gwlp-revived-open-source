@@ -12,6 +12,7 @@ namespace ServerEngine.DataManagement
                 private readonly object objLock = new object();
 
                 private readonly Dictionary<Type, Dictionary<int, TValue>> dicts;
+                private readonly Dictionary<TValue, int> values;
 
                 /// <summary>
                 ///   Creates a new instance of the class.
@@ -19,6 +20,7 @@ namespace ServerEngine.DataManagement
                 public MultiKeyDictionary()
                 {
                         dicts = new Dictionary<Type, Dictionary<int, TValue>>();
+                        values = new Dictionary<TValue, int>();
                 }
 
                 /// <summary>
@@ -28,11 +30,8 @@ namespace ServerEngine.DataManagement
                 ///   A wrapper-struct for a simple datatype
                 /// </typeparam>
                 public bool AddOnly<TKey>(TKey key, TValue value)
-                        where TKey: IWrapper
+                        where TKey: class, IWrapper
                 {
-                        Contract.Requires(key != null);
-                        Contract.Requires(value != null);
-
                         lock (objLock)
                         {
                                 Dictionary<int, TValue> tmpDict;
@@ -43,7 +42,19 @@ namespace ServerEngine.DataManagement
                                         tmpDict = dicts[typeof(TKey)];
 
                                         // add the new dictionary entry
+                                        if (key == null) return false;
                                         tmpDict.Add(key.Hash(), value);
+
+                                        // add the values stuff
+                                        if (values.ContainsKey(value))
+                                        {
+                                                // increase the reference counter
+                                                values[value]++;
+                                        }
+                                        else
+                                        {
+                                                values.Add(value, 1);
+                                        }
 
                                         return true;
                                 }
@@ -55,6 +66,9 @@ namespace ServerEngine.DataManagement
 
                                         // and add the new dictionary
                                         dicts.Add(typeof(TKey), tmpDict);
+
+                                        // we have a new reference, so add a new entry in values
+                                        values.Add(value, 1);
 
                                         return true;
                                 }
@@ -75,8 +89,6 @@ namespace ServerEngine.DataManagement
                 /// </summary>
                 public bool AddAll(TValue value)
                 {
-                        Contract.Requires(value != null);
-
                         lock (objLock)
                         {
                                 try
@@ -110,7 +122,7 @@ namespace ServerEngine.DataManagement
                 ///   A wrapper-struct for a simple datatype
                 /// </param>
                 public bool TryGetValue<TKey>(TKey key, out TValue value)
-                        where TKey: IWrapper
+                        where TKey: class, IWrapper
                 {
                         lock (objLock)
                         {
@@ -120,6 +132,11 @@ namespace ServerEngine.DataManagement
                                         var tmpDict = dicts[typeof(TKey)];
 
                                         // retrieve the value
+                                        if (key == null)
+                                        {
+                                                value = default(TValue);
+                                                return false;
+                                        }
                                         return tmpDict.TryGetValue(key.Hash(), out value);
                                 }
                                 // the dictionary for this type does not yet exist
@@ -138,7 +155,7 @@ namespace ServerEngine.DataManagement
                 ///   The value still may be found by other references.
                 /// </summary>
                 public bool RemoveOnly<TKey>(TKey key)
-                        where TKey : IWrapper
+                        where TKey : class, IWrapper
                 {
                         lock (objLock)
                         {
@@ -147,33 +164,18 @@ namespace ServerEngine.DataManagement
                                         // try to get the right dictionary
                                         var tmpDict = dicts[typeof(TKey)];
 
+                                        // get the value
+                                        var value = tmpDict[key.Hash()];
+
+                                        // do the values stuff
+                                        if (values.ContainsKey(value))
+                                        {
+                                                values[value]--;
+                                                if (values[value] == 0) values.Remove(value);
+                                        }
+
                                         // remove the value
-                                        return tmpDict.Remove(key.Hash());
-                                }
-                                // the dictionary for this type does not yet exist
-                                catch (KeyNotFoundException)
-                                {
-                                        return false;
-                                }
-
-                                // note that argument null exceptions still will be passed
-                        }
-                }
-
-                /// <summary>
-                ///   Removes all references to a value from the dictionary.
-                ///   The value is searched with the parameter.
-                /// </summary>
-                public bool RemoveAll<TKey>(TKey key)
-                        where TKey : IWrapper
-                {
-                        lock (objLock)
-                        {
-                                try
-                                {
-                                        // try to get the value
-                                        TValue tmpValue;
-                                        return TryGetValue(key, out tmpValue) && RemoveAll(tmpValue);
+                                        return key == null || tmpDict.Remove(key.Hash());
                                 }
                                 // the dictionary for this type does not yet exist
                                 catch (KeyNotFoundException)
@@ -196,9 +198,10 @@ namespace ServerEngine.DataManagement
                                 {
                                         var result = true;
 
+                                        // note that null reference keys are neither added nor removed ;)
                                         foreach (var key in value
                                                 .AsEnumerable()
-                                                .Where(key => !RemoveOnly(key)))
+                                                .Where(key => key != null && !RemoveOnly(key)))
                                         {
                                                 result = false;
                                         }
@@ -223,46 +226,9 @@ namespace ServerEngine.DataManagement
                                 lock (objLock)
                                 {
                                         // NOTE: BUG: THE FOLLOWING NEEDS TO RETURN AN ENUMERATION THAT WILL NOT UPDATE WHEN dict.Values CHANGES!
-                                        var values = new List<TValue>();
-
-                                        // get all values
-                                        foreach (var dict in dicts.Values)
-                                        {
-                                                values.AddRange(dict.Values);
-                                        }
-
-                                        // remove redundant data
-                                        values.Distinct(
-                                                new KeyEqualityComparer<TValue>
-                                                (x => x.GetEnumerator().Current.ToString()));
-
-                                        return values.ToList();
+                                        return values.Keys;
                                 }
                         }
                 }
-
-                #region Nested Class: Distinct Helper Class
-
-                public class KeyEqualityComparer<T> : IEqualityComparer<T>
-                {
-                        private readonly Func<T, object> keyExtractor;
-
-                        public KeyEqualityComparer(Func<T, object> keyExtractor)
-                        {
-                                this.keyExtractor = keyExtractor;
-                        }
-
-                        public bool Equals(T x, T y)
-                        {
-                                return this.keyExtractor(x).Equals(this.keyExtractor(y));
-                        }
-
-                        public int GetHashCode(T obj)
-                        {
-                                return this.keyExtractor(obj).GetHashCode();
-                        }
-                }
-
-                #endregion
         }
 }

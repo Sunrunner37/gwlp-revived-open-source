@@ -6,38 +6,38 @@ using GameServer.Interfaces;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
 using ServerEngine;
+using ServerEngine.GuildWars.DataWrappers.Clients;
 using ServerEngine.NetworkManagement;
 
 namespace GameServer.Actions
 {
         public class ChatMessage : IAction
         {
-                private int newCharID;
+                private readonly CharID newCharID;
                 private string newMessage;
 
-                public ChatMessage(int charID, string newMessage)
+                public ChatMessage(CharID charID, string newMessage)
                 {
                         newCharID = charID;
                         this.newMessage = newMessage;
                 }
 
-                public void Execute(Map map)
+                public void Execute(DataMap map)
                 {
                         var messageType = newMessage[0];
                         newMessage = newMessage.Substring(1);
 
-                        // all ###################################
+                        // all #############################################
                         if (messageType == '!')
                         {
                                 // send message to all available players
-                                string prefix;
-                                byte chatColor;
-                                var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID);
+                                var chara = GameServerWorld.Instance.Get<DataClient>(newCharID).Character;
 
-                                prefix = chara.CharStats.ChatPrefix;
-                                chatColor = chara.CharStats.ChatColor != (byte)ChatColors.Yellow_White ? chara.CharStats.ChatColor : (byte)ChatColors.Yellow_White;
+                                var prefix = chara.Data.ShowPrefix ? chara.Data.ChatPrefix : "";
+                                var chatColor = chara.Data.ShowColor ? chara.Data.ChatColor : (byte)ChatColors.Yellow_White;
 
-                                foreach (var charID in map.CharIDs)
+                                // the following linq expression returns an IEnumerable<CharID> of all characters on that map
+                                foreach (var charID in map.GetAll<DataCharacter>().Select(x => x.Data.CharID))
                                 {
                                         CreateChatMessageFor(newCharID, charID, newMessage, prefix, chatColor);
                                 }
@@ -73,58 +73,47 @@ namespace GameServer.Actions
                         {
                                 ExecuteCommand(newCharID, newMessage);
                         }
-
-                        //// send message to all available players
-                        //var mapID = GameServerWorld.Instance.Get<DataCharacter>(Idents.Chars.CharID, newCharID).MapID;
-                        //foreach (var charID in GameServerWorld.Instance.Get<DataMap>(Idents.Maps.MapID, mapID).CharIDs)
-                        //{
-
-                        //}
                 }
 
-                private void CreateChatMessageFor(int charID, int recipientCharID, string message, string prefix ,byte color)
+                private static void CreateChatMessageFor(CharID senderCharID, CharID recipientCharID, string message, string prefix ,byte color)
                 {
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
+                        var chara = GameServerWorld.Instance.Get<DataClient>(senderCharID).Character;
 
                         // get the recipient of all those packets
-                        int reNetID = 0;
-                        if (recipientCharID != charID)
-                        {
-                                reNetID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, recipientCharID)[Chars.NetID];
-                        }
-                        else
-                        {
-                                reNetID = (int)chara[Chars.NetID];
-                        }
+                        var reNetID = recipientCharID.Value != senderCharID.Value ?
+                                GameServerWorld.Instance.Get<DataClient>(recipientCharID).Data.NetID :
+                                chara.Data.NetID;
 
                         var prefixString = prefix != "" ? "[" + prefix + "] " : "";
 
                         // Note: CHAT MESSAGE
-                        var chatMsg = new NetworkMessage(reNetID);
-                        chatMsg.PacketTemplate = new P081_GeneralChatMessage.PacketSt81()
-                                                                {
-                                                                        Message = 
-                                                                        BitConverter.ToChar(new byte[]{0x08, 0x01}, 0).ToString() +
-                                                                        BitConverter.ToChar(new byte[]{0x07, 0x01}, 0).ToString() +
-                                                                        prefixString +
-                                                                        message +
-                                                                        BitConverter.ToChar(new byte[]{0x01, 0x00}, 0).ToString()
-                                                                };
+                        var chatMsg = new NetworkMessage(reNetID)
+                        {
+                                PacketTemplate = new P081_GeneralChatMessage.PacketSt81
+                                {
+                                        Message = "Ĉć" +
+                                                prefixString +
+                                                message +
+                                                BitConverter.ToChar(new byte[]{ 0x01, 0x00 }, 0)
+                                }
+                        };
                         QueuingService.PostProcessingQueue.Enqueue(chatMsg);
 
                         // Note: CHAT MESSAGE OWNER
-                        var chatOwner = new NetworkMessage(reNetID);
-                        chatOwner.PacketTemplate = new P085_GeneralChatOwner.PacketSt85()
+                        var chatOwner = new NetworkMessage(reNetID)
                         {
-                                Data1 = (ushort)(int)chara[Chars.LocalID],
-                                Data2 = color
+                                PacketTemplate = new P085_GeneralChatOwner.PacketSt85
+                                {
+                                        Data1 = (ushort)chara.Data.LocalID.Value,
+                                        Data2 = color
+                                }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(chatOwner);
                 }
 
-                private static void ExecuteCommand(int charID, string message)
+                private static void ExecuteCommand(CharID charID, string message)
                 {
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
+                        var chara = GameServerWorld.Instance.Get<DataClient>(charID).Character;
 
                         try
                         {
@@ -132,43 +121,60 @@ namespace GameServer.Actions
                                 var parameter = message.Split(' ').ToList();
                                 parameter.RemoveAt(0);
 
-                                bool isAvailable = false;
-                                if (chara.CharStats.Commands.TryGetValue(command, out isAvailable) && isAvailable)
+                                if (chara.Data.ChatCommands[command])
                                 {
                                         Type commandType;
-                                        World.ChatCommandsDict.TryGetValue(command, out commandType);
+                                        GameServerWorld.Instance.ChatCommandsDict.TryGetValue(command, out commandType);
 
-                                        Map map = GameServerWorld.Instance.Get<DataMap>(Maps.MapID, chara.MapID);
+                                        var map = GameServerWorld.Instance.Get<DataMap>(chara.Data.MapID);
                                         
                                         var parameters = new List<object>(new object[] {charID});
                                         parameters.AddRange(parameter);
 
-                                        map.ActionQueue.Enqueue(((IAction)Activator.CreateInstance(commandType, parameters.ToArray())).Execute);
+                                        map.Data.ActionQueue.Enqueue(
+                                                ((IAction)Activator.CreateInstance(
+                                                commandType, 
+                                                parameters.ToArray())).Execute);
                                 }
-                                
+                                else
+                                {
+                                        throw new UnauthorizedAccessException();
+                                }
                         }
-                        catch
+                        catch (Exception e)
                         {
-                                var reNetID = (int)chara[Chars.NetID];
+                                var reNetID = chara.Data.NetID;
+
+                                var errorMsg = "Error in command. " + e.Message;
+                                if (e.GetType() == typeof(KeyNotFoundException))
+                                {
+                                        errorMsg = "Command not found.";
+                                }
+                                else if (e.GetType() == typeof(UnauthorizedAccessException))
+                                {
+                                        errorMsg = "Access denied.";
+                                }
 
                                 // Note: CHAT MESSAGE
-                                var chatMsg = new NetworkMessage(reNetID);
-                                chatMsg.PacketTemplate = new P081_GeneralChatMessage.PacketSt81()
+                                var chatMsg = new NetworkMessage(reNetID)
                                 {
-                                        Message =
-                                        BitConverter.ToChar(new byte[] { 0x08, 0x01 }, 0).ToString() +
-                                        BitConverter.ToChar(new byte[] { 0x07, 0x01 }, 0).ToString() +
-                                        "Error in command." +
-                                        BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0).ToString()
+                                        PacketTemplate = new P081_GeneralChatMessage.PacketSt81
+                                        {
+                                                Message = "Ĉć" +
+                                                errorMsg +
+                                                BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0)
+                                        }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(chatMsg);
 
                                 // Note: CHAT MESSAGE NO OWNER
-                                var chatOwner = new NetworkMessage(reNetID);
-                                chatOwner.PacketTemplate = new P082_GeneralChatNoOwner.PacketSt82()
+                                var chatOwner = new NetworkMessage(reNetID)
                                 {
-                                        Data1 = 0,
-                                        Data2 = (byte)ChatColors.DarkOrange_DarkOrange
+                                        PacketTemplate = new P082_GeneralChatNoOwner.PacketSt82
+                                        {
+                                                Data1 = 0,
+                                                Data2 = (byte)ChatColors.DarkOrange_DarkOrange
+                                        }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(chatOwner);
                         }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using GameServer.Packets.ToLoginServer;
 using GameServer.ServerData;
 using ServerEngine;
@@ -27,12 +28,20 @@ namespace GameServer.Packets.FromLoginServer
                 {
                         // nothing to parse here ;)
 
+                        // get availabe maps: (as ushort array of mapID's)
+                        var ids = GameServerWorld.Instance.GetMapIDs().Select(x => (ushort)x.Value).ToArray();
+
                         // create reply
-                        var reply = new NetworkMessage(message.NetID) { PacketTemplate = new P65282_ServerStatsRequest.PacketSt65282() };
-                        var ids = World.GetMapIDs();
-                        ((P65282_ServerStatsReply.PacketSt65282)reply.PacketTemplate).ArraySize1 = (UInt16)ids.Length;
-                        ((P65282_ServerStatsReply.PacketSt65282)reply.PacketTemplate).MapIDs = ids;
-                        ((P65282_ServerStatsReply.PacketSt65282)reply.PacketTemplate).Utilization = (byte)NetworkManager.Instance.GetUtilization();
+                        // Note: SERVER STATS
+                        var reply = new NetworkMessage(message.NetID)
+                        {
+                                PacketTemplate = new P65282_ServerStatsReply.PacketSt65282
+                                {
+                                        ArraySize1 = (ushort)ids.Length,
+                                        MapIDs = ids,
+                                        Utilization = (byte)NetworkManager.Instance.GetUtilization(),
+                                }
+                        };
                         QueuingService.PostProcessingQueue.Enqueue(reply);
 
                         return true;

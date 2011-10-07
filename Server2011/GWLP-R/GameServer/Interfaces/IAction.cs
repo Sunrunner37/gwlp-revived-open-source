@@ -4,6 +4,6 @@ namespace GameServer.Interfaces
 {
         public interface IAction
         {
-                void Execute(Map map);
+                void Execute(DataMap map);
         }
 }

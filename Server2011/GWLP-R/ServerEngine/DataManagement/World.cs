@@ -21,6 +21,40 @@ namespace ServerEngine.DataManagement
                 }
 
                 /// <summary>
+                ///   Try to add a value of 'T'
+                /// </summary>
+                public bool Add<T>(T value)
+                        where T : IEnumerable<IWrapper>
+                {
+                        try
+                        {
+                                // get the right dict
+                                var tmpDict = worldData[typeof(T)];
+
+                                // add the value
+                                return tmpDict.AddAll(value);
+                        }
+                        // we've got no dict of it ;)
+                        catch (KeyNotFoundException)
+                        {
+                                // create a new dict
+                                var tmpDict = new MultiKeyDictionary<IEnumerable<IWrapper>>();
+
+                                // add the value
+                                if (tmpDict.AddAll(value))
+                                {
+                                        // add the dict
+                                        worldData.Add(typeof(T), tmpDict);
+
+                                        return true;
+                                }
+
+                                return false;
+                        }
+
+                }
+
+                /// <summary>
                 ///   Try to get a value of type 'T' which should be an IEnumerable of IWrapper
                 /// </summary>
                 public T Get<T>(IWrapper key)
@@ -48,9 +82,9 @@ namespace ServerEngine.DataManagement
                 }
 
                 /// <summary>
-                ///   Try to add a value of 'T'
+                ///   Try to get all values of type 'T' which should be an IEnumerable of IWrapper
                 /// </summary>
-                public bool Add<T>(T value)
+                public IEnumerable<T> GetAll<T>()
                         where T : IEnumerable<IWrapper>
                 {
                         try
@@ -58,27 +92,13 @@ namespace ServerEngine.DataManagement
                                 // get the right dict
                                 var tmpDict = worldData[typeof(T)];
 
-                                // add the value
-                                return tmpDict.AddAll(value);
+                                return tmpDict.Values.Select(x => (T)x);
                         }
-                        // we've got no dict of it ;)
-                        catch (KeyNotFoundException)
+                        catch (Exception)
                         {
-                                // create a new dict
-                                var tmpDict = new MultiKeyDictionary<IEnumerable<IWrapper>>();
-
-                                // add the value
-                                if (tmpDict.AddAll(value))
-                                {
-                                        // add the dict
-                                        worldData.Add(typeof (T), tmpDict);
-
-                                        return true;
-                                }
-
-                                return false;
+                                return new List<T>();
                         }
-                        
+
                 }
 
                 /// <summary>
@@ -92,13 +112,8 @@ namespace ServerEngine.DataManagement
                                 // get the right dict
                                 var tmpDict = worldData[typeof(T)];
 
-                                // remove the old value
-                                tmpDict.RemoveAll(oldValue as IEnumerable<IWrapper>);
-
-                                // add the new value
-                                tmpDict.AddAll(newValue);
-
-                                return true;
+                                // remove the old value and add the new one
+                                return tmpDict.RemoveAll(oldValue) && tmpDict.AddAll(newValue);
                         }
                         catch (Exception)
                         {

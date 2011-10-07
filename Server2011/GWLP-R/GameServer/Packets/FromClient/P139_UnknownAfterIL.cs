@@ -26,8 +26,8 @@ namespace GameServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt139();
-                        pParser((PacketSt139)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt139();
+                        pParser(pack, message.PacketData);
 
                         //throw new NotImplementedException();
 

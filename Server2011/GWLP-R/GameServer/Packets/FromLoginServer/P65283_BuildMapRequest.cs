@@ -4,6 +4,7 @@ using GameServer.DataBase;
 using GameServer.Packets.ToLoginServer;
 using GameServer.ServerData;
 using ServerEngine;
+using ServerEngine.GuildWars.DataWrappers.Maps;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
@@ -17,6 +18,8 @@ namespace GameServer.Packets.FromLoginServer
                 {
                         public UInt16 Header { get { return 65283; } }
                         public UInt32 MapID;
+                        public byte IsOutpost;
+                        public byte IsPvE;
                 }
 
                 public void InitPacket(object parser)
@@ -29,17 +32,26 @@ namespace GameServer.Packets.FromLoginServer
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt65283();
-                        pParser((PacketSt65283)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt65283();
+                        pParser(pack, message.PacketData);
 
-                        World.BuildMap((int)((PacketSt65283)message.PacketTemplate).MapID);
+                        // build the map
+                        GameServerWorld.Instance.BuildMap(new MapID(pack.MapID), pack.IsOutpost == 0 ? false : true, pack.IsPvE == 0 ? false : true);
 
-                        // response
-                        var reply = new NetworkMessage(message.NetID) { PacketTemplate = new P65282_ServerStatsReply.PacketSt65282() };
-                        var ids = World.GetMapIDs();
-                        ((P65282_ServerStatsReply.PacketSt65282)reply.PacketTemplate).ArraySize1 = (UInt16)ids.Length;
-                        ((P65282_ServerStatsReply.PacketSt65282)reply.PacketTemplate).MapIDs = ids;
-                        ((P65282_ServerStatsReply.PacketSt65282)reply.PacketTemplate).Utilization = (byte)NetworkManager.Instance.GetUtilization();
+                        // get availabe maps: (as ushort array of mapID's)
+                        var ids = GameServerWorld.Instance.GetMapIDs().Select(x => (ushort)x.Value).ToArray();
+
+                        // create reply
+                        // Note: SERVER STATS
+                        var reply = new NetworkMessage(message.NetID)
+                        {
+                                PacketTemplate = new P65282_ServerStatsReply.PacketSt65282
+                                {
+                                        ArraySize1 = (ushort)ids.Length,
+                                        MapIDs = ids,
+                                        Utilization = (byte)NetworkManager.Instance.GetUtilization(),
+                                }
+                        };
                         QueuingService.PostProcessingQueue.Enqueue(reply);
                                
                         return true;

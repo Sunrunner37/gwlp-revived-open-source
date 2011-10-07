@@ -152,6 +152,8 @@
     <Compile Include="Packets\ToClient\P07_CharacterInfo.cs" />
     <Compile Include="Packets\ToClient\Packet8.cs" />
     <Compile Include="Packets\ToClient\P09_ReferToGameServer.cs" />
+    <Compile Include="Packets\ToGameServer\P65286_ClientDispatchConnectionUpdate.cs" />
+    <Compile Include="Packets\ToGameServer\P65285_ClientDispatchForward.cs" />
     <Compile Include="Packets\ToGameServer\P65283_BuildMapRequest.cs" />
     <Compile Include="Packets\ToGameServer\P65284_AcceptPlayerRequest.cs" />
     <Compile Include="Packets\ToGameServer\P65281_HandshakeReply.cs" />

@@ -1,59 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using GameServer.Enums;
+﻿using System.Linq;
 using GameServer.Interfaces;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
 using ServerEngine;
+using ServerEngine.GuildWars.DataWrappers.Clients;
 using ServerEngine.NetworkManagement;
 
 namespace GameServer.Actions
 {
         public class RotatePlayer : IAction
         {
-                private int newCharID;
+                private readonly CharID newCharID;
 
-                public RotatePlayer(int charID)
+                public RotatePlayer(CharID charID)
                 {
                         newCharID = charID;
                 }
 
-                public void Execute(Map map)
+                public void Execute(DataMap map)
                 {
                         // send message to all available players
-                        foreach (var charID in map.CharIDs)
+                        // the following linq expression returns an IEnumerable<CharID> of all characters on that map
+                        foreach (var charID in map.GetAll<DataCharacter>().Select(x => x.Data.CharID))
                         {
                                 CreatePackets(newCharID, charID);
                         }
                 }
 
-                private static void CreatePackets(int charID, int recipientCharID)
+                private static void CreatePackets(CharID senderCharID, CharID recipientCharID)
                 {
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
-                        
+                        var chara = GameServerWorld.Instance.Get<DataClient>(senderCharID).Character;
+
                         // get the recipient of all those packets
-                        int reNetID = 0;
-                        if (recipientCharID != charID)
-                        {
-                                reNetID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, recipientCharID)[Chars.NetID];
-                        }
-                        else
-                        {
-                                reNetID = (int)chara[Chars.NetID];
-                        }
+                        var reNetID = recipientCharID.Value != senderCharID.Value ?
+                                GameServerWorld.Instance.Get<DataClient>(recipientCharID).Data.NetID :
+                                chara.Data.NetID;
 
                         // Note: ROTATE AGENT
-                        var rotAgent = new NetworkMessage(reNetID);
-                        rotAgent.PacketTemplate = new P035_RotateAgent.PacketSt35()
+                        var rotAgent = new NetworkMessage(reNetID)
                         {
-                                AgentID = (ushort)(int)chara[Chars.AgentID],
-                                Rotation = chara.CharStats.Rotation,
-                                Data1 = 0x40060A92
+                                PacketTemplate = new P035_RotateAgent.PacketSt35
+                                {
+                                        AgentID = (ushort)chara.Data.AgentID.Value,
+                                        Rotation = chara.Data.Rotation,
+                                        Data1 = 0x40060A92
+                                }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(rotAgent);
-                        
                 }
         }
 }

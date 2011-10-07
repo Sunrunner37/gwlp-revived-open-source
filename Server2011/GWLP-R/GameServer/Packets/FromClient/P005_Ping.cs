@@ -24,13 +24,17 @@ namespace GameServer.Packets.FromClient
 
                 public bool Handler(ref NetworkMessage message)
                 {
-                        //throw new NotImplementedException();
-                        var chatMsg = new NetworkMessage(message.NetID);
-                        chatMsg.PacketTemplate = new P002_PingReply.PacketSt2()
+                        // nothing to parse here
+
+                        // Note: PING REPLY
+                        var pingReply = new NetworkMessage(message.NetID)
                         {
-                                Data1 = 45
+                                PacketTemplate = new P002_PingReply.PacketSt2
+                                {
+                                        Data1 = 45
+                                }
                         };
-                        QueuingService.PostProcessingQueue.Enqueue(chatMsg);
+                        QueuingService.PostProcessingQueue.Enqueue(pingReply);
 
                         return true;
                 }

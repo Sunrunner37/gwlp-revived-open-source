@@ -1,4 +1,6 @@
 using System;
+using GameServer.Enums;
+using GameServer.ServerData;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
@@ -22,8 +24,9 @@ namespace GameServer.Packets.FromClient
 
                 public bool Handler(ref NetworkMessage message)
                 {
-                        // nothing to do here
-                        //throw new NotImplementedException();
+                        // nothing to do here, just ensure the status is 'playing'
+                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
+                        chara.Data.Player = PlayStatus.ReadyToPlay;
 
                         return true;
                 }

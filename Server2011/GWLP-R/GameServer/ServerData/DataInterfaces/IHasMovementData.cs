@@ -14,7 +14,7 @@ namespace GameServer.ServerData.DataInterfaces
                 bool AtBorder { get; set; }
 
                 MovementState MoveState { get; set; }
-                int MoveType { get; set; }
+                MovementType MoveType { get; set; }
 
                 float Speed { get; set; }
                 float SpeedModifier { get; set; }

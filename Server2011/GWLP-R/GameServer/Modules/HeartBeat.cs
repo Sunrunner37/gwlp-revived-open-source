@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using GameServer.Enums;
 using GameServer.Interfaces;
 using GameServer.Packets.ToClient;
@@ -15,33 +13,35 @@ namespace GameServer.Modules
         {
                 public void Execute()
                 {
-                        World.GetMaps().AsParallel().ForAll(ProcessHeartBeatPackets);
+                        GameServerWorld.Instance.GetAll<DataMap>().AsParallel().ForAll(ProcessHeartBeatPackets);
                 }
 
-                private static void ProcessHeartBeatPackets(Map map)
+                private static void ProcessHeartBeatPackets(DataMap map)
                 {
-                        foreach (int charID in map.CharIDs)
+                        // the following linq expression returns an IEnumerable<CharID> of all characters on that map
+                        foreach (var chara in map.GetAll<DataCharacter>())
                         {
-                                var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
-                                if (chara != null)
+                                // failcheck
+                                if (chara == null) continue;
+                                if (chara.Data.Player != PlayStatus.ReadyToPlay) continue;
+
+                                var diff = DateTime.Now.Subtract(chara.Data.LastHeartBeat).TotalMilliseconds;
+
+                                // time check
+                                if (diff <= 250) continue;
+
+                                // Note: HEARTBEAT
+                                var heartBeat = new NetworkMessage(chara.Data.NetID)
                                 {
-
-                                        var diff = DateTime.Now.Subtract(chara.LastHeartBeat).TotalMilliseconds;
-
-                                        if (diff > 250)
+                                        PacketTemplate = new P019_Heartbeat.PacketSt19
                                         {
-                                                // Note: HEARTBEAT
-                                                var heartBeat = new NetworkMessage((int) chara[Chars.NetID]);
-                                                heartBeat.PacketTemplate = new P019_Heartbeat.PacketSt19()
-                                                {
-                                                        Data1 = (uint) diff
-                                                };
-                                                QueuingService.PostProcessingQueue.Enqueue(heartBeat);
-
-                                                chara.LastHeartBeat = DateTime.Now;
+                                                Data1 = (uint)diff
                                         }
-                                        
-                                }
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(heartBeat);
+
+                                // update the char's heartbeat time
+                                chara.Data.LastHeartBeat = DateTime.Now;
                         }
                 }
         }

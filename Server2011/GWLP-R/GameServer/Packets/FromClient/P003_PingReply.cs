@@ -28,15 +28,18 @@ namespace GameServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt3();
-                        pParser((PacketSt3)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt3();
+                        pParser(pack, message.PacketData);
 
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, message.NetID);
-                        
-                        var chatMsg = new NetworkMessage(message.NetID);
-                        chatMsg.PacketTemplate = new P002_PingReply.PacketSt2()
+                        var client = GameServerWorld.Instance.Get<DataClient>(message.NetID);
+
+                        // Note: PING REPLY
+                        var chatMsg = new NetworkMessage(message.NetID)
                         {
-                                Data1 = (uint)DateTime.Now.Subtract(chara.PingTime).TotalMilliseconds
+                                PacketTemplate = new P002_PingReply.PacketSt2
+                                {
+                                        Data1 = (uint)DateTime.Now.Subtract(client.Data.PingTime).TotalMilliseconds
+                                }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(chatMsg);
                         

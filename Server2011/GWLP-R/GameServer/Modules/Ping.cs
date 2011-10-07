@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using GameServer.Enums;
 using GameServer.Interfaces;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
@@ -15,27 +12,25 @@ namespace GameServer.Modules
         {
                 public void Execute()
                 {
-                        World.GetMaps().AsParallel().ForAll(ProcessPing);
+                        GameServerWorld.Instance.GetAll<DataClient>().AsParallel().ForAll(ProcessPing);
                 }
 
-                private static void ProcessPing(Map map)
+                private static void ProcessPing(DataClient client)
                 {
-                        foreach (int charID in map.CharIDs)
+                        var diff = DateTime.Now.Subtract(client.Data.PingTime).TotalMilliseconds;
+
+                        // time interval check
+                        if (diff <= 5000) return;
+
+                        // Note: PING
+                        var ping = new NetworkMessage(client.Data.NetID)
                         {
-                                var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
-                                
-                                var diff = DateTime.Now.Subtract(chara.PingTime).TotalMilliseconds;
+                                PacketTemplate = new P001_PingRequest.PacketSt1()
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(ping);
 
-                                if (diff > 5000)
-                                {
-                                        // Note: PING
-                                        var ping = new NetworkMessage((int)chara[Chars.NetID]);
-                                        ping.PacketTemplate = new P001_PingRequest.PacketSt1();
-                                        QueuingService.PostProcessingQueue.Enqueue(ping);
-
-                                        chara.PingTime = DateTime.Now;
-                                }
-                        }
+                        // reset the interval time check
+                        client.Data.PingTime = DateTime.Now;
                 }
         }
 }

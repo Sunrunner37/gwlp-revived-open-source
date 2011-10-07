@@ -13,6 +13,8 @@ namespace LoginServer.Packets.ToGameServer
                 {
                         public UInt16 Header { get { return 65283; } }
                         public UInt32 MapID;
+                        public byte IsOutpost;
+                        public byte IsPvE;
                 }
 
                 public void InitPacket(object parser)

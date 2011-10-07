@@ -1,113 +1,192 @@
-﻿using GameServer.Enums;
+﻿using System.Linq;
+using GameServer.Enums;
 using GameServer.Interfaces;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
 using ServerEngine;
+using ServerEngine.GuildWars.DataWrappers.Clients;
 using ServerEngine.NetworkManagement;
 
 namespace GameServer.Actions
 {
         public class SpawnPlayer : IAction
         {
-                private int newCharID;
+                private readonly CharID newCharID;
 
-                public SpawnPlayer(int charID)
+                public SpawnPlayer(CharID charID)
                 {
                         newCharID = charID;
                 }
 
-                public void Execute(Map map)
+                public void Execute(DataMap map)
                 {
                         // spawn this player for himself
                         CreateSpawnPacketsFor(newCharID, newCharID);
 
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID);
+                        var chara = map.Get<DataCharacter>(newCharID);
 
                         // Note: FADE INTO MAP
-                        var fadeIntoMap = new NetworkMessage((int)chara[Chars.NetID]);
-                        fadeIntoMap.PacketTemplate = new P023_InstanceLoadFadeIntoMap.PacketSt23()
+                        var fadeIntoMap = new NetworkMessage(chara.Data.NetID)
                         {
-                                AgentID = (ushort)(int)chara[Chars.AgentID],
-                                Data2 = 3
+                                PacketTemplate = new P023_InstanceLoadFadeIntoMap.PacketSt23
+                                {
+                                        AgentID = (ushort)chara.Data.AgentID.Value,
+                                        Data2 = 3
+                                }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(fadeIntoMap);
                         
 
                         // spawn him for others & spawn others for him
-                        var mapID = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID).MapID;
-                        foreach (var charID in GameServerWorld.Instance.Get<DataMap>(Maps.MapID, mapID).CharIDs)
+                        // the following linq expression returns an IEnumerable<CharID> of all characters on that map
+                        foreach (var charID in map.GetAll<DataCharacter>()
+                                .Where(x => (x.Data.CharID != chara.Data.CharID))
+                                .Select(x => x.Data.CharID))
                         {
                                 CreateSpawnPacketsFor(newCharID, charID);
                                 CreateSpawnPacketsFor(charID, newCharID);
                         }
 
-                        // ad him to the map
-                        GameServerWorld.Instance.Get<DataMap>(Maps.MapID, mapID).CharIDs.Add(newCharID);
+                        // update his status to playing
+                        chara.Data.Player = PlayStatus.ReadyToPlay;
 
                         // spawn NPC's
-                        foreach (var npc in map.Npcs.Values)
+                        // the following linq expression returns an IEnumerable<CharID> of all characters on that map
+                        foreach (var npc in map.GetAll<DataNpc>())
                         {
-
                                 // Note: NPC GENERAL STATS
-                                var npcStats = new NetworkMessage((int)chara[Chars.NetID]);
-                                npcStats.PacketTemplate = new P074_NpcGeneralStats.PacketSt74()
+                                var npcStats = new NetworkMessage(chara.Data.NetID)
                                 {
-                                        NpcID = (uint)npc.Stats.NpcID,
-                                        FileID = (uint)npc.Stats.FileID,
-                                        Data1 = 0,
-                                        Scale = (uint)(npc.Stats.Scale << 24),
-                                        Data2 = 0,
-                                        ProfessionFlags = (uint)npc.Stats.ProfessionFlags, //| (0x00 << 8),
-                                        Profession = (byte)npc.Stats.Profession,
-                                        Level = (byte)npc.Stats.Level,
-                                        ArraySize1 = (ushort)(npc.Stats.Appearance.Length / 2),
-                                        Appearance = npc.Stats.Appearance
+                                        PacketTemplate = new P074_NpcGeneralStats.PacketSt74
+                                        {
+                                                NpcID = npc.Data.LocalID.Value,
+                                                FileID = (uint)npc.Data.NpcFileID,
+                                                Data1 = 0,
+                                                Scale = (uint)(npc.Data.Scale << 24),
+                                                Data2 = 0,
+                                                ProfessionFlags = (uint)npc.Data.NpcFlags, //| (0x00 << 8),
+                                                Profession = npc.Data.ProfessionPrimary,
+                                                Level = (byte)npc.Data.Level,
+                                                ArraySize1 = (ushort)(npc.Data.Appearance.Length / 2),
+                                                Appearance = npc.Data.Appearance
+                                        }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(npcStats);
 
                                 // Note: NPC MODEL
-                                var npcModel = new NetworkMessage((int)chara[Chars.NetID]);
-                                npcModel.PacketTemplate = new P075_NpcModel.PacketSt75()
+                                var npcModel = new NetworkMessage(chara.Data.NetID)
                                 {
-                                        NpcID = (uint)npc.Stats.NpcID,
-                                        ArraySize1 = (ushort)(npc.Stats.ModelHash.Length / 4),
-                                        ModelHash = npc.Stats.ModelHash
+                                        PacketTemplate = new P075_NpcModel.PacketSt75
+                                        {
+                                                NpcID = npc.Data.LocalID.Value,
+                                                ArraySize1 = (ushort)(npc.Data.ModelHash.Length / 4),
+                                                ModelHash = npc.Data.ModelHash
+                                        }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(npcModel);
 
                                 // Change the name if necessary
-                                if (npc.Stats.HasNameHash)
+                                if (npc.Data.Name.Value != "")
                                 {
                                         // Note: NPC NAME
-                                        var npcName = new NetworkMessage((int)chara[Chars.NetID]);
-                                        npcName.PacketTemplate = new P143_NpcName.PacketSt143()
+                                        var npcName = new NetworkMessage(chara.Data.NetID)
                                         {
-                                                AgentID = (uint)npc.AgentID,
-                                                ArraySize1 = (ushort)(npc.Stats.NameHash.Length / 2),
-                                                NameHash = npc.Stats.NameHash
+                                                PacketTemplate = new P143_NpcName.PacketSt143
+                                                {
+                                                        AgentID = npc.Data.AgentID.Value,
+                                                        Name = npc.Data.Name.Value
+                                                }
                                         };
                                         QueuingService.PostProcessingQueue.Enqueue(npcName);
                                 }
 
                                 // Note: UPDATE AGENT MAIN STATS
-                                var charMain = new NetworkMessage((int)chara[Chars.NetID]);
-                                charMain.PacketTemplate = new P021_SpawnObject.PacketSt21()
+                                var charMain = new NetworkMessage(chara.Data.NetID)
                                 {
-                                        AgentID = (uint)npc.AgentID,
-                                        Data1 = (0x20 << 24) | (uint)npc.Stats.NpcID, // was assumed to be LocalID
+                                        PacketTemplate = new P021_SpawnObject.PacketSt21
+                                        {
+                                                AgentID = npc.Data.AgentID.Value,
+                                                Data1 = (0x20 << 24) | npc.Data.LocalID.Value, // was assumed to be LocalID
+                                                Data2 = 1,
+                                                Data3 = 9,
+                                                PosX = npc.Data.Position.X,
+                                                PosY = npc.Data.Position.Y,
+                                                Plane = (ushort)npc.Data.Position.PlaneZ,
+                                                Data4 = float.PositiveInfinity,
+                                                Rotation = npc.Data.Rotation,
+                                                Data5 = 1,
+                                                Speed = npc.Data.Speed,
+                                                Data12 = 1F,
+                                                Data13 = 0x41400000,
+                                                //Data14 = 1886151033,
+                                                Data14 = 1852796515,
+                                                Data15 = 0,
+                                                Data16 = 0,
+                                                Data17 = 0,
+                                                Data18 = 0,
+                                                Data19 = 0,
+                                                Data20 = 0,
+                                                Data21 = 0,
+                                                Data22 = float.PositiveInfinity,
+                                                Data23 = float.PositiveInfinity,
+                                                Data24 = 0,
+                                                Data25 = 0,
+                                                Data26 = float.PositiveInfinity,
+                                                Data27 = float.PositiveInfinity,
+                                                Data28 = 0
+                                        }
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(charMain);
+                        }
+
+                        // update client status
+                        GameServerWorld.Instance.Get<DataClient>(newCharID).Data.Status = SyncStatus.Playing;
+                }
+
+                private static void CreateSpawnPacketsFor(CharID senderCharID, CharID recipientCharID)
+                {
+                        var chara = GameServerWorld.Instance.Get<DataClient>(senderCharID).Character;
+
+                        // get the recipient of all those packets
+                        var reNetID = recipientCharID.Value != senderCharID.Value ?
+                                GameServerWorld.Instance.Get<DataClient>(recipientCharID).Data.NetID :
+                                chara.Data.NetID;
+
+                        // Note: UPDATE AGENT APPEARANCE
+                        var charAppear = new NetworkMessage(reNetID)
+                        {
+                                PacketTemplate = new P077_UpdateAgentAppearance.PacketSt77
+                                {
+                                        Data1 = chara.Data.LocalID.Value,
+                                        ID1 = chara.Data.AgentID.Value,
+                                        Appearance = chara.Data.Appearance,
+                                        Data2 = 0,
+                                        Data3 = 0,
+                                        Data4 = 0x3CBFA094,
+                                        Name = chara.Data.Name.Value
+                                }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(charAppear);
+
+                        // Note: UPDATE AGENT MAIN STATS
+                        var charMain = new NetworkMessage(reNetID)
+                        {
+                                PacketTemplate = new P021_SpawnObject.PacketSt21
+                                {
+                                        AgentID = chara.Data.AgentID.Value,
+                                        Data1 = (0x30 << 24) |  chara.Data.LocalID.Value, // was assumed to be LocalID
                                         Data2 = 1,
-                                        Data3 = 9,
-                                        PosX = npc.Stats.Position.X,
-                                        PosY = npc.Stats.Position.Y,
-                                        Plane = (ushort)npc.Stats.Position.PlaneZ,
+                                        Data3 = 5,
+                                        PosX = chara.Data.Position.X,
+                                        PosY = chara.Data.Position.Y,
+                                        Plane = (ushort)chara.Data.Position.PlaneZ,
                                         Data4 = float.PositiveInfinity,
-                                        Rotation = npc.Stats.Rotation,
+                                        Rotation = chara.Data.Rotation,
                                         Data5 = 1,
-                                        Speed = npc.Stats.Speed,
-                                        Data12 = 1F,
+                                        Speed = chara.Data.Speed,
+                                        Data12 = float.PositiveInfinity,
                                         Data13 = 0x41400000,
-                                        //Data14 = 1886151033,
-                                        Data14 = 1852796515,
+                                        Data14 = 1886151033,
                                         Data15 = 0,
                                         Data16 = 0,
                                         Data17 = 0,
@@ -122,130 +201,72 @@ namespace GameServer.Actions
                                         Data26 = float.PositiveInfinity,
                                         Data27 = float.PositiveInfinity,
                                         Data28 = 0
-                                };
-                                QueuingService.PostProcessingQueue.Enqueue(charMain);
-                        }
-
-                        // update status
-                        GameServerWorld.Instance.Get<DataClient>(Clients.CharID, newCharID).Status = SyncStatus.Playing;
-                }
-
-                private static void CreateSpawnPacketsFor(int charID, int recipientCharID)
-                {
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
-                        
-                        // get the recipient of all those packets
-                        int reNetID = 0;
-                        if (recipientCharID != charID)
-                        {
-                                reNetID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, recipientCharID)[Chars.NetID];
-                        }
-                        else
-                        {
-                                reNetID = (int)chara[Chars.NetID];
-                        }
-
-                        // Note: UPDATE AGENT APPEARANCE
-                        var charAppear = new NetworkMessage(reNetID);
-                        charAppear.PacketTemplate = new P077_UpdateAgentAppearance.PacketSt77()
-                        {
-                                Data1 = (uint)(int)chara[Chars.LocalID],
-                                ID1 = (uint)(int)chara[Chars.AgentID],
-                                Appearance = chara.CharStats.Appearance,
-                                Data2 = 0,
-                                Data3 = 0,
-                                Data4 = 0x3CBFA094,
-                                Name = (string)chara[Chars.Name]
-                        };
-                        QueuingService.PostProcessingQueue.Enqueue(charAppear);
-
-                        // Note: UPDATE AGENT MAIN STATS
-                        var charMain = new NetworkMessage(reNetID);
-                        charMain.PacketTemplate = new P021_SpawnObject.PacketSt21()
-                        {
-                                AgentID = (uint)(int)chara[Chars.AgentID],
-                                Data1 = (uint)(int)chara[Chars.LocalID] | 805306368, // was assumed to be LocalID
-                                Data2 = 1,
-                                Data3 = 5,
-                                PosX = chara.CharStats.Position.X,
-                                PosY = chara.CharStats.Position.Y,
-                                Plane = (ushort)chara.CharStats.Position.PlaneZ,
-                                Data4 = float.PositiveInfinity,
-                                Rotation = chara.CharStats.Rotation,
-                                Data5 = 1,
-                                Speed = chara.CharStats.Speed,
-                                Data12 = float.PositiveInfinity,
-                                Data13 = 0x41400000,
-                                Data14 = 1886151033,
-                                Data15 = 0,
-                                Data16 = 0,
-                                Data17 = 0,
-                                Data18 = 0,
-                                Data19 = 0,
-                                Data20 = 0,
-                                Data21 = 0,
-                                Data22 = float.PositiveInfinity,
-                                Data23 = float.PositiveInfinity,
-                                Data24 = 0,
-                                Data25 = 0,
-                                Data26 = float.PositiveInfinity,
-                                Data27 = float.PositiveInfinity,
-                                Data28 = 0
+                                }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(charMain);
 
                         // Note: UPDATE AGENT EQUIPMENT
-                        var charEquip = new NetworkMessage(reNetID);
-                        charEquip.PacketTemplate = new P098_UpdateAgentEquipment.PacketSt98()
+                        var charEquip = new NetworkMessage(reNetID)
                         {
-                                ID1 = (uint)(int)chara[Chars.AgentID],
-                                Weapon1 = 0,
-                                Weapon2 = 0,
-                                Chest = 0,
-                                Head = 0,
-                                Arms = 0,
-                                Feet = 0,
-                                Legs = 0,
-                                Data8 = 0,
-                                Data9 = 0
+                                PacketTemplate = new P098_UpdateAgentEquipment.PacketSt98
+                                {
+                                        ID1 = chara.Data.AgentID.Value,
+                                        Weapon1 = 0,
+                                        Weapon2 = 0,
+                                        Chest = 0,
+                                        Head = 0,
+                                        Arms = 0,
+                                        Feet = 0,
+                                        Legs = 0,
+                                        Data8 = 0,
+                                        Data9 = 0
+                                }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(charEquip);
 
                         // Note: UPDATE AGENT MORALE
-                        var charMorale = new NetworkMessage(reNetID);
-                        charMorale.PacketTemplate = new P144_UpdateMorale.PacketSt144()
+                        var charMorale = new NetworkMessage(reNetID)
                         {
-                                ID1 = (uint)(int)chara[Chars.AgentID],
-                                Morale = (uint)chara.CharStats.Morale,
+                                PacketTemplate = new P144_UpdateMorale.PacketSt144
+                                {
+                                        ID1 = chara.Data.AgentID.Value,
+                                        Morale = chara.Data.Morale,
+                                }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(charMorale);
 
                         // Note: UPDATE PUBLIC PROFESSIONS
-                        var charProf = new NetworkMessage(reNetID);
-                        charProf.PacketTemplate = new P154_UpdatePublicProfessions.PacketSt154()
+                        var charProf = new NetworkMessage(reNetID)
                         {
-                                ID1 = (uint)(int)chara[Chars.AgentID],
-                                Prof1 = chara.CharStats.ProfessionPrimary,
-                                Prof2 = chara.CharStats.ProfessionSecondary
+                                PacketTemplate = new P154_UpdatePublicProfessions.PacketSt154
+                                {
+                                        ID1 = chara.Data.AgentID.Value,
+                                        Prof1 = chara.Data.ProfessionPrimary,
+                                        Prof2 = chara.Data.ProfessionSecondary
+                                }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(charProf);
 
                         //// Note: UPDATE GENERICVALUE PUBLIC LEVEL
-                        //var charLvl = new NetworkMessage(reNetID);
-                        //charLvl.PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147()
+                        //var charLvl = new NetworkMessage(reNetID)
                         //{
-                        //        ID1 = (uint)(int)chara[Chars.AgentID],
-                        //        ValueID = (int)GenericValues.PublicLvl,
-                        //        Value = (ushort)chara.CharStats.Level
+                        //        PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
+                        //        {
+                        //                ID1 = chara.Data.AgentID.Value,
+                        //                ValueID = (int)GenericValues.PublicLvl,
+                        //                Value = (ushort)chara.Data.Level
+                        //        }
                         //};
                         //QueuingService.PostProcessingQueue.Enqueue(charLvl);
 
                         // Note: UPDATE VITAL STATS
-                        var charVital = new NetworkMessage(reNetID);
-                        charVital.PacketTemplate = new P228_UpdateVitalStats.PacketSt228()
+                        var charVital = new NetworkMessage(reNetID)
                         {
-                                ID1 = (uint)(int)chara[Chars.AgentID],
-                                VitalFlagsBitfield = (uint)chara.CharStats.VitalStats
+                                PacketTemplate = new P228_UpdateVitalStats.PacketSt228
+                                {
+                                        ID1 = chara.Data.AgentID.Value,
+                                        VitalFlagsBitfield = (uint)chara.Data.VitalStatus
+                                }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(charVital);
                         

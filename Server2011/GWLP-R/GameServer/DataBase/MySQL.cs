@@ -5,7 +5,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from gwlpr on 2011-09-10 18:19:31Z.
+// Auto-generated from gwlpr on 2011-10-05 23:51:07Z.
 // Please visit http://code.google.com/p/dblinq2007/ for more information.
 //
 namespace GameServer.DataBase
@@ -2556,6 +2556,12 @@ namespace GameServer.DataBase
 		
 		private static System.ComponentModel.PropertyChangingEventArgs emptyChangingEventArgs = new System.ComponentModel.PropertyChangingEventArgs("");
 		
+		private sbyte _atOutpost;
+		
+		private sbyte _atPvE;
+		
+		private int _groupSize;
+		
 		private int _level;
 		
 		private int _mapID;
@@ -2578,8 +2584,22 @@ namespace GameServer.DataBase
 		
 		private float _speed;
 		
+		private int _teamID;
+		
 		#region Extensibility Method Declarations
 		partial void OnCreated();
+		
+		partial void OnatOutpostChanged();
+		
+		partial void OnatOutpostChanging(sbyte value);
+		
+		partial void OnatPvEChanged();
+		
+		partial void OnatPvEChanging(sbyte value);
+		
+		partial void OngroupSizeChanged();
+		
+		partial void OngroupSizeChanging(int value);
 		
 		partial void OnlevelChanged();
 		
@@ -2624,12 +2644,79 @@ namespace GameServer.DataBase
 		partial void OnspeedChanged();
 		
 		partial void OnspeedChanging(float value);
+		
+		partial void OnteamIDChanged();
+		
+		partial void OnteamIDChanging(int value);
 		#endregion
 		
 		
 		public nPcSSpawns()
 		{
 			this.OnCreated();
+		}
+		
+		[Column(Storage="_atOutpost", Name="AtOutpost", DbType="tinyint(1)", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public sbyte atOutpost
+		{
+			get
+			{
+				return this._atOutpost;
+			}
+			set
+			{
+				if ((_atOutpost != value))
+				{
+					this.OnatOutpostChanging(value);
+					this.SendPropertyChanging();
+					this._atOutpost = value;
+					this.SendPropertyChanged("atOutpost");
+					this.OnatOutpostChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_atPvE", Name="AtPvE", DbType="tinyint(1)", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public sbyte atPvE
+		{
+			get
+			{
+				return this._atPvE;
+			}
+			set
+			{
+				if ((_atPvE != value))
+				{
+					this.OnatPvEChanging(value);
+					this.SendPropertyChanging();
+					this._atPvE = value;
+					this.SendPropertyChanged("atPvE");
+					this.OnatPvEChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_groupSize", Name="GroupSize", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int groupSize
+		{
+			get
+			{
+				return this._groupSize;
+			}
+			set
+			{
+				if ((_groupSize != value))
+				{
+					this.OngroupSizeChanging(value);
+					this.SendPropertyChanging();
+					this._groupSize = value;
+					this.SendPropertyChanged("groupSize");
+					this.OngroupSizeChanged();
+				}
+			}
 		}
 		
 		[Column(Storage="_level", Name="Level", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
@@ -2859,6 +2946,27 @@ namespace GameServer.DataBase
 					this._speed = value;
 					this.SendPropertyChanged("speed");
 					this.OnspeedChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_teamID", Name="TeamID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int teamID
+		{
+			get
+			{
+				return this._teamID;
+			}
+			set
+			{
+				if ((_teamID != value))
+				{
+					this.OnteamIDChanging(value);
+					this.SendPropertyChanging();
+					this._teamID = value;
+					this.SendPropertyChanged("teamID");
+					this.OnteamIDChanged();
 				}
 			}
 		}

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using LoginServer.DataBase;
@@ -109,7 +110,7 @@ namespace LoginServer.Packets.FromClient
                                         // Note: STREAM TERMINATOR
                                         var msg = new NetworkMessage(message.NetID)
                                         {
-                                                PacketTemplate = new P03_StreamTerminator.PacketSt3()
+                                                PacketTemplate = new P03_StreamTerminator.PacketSt3
                                                 {
                                                         LoginCount = oldClient.Data.SyncCount,
                                                         ErrorCode = errorcode
@@ -126,6 +127,15 @@ namespace LoginServer.Packets.FromClient
                                 {
                                         var accountID = (uint)dbClient.First().accountID;
                                         var charID = (uint)(dbClient.First().charID ?? 0);
+                                        var mapID = 0;
+
+                                        // get the map id...
+                                        var chars = from c in db.charsMasterData
+                                                      where c.charID == charID
+                                                      select c;
+
+                                        if (chars.Count() != 0) mapID = chars.First().mapID;
+
 
                                         // generate some random numbers
                                         var ran = new Random();
@@ -139,19 +149,22 @@ namespace LoginServer.Packets.FromClient
                                                 new ClientData
                                                 {
                                                         AccID = new AccID(accountID),
-                                                        CharID = new CharID(charID)
+                                                        CharID = new CharID(charID),
+                                                        MapID = new MapID((uint)mapID)
                                                 });
 
                                         // copy the old data
                                         newClient.Data.Paste<IHasNetworkData>(oldClient.Data);
                                         newClient.Data.Paste<IHasAccountData>(oldClient.Data);
-                                        newClient.Data.Paste<IHasMapData>(oldClient.Data);
                                         newClient.Data.Paste<IHasEncryptionData>(oldClient.Data);
                                         newClient.Data.Paste<IHasTransferSecurityData>(oldClient.Data);
                                         newClient.Data.Paste<IHasSyncStatusData>(oldClient.Data);
 
                                         // replace the old client with the new one
-                                        LoginServerWorld.Instance.Update(oldClient, newClient);
+                                        if (!LoginServerWorld.Instance.Update(oldClient, newClient))
+                                        {
+                                                Debug.WriteLine("Update client failed at login!");
+                                        }
 
                                         // update the client sync status
                                         newClient.Data.Status = SyncStatus.AtCharView;
@@ -166,12 +179,6 @@ namespace LoginServer.Packets.FromClient
 
                                                 foreach (var dbChar in dbChars)
                                                 {
-                                                        // update the newClient if this was the default selected char
-                                                        if (dbChar.charID == newClient.Data.CharID.Value)
-                                                        {
-                                                                newClient.Data.MapID = new MapID((uint)dbChar.mapID);
-                                                        }
-
                                                         // create the appearance bytearray
                                                         #region appearance
 
@@ -276,7 +283,7 @@ namespace LoginServer.Packets.FromClient
                                         // Note: STREAM TERMINATOR
                                         var msg = new NetworkMessage(message.NetID)
                                         {
-                                                PacketTemplate = new P03_StreamTerminator.PacketSt3()
+                                                PacketTemplate = new P03_StreamTerminator.PacketSt3
                                                 {
                                                         LoginCount = newClient.Data.SyncCount,
                                                         ErrorCode = 0

@@ -1,7 +1,4 @@
 using System;
-using System.IO;
-using System.Linq;
-using GameServer.Enums;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
 using ServerEngine;
@@ -30,40 +27,21 @@ namespace GameServer.Packets.FromClient
                 {
                         // nothing to parse here ;)
 
-                        var client = GameServerWorld.Instance.Get<DataClient>(Clients.NetID, message.NetID);
-                        var map = GameServerWorld.Instance.Get<DataMap>(Maps.MapID, client.MapID);
-                        
-#warning Redundant spawn search here!
-                        // execute this directly
-                        MapSpawn spawn;
-                        var spawnEnum = from s in map.Spawns.Values
-                                        where s.IsOutpost && s.IsPvE
-                                        select s;
-
-                        if (spawnEnum.Count() == 0)
-                        {
-                                spawn = new MapSpawn
-                                {
-                                        SpawnX = 1F,
-                                        SpawnY = 1F,
-                                        SpawnPlane = 0
-                                };
-                        }
-                        else
-                        {
-                                spawn = spawnEnum.First();
-                        }
+                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
 
                         // Note: IL SPAWN POINT
-                        var terminator = new NetworkMessage(message.NetID);
-                        terminator.PacketTemplate = new P391_InstanceLoadSpawnPoint.PacketSt391();
-                        ((P391_InstanceLoadSpawnPoint.PacketSt391)terminator.PacketTemplate).GameMapFileID = (uint)(int)map[Maps.GameFileID];
-#warning FIXME: Include SpawnRadius here
-                        ((P391_InstanceLoadSpawnPoint.PacketSt391)terminator.PacketTemplate).SpawnX = spawn.SpawnX;
-                        ((P391_InstanceLoadSpawnPoint.PacketSt391)terminator.PacketTemplate).SpawnY = spawn.SpawnY;
-                        ((P391_InstanceLoadSpawnPoint.PacketSt391)terminator.PacketTemplate).SpawnPlane = (ushort)spawn.SpawnPlane;
-                        ((P391_InstanceLoadSpawnPoint.PacketSt391)terminator.PacketTemplate).Data5 = 0;
-                        ((P391_InstanceLoadSpawnPoint.PacketSt391)terminator.PacketTemplate).Data6 = 0;
+                        var terminator = new NetworkMessage(message.NetID)
+                        {
+                                PacketTemplate = new P391_InstanceLoadSpawnPoint.PacketSt391
+                                {
+                                        GameMapFileID = chara.Data.GameFileID.Value,
+                                        SpawnX = chara.Data.Position.X,
+                                        SpawnY = chara.Data.Position.Y,
+                                        SpawnPlane = (ushort)chara.Data.Position.PlaneZ,
+                                        Data5 = 0,
+                                        Data6 = 0,
+                                }
+                        };
                         QueuingService.PostProcessingQueue.Enqueue(terminator);
                         
 

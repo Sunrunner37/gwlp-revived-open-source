@@ -29,13 +29,15 @@ namespace GameServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt93();
-                        pParser((PacketSt93)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt93();
+                        pParser(pack, message.PacketData);
 
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, message.NetID);
+                        // get the character
+                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
                         
-                        var action = new ChatMessage((int) chara[Chars.CharID], ((PacketSt93)message.PacketTemplate).Message);
-                        GameServerWorld.Instance.Get<DataMap>(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
+                        // enqueue the chat message as an action
+                        var action = new ChatMessage(chara.Data.CharID, pack.Message);
+                        GameServerWorld.Instance.Get<DataMap>(chara.Data.MapID).Data.ActionQueue.Enqueue(action.Execute);
                         
                         return true;
                 }

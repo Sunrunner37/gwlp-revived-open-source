@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GameServer.Interfaces;
 using GameServer.ServerData;
 
@@ -12,16 +9,16 @@ namespace GameServer.Modules
         {
                 public void Execute()
                 {
-                        World.GetMaps().AsParallel().ForAll(ProcessMapActions);
+                        GameServerWorld.Instance.GetAll<DataMap>().AsParallel().ForAll(ProcessMapActions);
                 }
 
-                private static void ProcessMapActions(Map map)
+                private static void ProcessMapActions(DataMap map)
                 {
-                       
-                        for (int i = 0; i < map.ActionQueue.Count; i++)
+                        // iterate trough the action queue, execute all actions
+                        for (var i = 0; i < map.Data.ActionQueue.Count; i++)
                         {
-                                Action<Map> act;
-                                if (map.ActionQueue.TryDequeue(out act))
+                                Action<DataMap> act;
+                                if (map.Data.ActionQueue.TryDequeue(out act))
                                 {
                                         act(map);
                                 }

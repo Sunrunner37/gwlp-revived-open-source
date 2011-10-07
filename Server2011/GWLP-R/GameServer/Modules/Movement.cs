@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using GameServer.Actions;
 using GameServer.DataBase;
 using GameServer.Enums;
@@ -58,9 +57,7 @@ namespace GameServer.Modules
                                                         throw new Exception(string.Format("Unkown file type! Cannot load pathing map file '{0}'", pmapPath));
 
                                                 // add the most necessary header data
-                                                newMap.GameFileHash = (uint)pmapHead.MapHash;
-                                                newMap.Translation = new GWVector(pmapHead.StartX, pmapHead.StartY, 0);
-                                                newMap.Size = new GWVector(pmapHead.Width, pmapHead.Heigth, 0);
+                                                newMap.GameFileHash = pmapHead.MapHash;
 
                                                 // scan the database for the map id
                                                 int mapID;
@@ -117,7 +114,7 @@ namespace GameServer.Modules
                                                         {
                                                                 var trapezoid = trapezoids[i];
 
-                                                                var newTrapezoid = new Trapezoid()
+                                                                var newTrapezoid = new Trapezoid
                                                                 {
                                                                         TrapezoidID = (uint)i,
                                                                         BottomRight = new GWVector(trapezoid.XBR, trapezoid.YB, trapezoid.Plane),
@@ -163,16 +160,18 @@ namespace GameServer.Modules
                         dt = 0.001F * DateTime.Now.Subtract(lastCycle).Milliseconds;
                         lastCycle = DateTime.Now;
 
-                        World.GetMaps().AsParallel().ForAll(ProcessMovePackets);
+                        GameServerWorld.Instance.GetAll<DataMap>().AsParallel().ForAll(ProcessMovePackets);
                 }
 
-                private static void ProcessMovePackets(Map map)
+                private static void ProcessMovePackets(DataMap map)
                 {
-                        foreach (int charID in map.CharIDs)
+                        // the following linq expression returns an IEnumerable<CharID> of all characters on that map
+                        foreach (var chara in map.GetAll<DataCharacter>())
                         {
-                                var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, charID);
+                                // failcheck
+                                if (chara == null) continue;
 
-                                var state = chara.CharStats.MoveState;
+                                var state = chara.Data.MoveState;
 
                                 if (state != MovementState.NotMoving)
                                 {
@@ -183,35 +182,35 @@ namespace GameServer.Modules
                                 {
                                         case MovementState.MoveChangeDir:
                                                 {
-                                                        var action = new MovePlayer((int)chara[Chars.CharID], chara.CharStats.Position);
-                                                        map.ActionQueue.Enqueue(action.Execute);
+                                                        var action = new MovePlayer(chara.Data.CharID, chara.Data.Position);
+                                                        map.Data.ActionQueue.Enqueue(action.Execute);
 
-                                                        chara.CharStats.MoveState = MovementState.MoveKeepDir;
-                                                        chara.CharStats.LastMovement = DateTime.Now;
+                                                        chara.Data.MoveState = MovementState.MoveKeepDir;
+                                                        chara.Data.LastMovement = DateTime.Now;
                                                 }
                                                 break;
                                         case MovementState.MoveKeepDir:
                                                 {
-                                                        if (DateTime.Now.Subtract(chara.CharStats.LastMovement).Milliseconds > 250)
+                                                        if (DateTime.Now.Subtract(chara.Data.LastMovement).Milliseconds > 250)
                                                         {
-                                                                var action = new MovePlayer((int)chara[Chars.CharID], chara.CharStats.Position);
-                                                                map.ActionQueue.Enqueue(action.Execute);
+                                                                var action = new MovePlayer(chara.Data.CharID, chara.Data.Position);
+                                                                map.Data.ActionQueue.Enqueue(action.Execute);
 
-                                                                chara.CharStats.LastMovement = DateTime.Now;
+                                                                chara.Data.LastMovement = DateTime.Now;
                                                         }
                                                 }
                                                 break;
                                         case MovementState.NotMovingUnhandled:
                                                 {
-                                                        var action = new MovePlayer((int)chara[Chars.CharID], chara.CharStats.Position);
-                                                        map.ActionQueue.Enqueue(action.Execute);
+                                                        var action = new MovePlayer(chara.Data.CharID, chara.Data.Position);
+                                                        map.Data.ActionQueue.Enqueue(action.Execute);
 
-                                                        chara.CharStats.Rotation = (float)Math.Atan2(chara.CharStats.Direction.Y, chara.CharStats.Direction.X);
-                                                        var action2 = new RotatePlayer((int)chara[Chars.CharID]);
-                                                        map.ActionQueue.Enqueue(action2.Execute);
+                                                        chara.Data.Rotation = (float)Math.Atan2(chara.Data.Direction.Y, chara.Data.Direction.X);
+                                                        var action2 = new RotatePlayer(chara.Data.CharID);
+                                                        map.Data.ActionQueue.Enqueue(action2.Execute);
 
-                                                        chara.CharStats.MoveState = MovementState.NotMoving;
-                                                        chara.CharStats.LastMovement = DateTime.Now;
+                                                        chara.Data.MoveState = MovementState.NotMoving;
+                                                        chara.Data.LastMovement = DateTime.Now;
                                                 }
                                                 break;
                                 }
@@ -220,56 +219,53 @@ namespace GameServer.Modules
 
                 private static void CalculatePosition(DataCharacter chara)
                 {
-                        PathingMap pmap = null;
+                        PathingMap pmap;
 
-                        // check if we've got a map of it
-                        if (maps.TryGetValue(chara.MapID, out pmap))
+                        // failcheck... if we've got a map of it
+                        if (!maps.TryGetValue((int) chara.Data.MapID.Value, out pmap)) return;
+
+                        // update chara's Trapezoid
+                        UpdateTrapezoidIndex(chara, pmap);
+
+                        if (chara.Data.MoveState != MovementState.MoveKeepDir) return;
+
+                        var dir = chara.Data.Direction * (chara.Data.Speed * dt);
+                        var newPos = dir + chara.Data.Position;
+
+                        GWVector crossedBorder;
+                        var outOfBorder = GetOutOfBorders(newPos, pmap.Trapezoids[(int)chara.Data.TrapezoidIndex], pmap, out crossedBorder);
+
+                        if (outOfBorder)
                         {
-                                // update chara's Trapezoid
-                                UpdateTrapezoidIndex(chara, pmap);
+                                var length = crossedBorder.Length;
 
-                                if (chara.CharStats.MoveState == MovementState.MoveKeepDir)
+                                if (length != 0)
                                 {
-                                        var dir = chara.CharStats.Direction * (chara.CharStats.Speed * dt);
-                                        var newPos = dir + chara.CharStats.Position;
+                                        var f = (crossedBorder.X * dir.X + crossedBorder.Y * dir.Y) / (length * length);
 
-                                        GWVector crossedBorder;
-                                        var outOfBorder = GetOutOfBorders(newPos, pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex], pmap, out crossedBorder);
+                                        var newDir = crossedBorder * f;
 
-                                        if (outOfBorder)
+                                        if (newDir.X != 0 || newDir.Y != 0)
                                         {
-                                            float length = crossedBorder.Length;
+                                                newPos = newDir + chara.Data.Position;
 
-                                            if (length != 0)
-                                            {
-                                                float f = (crossedBorder.X * dir.X + crossedBorder.Y * dir.Y) / (length * length);
+                                                var angle = newDir.CosWith(dir);
 
-                                                GWVector newDir = crossedBorder * f;
+                                                chara.Data.SpeedModifier = Math.Max(0.33F, angle);
+                                                chara.Data.MoveType = MovementType.Collision;
 
-                                                if (newDir.X != 0 || newDir.Y != 0)
+                                                outOfBorder = GetOutOfBorders(newPos, pmap.Trapezoids[(int)chara.Data.TrapezoidIndex], pmap, out crossedBorder);
+
+                                                if (!outOfBorder)
                                                 {
-                                                    newPos = newDir + chara.CharStats.Position;
-
-                                                    var angle = newDir.CosWith(dir);
-
-                                                    chara.CharStats.SpeedModifier = Math.Max(0.33F, angle);
-                                                    chara.CharStats.MoveType = (int)MovementType.Collision;
-
-                                                    outOfBorder = GetOutOfBorders(newPos, pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex], pmap, out crossedBorder);
-
-                                                    if (!outOfBorder)
-                                                    {
-                                                        chara.CharStats.Position = newPos;
-                                                    }
+                                                        chara.Data.Position = newPos;
                                                 }
-                                            }
                                         }
-                                        else
-                                        {
-                                            chara.CharStats.Position = newPos;
-                                        }
-
                                 }
+                        }
+                        else
+                        {
+                                chara.Data.Position = newPos;
                         }
                 }
 
@@ -307,24 +303,17 @@ namespace GameServer.Modules
                                 }
                         }
 
-                        uint trapIndex = SearchTrapezoid(pmap, trapezoids, pos);
+                        var trapIndex = SearchTrapezoid(pmap, trapezoids, pos);
 
-                        if (trapIndex == 0xFFFFFFFF)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                        return trapIndex == 0xFFFFFFFF;
                 }
 
                 private static void UpdateTrapezoidIndex(DataCharacter chara, PathingMap pmap)
                 {
                         // check if the client is in the given trapezoid
-                        var state = InTrapezoid(pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex], chara.CharStats.Position);
+                        var state = InTrapezoid(pmap.Trapezoids[(int)chara.Data.TrapezoidIndex], chara.Data.Position);
 
-                        uint trapIndex = 0xFFFFFFFF;
+                        uint trapIndex;
                         switch (state)
                         {
                                 case 0: // inside trapezoid, everything ok.
@@ -334,12 +323,12 @@ namespace GameServer.Modules
                                         break;
                                 case 1: // the client is under the trapezoid, we need to change traps
                                         {
-                                                trapIndex = SearchTrapezoid(pmap, pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex].AdjacentsBottom, chara.CharStats.Position);
+                                                trapIndex = SearchTrapezoid(pmap, pmap.Trapezoids[(int)chara.Data.TrapezoidIndex].AdjacentsBottom, chara.Data.Position);
                                         }
                                         break;
                                 case 3: // the client is above the trapezoid, we need to change traps
                                         {
-                                                trapIndex = SearchTrapezoid(pmap, pmap.Trapezoids[(int)chara.CharStats.TrapezoidIndex].AdjacentsTop, chara.CharStats.Position);
+                                                trapIndex = SearchTrapezoid(pmap, pmap.Trapezoids[(int)chara.Data.TrapezoidIndex].AdjacentsTop, chara.Data.Position);
                                         }
                                         break;
                                 default: // case 2 or 4: the char is out of the map borders
@@ -351,8 +340,8 @@ namespace GameServer.Modules
 
                         if (trapIndex > 0 && trapIndex != 0xFFFFFFFF)
                         {
-                                chara.CharStats.TrapezoidIndex = trapIndex;
-                                chara.CharStats.Position.PlaneZ = pmap.Trapezoids[(int)trapIndex].Plane;
+                                chara.Data.TrapezoidIndex = trapIndex;
+                                chara.Data.Position.PlaneZ = pmap.Trapezoids[(int)trapIndex].Plane;
                         }
                 }
 
@@ -421,9 +410,7 @@ namespace GameServer.Modules
                 {
                         public int MapID;
                         public uint GameFileHash;           // hash of mapfile
-                        public List<Trapezoid> Trapezoids;
-                        public GWVector Translation;
-                        public GWVector Size;
+                        public readonly List<Trapezoid> Trapezoids;
 
                         public PathingMap()
                         {
@@ -434,8 +421,8 @@ namespace GameServer.Modules
                 private class Trapezoid
                 {
                         public uint TrapezoidID;
-                        public List<uint> AdjacentsBottom;
-                        public List<uint> AdjacentsTop;
+                        public readonly List<uint> AdjacentsBottom;
+                        public readonly List<uint> AdjacentsTop;
                         public GWVector BottomRight;
                         public GWVector BottomLeft;
                         public GWVector TopRight;
@@ -444,13 +431,6 @@ namespace GameServer.Modules
                         public int Plane
                         {
                                 get { return BottomRight.PlaneZ; }
-                                set
-                                {
-                                        BottomRight.PlaneZ = value;
-                                        BottomLeft.PlaneZ = value;
-                                        TopRight.PlaneZ = value;
-                                        TopLeft.PlaneZ = value;
-                                }
                         }
 
                         public Trapezoid()

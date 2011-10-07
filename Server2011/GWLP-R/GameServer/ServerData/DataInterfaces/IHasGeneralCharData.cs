@@ -5,8 +5,8 @@ namespace GameServer.ServerData.DataInterfaces
                 byte ProfessionPrimary { get; set; }
                 byte ProfessionSecondary { get; set; }
 
-                int Level { get; set; }
+                uint Level { get; set; }
 
-                int Morale { get; set; }
+                uint Morale { get; set; }
         }
 }

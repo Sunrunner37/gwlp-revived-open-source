@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using GameServer.DataBase;
@@ -39,6 +40,7 @@ namespace GameServer
                                         Console.SetWindowSize(Console.WindowWidth + 25, Console.WindowHeight);
                                 #endif
 
+
                                 // Init the debug writers
                                 Debug.AutoFlush = true;
                                 Debug.IndentSize = 4;
@@ -69,12 +71,15 @@ namespace GameServer
                                 Debug.Indent();
                                 Debug.WriteLine(" ");
 
+
                                 // Init the local config class
                                 //Debug.Listeners
                                 Debug.Write("Gathering local config file data...   ");
                                 localConfig = new ConfigFile(Properties.Settings.Default.ConfigFile);
+                                GameServerWorld.Instance.LocalConfig = localConfig;
 
                                 Debug.WriteLine("[done]");
+
 
                                 // Init the db connection
                                 Debug.Write("Initializing database provider...     ");
@@ -86,6 +91,7 @@ namespace GameServer
                                         typeof(MySQL));
 
                                 Debug.WriteLine("[done]");
+
 
                                 // Load the packet manager
                                 Debug.Write("Creating packet manager...            ");
@@ -107,39 +113,78 @@ namespace GameServer
                                 var netID = NetworkManager.Instance.CreateConnection(localConfig.LoginSrvIP, localConfig.LoginSrvPort);
                                 
                                 // Note: HANDSHAKE REQUEST
-                                var handshake = new NetworkMessage(netID);
-                                handshake.PacketTemplate = new P65281_HandshakeRequest.PacketSt65281()
+                                var handshake = new NetworkMessage(netID)
                                 {
+                                        PacketTemplate = new P65281_HandshakeRequest.PacketSt65281()
+                                        {
 #warning SECURITY: Not implemented server security keys:
-                                        SecurityKey1 = new byte[8],
-                                        SecurityKey2 = new byte[8],
-                                        Port = (uint) localConfig.SrvPort,
+                                                SecurityKey1 = new byte[8],
+                                                SecurityKey2 = new byte[8],
+                                                Port = (uint)localConfig.SrvPort,
+                                        }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(handshake);
 
                                 // dont forget to save the netID for communication later on
-                                World.LoginSrvNetID = netID;
+                                GameServerWorld.Instance.LoginSrvNetID = netID;
 
                                 Debug.WriteLine("[done]");
+
 
                                 // Try to load the pmaps (init movement)
-                                Debug.Write("Loading pathing maps...               ");
+                                Debug.WriteLine("Loading pathing maps...               ");
                                 var movement = new Movement(Properties.Settings.Default.PathingMapsDir);
-                                Debug.WriteLine("[done]");
+                                Debug.WriteLine("All maps processed");
+
 
                                 // Init the server tasks
                                 Debug.Write("Registering server tasks...           ");
                                 serverTasks = new List<Action>
-                                                      {
-                                                              // core features:
-                                                              packetMan.ProcessPackets,
-                                                              NetworkManager.Instance.MainTask,
-                                                              // modules:
-                                                              new ActionQueue().Execute,
-                                                              new HeartBeat().Execute,
-                                                              new Ping().Execute,
-                                                              movement.Execute
-                                                      };
+                                {
+                                        // core features:
+                                        packetMan.ProcessPackets,
+                                        NetworkManager.Instance.MainTask,
+                                        // modules:
+                                        new ActionQueue().Execute,
+                                        new HeartBeat().Execute,
+                                        new Ping().Execute,
+                                        movement.Execute
+                                };
+
+                                Debug.WriteLine("[done]");
+
+
+                                // Load the message of the day, if there is any
+                                Debug.WriteLine("Loading the message of the day...     ");
+
+                                var defaultMessage = new string[]
+                                {
+                                        "You'r playing on:",
+                                        "< --[GWLP:R  v." + Assembly.GetExecutingAssembly().GetName().Version + "]-- >",
+                                        "Created by:",
+                                        "< --[ _rusty ] [ ACB ] [ miracle444 ] [ onyxphase ]-- >"
+                                };
+
+                                if (File.Exists(Properties.Settings.Default.MotdFile))
+                                {
+                                        var lines = File.ReadAllLines(Properties.Settings.Default.MotdFile);
+
+                                        // check the length of each line
+                                        var tooLong = from s in lines
+                                                      where s.Length >= 56
+                                                      select s;
+
+                                        // we only take 5 lines, each max 56 characters!
+                                        if ((lines.Length <= 5) && (tooLong.Count() == 0))
+                                        {
+                                                GameServerWorld.Instance.MessageOfTheDay = lines;
+                                        }
+                                        else
+                                        {
+                                                Debug.WriteLine("Error in mesage format: [<= 5 lines] [<= 56 characters]. Loading default.");
+                                                GameServerWorld.Instance.MessageOfTheDay = defaultMessage;
+                                        }
+                                }
 
                                 Debug.WriteLine("[done]");
 

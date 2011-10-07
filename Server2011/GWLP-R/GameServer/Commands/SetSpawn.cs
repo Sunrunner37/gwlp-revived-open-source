@@ -1,44 +1,43 @@
 ﻿using System;
 using System.Diagnostics;
-using GameServer.Actions;
 using GameServer.DataBase;
 using GameServer.Enums;
 using GameServer.Interfaces;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
 using ServerEngine;
+using ServerEngine.GuildWars.DataWrappers.Clients;
 using ServerEngine.NetworkManagement;
 
 namespace GameServer.Commands
 {
-        [CommandAttribute(Description = "No parameters. Shows the available commands.")]
+        [CommandAttribute(Description = "No parameters. Creates a new map-spawn entry in the database.")]
         public class SetSpawn : IAction
         {
-                private int newCharID;
+                private CharID newCharID;
 
-                public SetSpawn(int charID)
+                public SetSpawn(CharID charID)
                 {
                         newCharID = charID;
                 }
 
-                public void Execute(Map map)
+                public void Execute(DataMap map)
                 {
                         using (var db = (MySQL)DataBaseProvider.GetDataBase())
                         {
-                                var pos = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID).CharStats.Position;
-                                var reNetID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID)[Chars.NetID];
+                                var chara = map.Get<DataCharacter>(newCharID);
 
-                                var spawn = new mapsSpawns()
+                                var spawn = new mapsSpawns
                                 {
-                                        isOutpost = 1,
-                                        isPvE = 1,
+                                        isOutpost = (sbyte)(map.Data.IsOutpost ? 1 : 0),
+                                        isPvE = (sbyte)(map.Data.IsPvE ? 1 : 0),
                                         spawnID = 0,
-                                        spawnPlane = 0,
+                                        spawnPlane = chara.Data.Position.PlaneZ,
                                         spawnRadius = 0,
-                                        spawnX = 0,
-                                        spawnY = 0,
+                                        spawnX = chara.Data.Position.X,
+                                        spawnY = chara.Data.Position.Y,
                                         teamSpawnNumber = 0,
-                                        mapID = (int)map[Maps.MapID]
+                                        mapID = (int)map.Data.MapID.Value
                                 };
 
                                 db.mapsSpawns.InsertOnSubmit(spawn);
@@ -56,23 +55,25 @@ namespace GameServer.Commands
                                 }
 
                                 // Note: CHAT MESSAGE
-                                var chatMsg = new NetworkMessage(reNetID);
-                                chatMsg.PacketTemplate = new P081_GeneralChatMessage.PacketSt81()
+                                var chatMsg = new NetworkMessage(chara.Data.NetID)
                                 {
-                                        Message =
-                                        BitConverter.ToChar(new byte[] { 0x08, 0x01 }, 0).ToString() +
-                                        BitConverter.ToChar(new byte[] { 0x07, 0x01 }, 0).ToString() +
-                                        message +
-                                        BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0).ToString()
+                                        PacketTemplate = new P081_GeneralChatMessage.PacketSt81()
+                                        {
+                                                Message ="Ĉć" + 
+                                                        message +
+                                                        BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0)
+                                        }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(chatMsg);
 
                                 // Note: CHAT MESSAGE NO OWNER
-                                var chatOwner = new NetworkMessage(reNetID);
-                                chatOwner.PacketTemplate = new P082_GeneralChatNoOwner.PacketSt82()
+                                var chatOwner = new NetworkMessage(chara.Data.NetID)
                                 {
-                                        Data1 = 0,
-                                        Data2 = (byte)ChatColors.DarkOrange_DarkOrange
+                                        PacketTemplate = new P082_GeneralChatNoOwner.PacketSt82
+                                        {
+                                                Data1 = 0,
+                                                Data2 = (byte)ChatColors.DarkOrange_DarkOrange
+                                        }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(chatOwner);
                         }

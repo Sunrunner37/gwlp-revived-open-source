@@ -8,6 +8,7 @@ using GameServer.Interfaces;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
 using ServerEngine;
+using ServerEngine.GuildWars.DataWrappers.Clients;
 using ServerEngine.NetworkManagement;
 
 namespace GameServer.Commands
@@ -15,16 +16,16 @@ namespace GameServer.Commands
         [CommandAttribute(Description = "No Parameters. Does stuff for testing purpose.")]
         class Test : IAction
         {
-                private int newCharID;
+                private CharID newCharID;
 
-                public Test(int charID)
+                public Test(CharID charID)
                 {
                         newCharID = charID;
                 }
 
-                public void Execute(Map map)
+                public void Execute(DataMap map)
                 {
-                        var netID = (int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID)[Chars.NetID];
+                        var chara = map.Get<DataCharacter>(newCharID);
 
                         //var packet323 = new NetworkMessage(netID);
                         //var rawData = new byte[]{
@@ -32,7 +33,7 @@ namespace GameServer.Commands
                         //packet323.PacketData = new MemoryStream(rawData);
                         //QueuingService.NetOutQueue.Enqueue(packet323);
 
-                        var packet343 = new NetworkMessage(netID);
+                        var packet343 = new NetworkMessage(chara.Data.NetID);
                         var rawData = new byte[]{ // 1d01
                                 0x57, 0x01, 
                                 0xA2, 0x03, 0x00, 0x00, // ItemLocalID
@@ -92,13 +93,11 @@ namespace GameServer.Commands
                         //packet350.PacketData = new MemoryStream(rawData);
                         //QueuingService.NetOutQueue.Enqueue(packet350);
 
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, netID);
+                        var posX = BitConverter.GetBytes(chara.Data.Position.X);
+                        var posY = BitConverter.GetBytes(chara.Data.Position.Y);
+                        var plane = BitConverter.GetBytes(chara.Data.Position.PlaneZ);
 
-                        var posX = BitConverter.GetBytes(chara.CharStats.Position.X);
-                        var posY = BitConverter.GetBytes(chara.CharStats.Position.Y);
-                        var plane = BitConverter.GetBytes(chara.CharStats.Position.PlaneZ);
-
-                        var packet21 = new NetworkMessage(netID);
+                        var packet21 = new NetworkMessage(chara.Data.NetID);
                         rawData = new byte[]{
                                 0x15, 0x00, 
                                 0x66, 0x00, 0x00, 0x00, 

@@ -29,17 +29,19 @@ namespace GameServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt64();
-                        pParser((PacketSt64)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt64();
+                        pParser(pack, message.PacketData);
 
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, message.NetID);
+                        // get the character
+                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
                         
-                        chara.CharStats.Position = new GWVector(
-                                ((PacketSt64)message.PacketTemplate).X,
-                                ((PacketSt64)message.PacketTemplate).Y,
-                                (int)((PacketSt64)message.PacketTemplate).Plane);
+                        // update the position of it
+                        chara.Data.Position = new GWVector(pack.X, pack.Y, (int)pack.Plane);
 
-                        chara.CharStats.MoveState = MovementState.NotMovingUnhandled;
+                        // update the movestate: the following will let Movement send a packet to all clients
+                        // that this client has stopped moving
+                        chara.Data.MoveState = MovementState.NotMovingUnhandled;
+                        chara.Data.MoveType = MovementType.Stop;
 
                         return true;
                 }

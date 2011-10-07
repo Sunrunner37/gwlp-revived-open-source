@@ -6,9 +6,11 @@ using System.Text;
 using GameServer.DataBase;
 using GameServer.Enums;
 using GameServer.Interfaces;
-using GameServer.Packets.ToClient;
+using GameServer.Packets.ToLoginServer;
 using GameServer.ServerData;
 using ServerEngine;
+using ServerEngine.GuildWars.DataWrappers.Clients;
+using ServerEngine.GuildWars.DataWrappers.Maps;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.StaticConvert;
 
@@ -17,60 +19,41 @@ namespace GameServer.Commands
         [CommandAttribute(Description = "Parameter: MapID (see database). Tries to transfer to another map.")]
         class ChangeMap : IAction
         {
-                private int newCharID;
-                private int mapID;
+                private CharID newCharID;
+                private MapID mapID;
                 private bool validCommand;
 
-                public ChangeMap(int charID, string mapID)
+                public ChangeMap(CharID charID, string mapID)
                 {
                         newCharID = charID;
-                        validCommand = int.TryParse(mapID, out this.mapID);
+                        int tmpMapID;
+                        validCommand = int.TryParse(mapID.Trim(), out tmpMapID);
+
+                        this.mapID = new MapID((uint)(validCommand ? tmpMapID : 0));
                 }
 
-                public void Execute(Map oldMap)
+                public void Execute(DataMap oldMap)
                 {
-                        if (validCommand)
+                        // failcheck
+                        if (!validCommand) return;
+
+                        // get the character
+                        var chara = oldMap.Get<DataCharacter>(newCharID);
+
+                        var dispatchAck = new NetworkMessage(GameServerWorld.Instance.LoginSrvNetID)
                         {
-
-                                // remove the char's map subscription
-                                oldMap.CharIDs.Remove(newCharID);
-
-                                // build the map (if its the same it wont be build again!)
-                                World.BuildMap(mapID);
-                                
-                                // alter status
-                                GameServerWorld.Instance.Get<DataClient>(Clients.CharID, newCharID).Status = SyncStatus.Dispatching;
-
-                                // alter mapID
-                                GameServerWorld.Instance.Get<DataClient>(Clients.CharID, newCharID).MapID = mapID;
-                                GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID).MapID = mapID;
-
-                                // create server connection array
-                                var con = new MemoryStream();
-                                RawConverter.WriteUInt16(2, con);
-                                //RawConverter.WriteUInt16(57367, con);
-                                RawConverter.WriteUInt16(38947, con);
-                                RawConverter.WriteByteAr(new byte[] { 0x7F, 0x00, 0x00, 0x01 }, con);
-                                RawConverter.WriteByteAr(new byte[16], con);
-
-                                // Note: DISPATCH
-                                var chatMsg = new NetworkMessage((int)GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID)[Chars.NetID]);
-                                chatMsg.PacketTemplate = new P406_Dispatch.PacketSt406()
+                                PacketTemplate = new P65285_ClientDispatchAcknowledgement.PacketSt65285
                                 {
-                                        ConnectionInfo = con.ToArray(),
-                                        Key1 = GameServerWorld.Instance.Get<DataClient>(Clients.CharID, newCharID).SecurityKeys[0],
-                                        Key2 = GameServerWorld.Instance.Get<DataClient>(Clients.CharID, newCharID).SecurityKeys[1],
-                                        ZoneID = (ushort)(int)GameServerWorld.Instance.Get<DataMap>(Maps.MapID, mapID)[Maps.GameMapID],
-                                        Region = 0,
-                                        IsOutpost = 0
-                                };
-                                QueuingService.PostProcessingQueue.Enqueue(chatMsg);
+                                        AccID = chara.Data.AccID.Value,
+                                        MapID = mapID.Value,
+                                        OldMapID = chara.Data.MapID.Value,
+                                        IsOutpost = 1,
+                                        IsPvE = 1
+                                }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(dispatchAck);
 
-                                // free the agent ids
-                                var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.CharID, newCharID);
-                                
-                                World.UnRegisterCharacterIDs((int)chara[Chars.LocalID], (int)chara[Chars.AgentID], (int)oldMap[Maps.MapID]);
-                        }
+                        
                 }
         }
 }

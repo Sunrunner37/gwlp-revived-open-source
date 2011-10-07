@@ -13,11 +13,8 @@ namespace GameServer.Packets.ToClient
                 {
                         public UInt16 Header { get { return 143; } }
                         public UInt32 AgentID;
-                        //[PacketFieldType(ConstSize = false, MaxSize = 32)]
-                        //public string Data1;
-                        public UInt16 ArraySize1;
-                        [PacketFieldType(ConstSize = false, MaxSize = 64)]
-                        public byte[] NameHash;
+                        [PacketFieldType(ConstSize = false, MaxSize = 32)]
+                        public string Name;
                 }
 
                 public void InitPacket(object parser)

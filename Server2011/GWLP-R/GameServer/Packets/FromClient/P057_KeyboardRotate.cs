@@ -28,26 +28,22 @@ namespace GameServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt57();
-                        pParser((PacketSt57)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt57();
+                        pParser(pack, message.PacketData);
 
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, message.NetID);
+                        // get the character
+                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
                         
-                        chara.CharStats.Rotation = ((PacketSt57)message.PacketTemplate).Rotation;
+                        // update the rotation
+                        chara.Data.Rotation = pack.Rotation;
 
-                        if (((PacketSt57) message.PacketTemplate).Rotation == float.PositiveInfinity)
-                        {
-                                chara.CharStats.IsRotating = true;
-                        }
-                        else
-                        {
-                                chara.CharStats.IsRotating = false;
-                        }
+                        // check whether the client has started or stopped rotating
+                        chara.Data.IsRotating = pack.Rotation == float.PositiveInfinity;
 
-                        var action = new RotatePlayer((int) chara[Chars.CharID]);
-                        GameServerWorld.Instance.Get<DataMap>(Maps.MapID, chara.MapID).ActionQueue.Enqueue(action.Execute);
+                        // create a new action and add it to the chars map-actionqueue
+                        var action = new RotatePlayer(chara.Data.CharID);
+                        GameServerWorld.Instance.Get<DataMap>(chara.Data.MapID).Data.ActionQueue.Enqueue(action.Execute);
                         
-
                         return true;
                 }
 

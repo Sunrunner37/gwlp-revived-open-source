@@ -14,6 +14,7 @@ namespace GameServer.Packets.ToLoginServer
                 {
                         public UInt16 Header { get { return 65284; } }
                         public UInt32 AccID;
+                        public byte Success;
                 }
 
                 public void InitPacket(object parser)

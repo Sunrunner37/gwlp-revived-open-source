@@ -237,7 +237,7 @@ namespace ServerEngine.NetworkManagement
                 /// <returns>
                 ///   Returns the netID of the login server if possible
                 /// </returns>
-                public int CreateConnection(string ip, int port)
+                public NetID CreateConnection(string ip, int port)
                 {
                         if (!isInitialized) throw new Exception("Not initialized. Call Init() first."); 
 
@@ -259,7 +259,7 @@ namespace ServerEngine.NetworkManagement
                                         Debug.Fail("No login server connection could be created.", e.ToString());
                                 }
 
-                                return netID;
+                                return new NetID(netID);
                         }
                 }
         }

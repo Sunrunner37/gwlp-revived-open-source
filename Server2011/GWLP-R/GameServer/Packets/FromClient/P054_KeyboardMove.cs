@@ -32,26 +32,23 @@ namespace GameServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        message.PacketTemplate = new PacketSt54();
-                        pParser((PacketSt54)message.PacketTemplate, message.PacketData);
+                        var pack = new PacketSt54();
+                        pParser(pack, message.PacketData);
 
-                        var chara = GameServerWorld.Instance.Get<DataCharacter>(Chars.NetID, message.NetID);
+                        // get the client
+                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
                         
-                        chara.CharStats.Position = new GWVector(
-                                ((PacketSt54) message.PacketTemplate).X,
-                                ((PacketSt54) message.PacketTemplate).Y,
-                                (int)((PacketSt54) message.PacketTemplate).Plane);
+                        // update position
+                        chara.Data.Position = new GWVector(pack.X, pack.Y, (int)pack.Plane);
 
-                        var dir = new GWVector(
-                                ((PacketSt54)message.PacketTemplate).DirX,
-                                ((PacketSt54)message.PacketTemplate).DirY,
-                                0);
+                        // update direction
+                        chara.Data.Direction = new GWVector(pack.DirX, pack.DirY, 0).UnitVector;
 
-                        chara.CharStats.Direction = dir.UnitVector;
+                        // update movement type
+                        chara.Data.MoveType = (MovementType)Enum.ToObject(typeof(MovementType), pack.Type);
 
-                        chara.CharStats.MoveType = (int)((PacketSt54) message.PacketTemplate).Type;
-
-                        chara.CharStats.MoveState = MovementState.MoveChangeDir;
+                        // update the movement status, because the client might have change movement direction
+                        chara.Data.MoveState = MovementState.MoveChangeDir;
                         
 
                         return true;

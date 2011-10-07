@@ -18,6 +18,7 @@ namespace GameServer.ServerData
 
                 private readonly object objLock = new object();
 
+                private DataCharacter chara;
                 private ClientData data;
 
                 /// <summary>
@@ -70,6 +71,15 @@ namespace GameServer.ServerData
                 }
 
                 #endregion
+
+                /// <summary>
+                ///   This property contains the character that the client currently uses
+                /// </summary>
+                public DataCharacter Character
+                {
+                        get { lock (objLock) return chara; }
+                        set { lock (objLock) chara = value; } 
+                }
         }
 
         public class ClientData :
@@ -78,7 +88,9 @@ namespace GameServer.ServerData
                 IHasMapData,
                 IHasAccountData,
                 IHasEncryptionData,
+                IHasPingData,
                 IHasSyncStatusData,
+                IHasTeamData,
                 IHasTransferSecurityData
         {
                 /// <summary>
@@ -89,6 +101,7 @@ namespace GameServer.ServerData
                         Email = "";
                         Password = "";
                         EncryptionSeed = new byte[20];
+                        PingTime = DateTime.Now;
                         Status = SyncStatus.ConnectionEstablished;
                         LastStatusChange = DateTime.Now;
                         SecurityKeys = new[] { new byte[4], new byte[4] };
@@ -130,11 +143,23 @@ namespace GameServer.ServerData
 
                 #endregion
 
+                #region Implementation of IHasPingData
+
+                public DateTime PingTime { get; set; }
+
+                #endregion
+
                 #region Implementation of IHasSyncStatusData
 
                 public SyncStatus Status { get; set; }
                 public DateTime LastStatusChange { get; set; }
                 public uint SyncCount { get; set; }
+
+                #endregion
+
+                #region Implementation of IHasTeamData
+
+                public int TeamNumber { get; set; }
 
                 #endregion
 
