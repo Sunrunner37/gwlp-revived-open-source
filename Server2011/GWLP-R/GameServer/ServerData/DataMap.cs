@@ -87,8 +87,8 @@ namespace GameServer.ServerData
                                 // register ID's
                                 lock (objLock)
                                 {
-                                        value.Data.AgentID.Value = (uint)data.AgentIDs.RequestID();
-                                        value.Data.LocalID.Value = (uint)data.LocalIDs.RequestID();
+                                        value.Data.AgentID = new AgentID((uint)data.AgentIDs.RequestID());
+                                        value.Data.LocalID = new LocalID((uint)data.LocalIDs.RequestID());
                                 }
 
                                 // add the value

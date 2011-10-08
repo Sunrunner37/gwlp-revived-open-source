@@ -95,7 +95,7 @@ namespace GameServer.Packets.FromLoginServer
 
                         // send dispatch connection close
                         // Note: DISPATCH CONNECTION TERMINATION
-                        var ilChar = new NetworkMessage(message.NetID)
+                        var ilChar = new NetworkMessage(client.Data.NetID)
                         {
                                 PacketTemplate = new P141_DispatchConnectionTermination.PacketSt141()
                                 {
@@ -107,7 +107,7 @@ namespace GameServer.Packets.FromLoginServer
 
                         // this last heartbeat has static time data because we can! :P
                         // Note: HEARTBEAT
-                        var heartBeat = new NetworkMessage(message.NetID)
+                        var heartBeat = new NetworkMessage(client.Data.NetID)
                         {
                                 PacketTemplate = new P019_Heartbeat.PacketSt19()
                                 {

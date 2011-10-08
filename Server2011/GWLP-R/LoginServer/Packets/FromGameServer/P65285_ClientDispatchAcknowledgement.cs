@@ -110,7 +110,7 @@ namespace LoginServer.Packets.FromGameServer
                         var con = new MemoryStream();
                         RawConverter.WriteUInt16(2, con);
                         // the following is the port in big endian
-                        RawConverter.WriteByteAr(BitConverter.GetBytes(server.Data.Port.Value).Reverse().ToArray(), con);
+                        RawConverter.WriteByteAr(BitConverter.GetBytes((ushort)server.Data.Port.Value).Reverse().ToArray(), con);
                         RawConverter.WriteByteAr(server.Data.IPAddress.Value, con);
                         RawConverter.WriteByteAr(new byte[16], con);
 
