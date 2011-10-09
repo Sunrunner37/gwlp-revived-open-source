@@ -58,7 +58,7 @@ namespace ServerEngine.GuildWars.Tools
                         get { return (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY); }
                         set
                         {
-                                GWVector tmp = UnitVector.Clone();
+                                var tmp = UnitVector;
                                 deltaX = tmp.X * value;
                                 deltaY = tmp.Y * value;
                                 planeZ = tmp.PlaneZ;
@@ -127,7 +127,7 @@ namespace ServerEngine.GuildWars.Tools
                 /// </summary>
                 public override string ToString()
                 {
-                    return "[" + deltaX.ToString() + ", " + deltaY.ToString() + "]";
+                    return "[" + deltaX + ", " + deltaY + "]";
                 }
         }
 }

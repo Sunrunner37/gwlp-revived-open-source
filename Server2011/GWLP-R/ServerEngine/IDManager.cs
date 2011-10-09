@@ -34,7 +34,7 @@ namespace ServerEngine
 
                                 // create the freeID's stack
                                 var freeIDs = new List<int>();
-                                for (var i = highestPossible; i > lowestPossible; i--)
+                                for (var i = highestPossible; i >= lowestPossible; i--)
                                 {
                                         freeIDs.Add(i);
                                 }
