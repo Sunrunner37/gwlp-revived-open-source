@@ -140,6 +140,66 @@ namespace GameServer.Actions
                                 QueuingService.PostProcessingQueue.Enqueue(charMain);
                         }
 
+
+                        // partywindow test
+                        var teamWindow1 = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new Packet165.PacketSt165
+                            {
+                                Data1 = (ushort)chara.Data.LocalID.Value,
+                                Data2 = (ushort)chara.Data.LocalID.Value
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(teamWindow1);
+
+                        var teamWindow2 = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new Packet451.PacketSt451
+                            {
+                                Data1 = (ushort)chara.Data.LocalID.Value
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(teamWindow2);
+
+                        var teamWindow3 = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new Packet444.PacketSt444
+                            {
+                                Data1 = (ushort)chara.Data.LocalID.Value,
+                                Data2 = (ushort)chara.Data.LocalID.Value,
+                                Data3 = 1
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(teamWindow3);
+
+                        var teamWindow4 = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new Packet452.PacketSt452
+                            {
+                                Data1 = (ushort)chara.Data.LocalID.Value
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(teamWindow4);
+
+                        var teamWindow5 = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new Packet419.PacketSt419
+                            {
+                                Data1 = (ushort)chara.Data.LocalID.Value,
+                                Data2 = 1
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(teamWindow5);
+
+                        var teamWindow6 = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new Packet463.PacketSt463
+                            {
+                                Data1 = 0
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(teamWindow6);
+
                         // send the message of the day ;)
                         // get some info to display (srvInfo is of type string[] btw)
                         var srvInfo = GameServerWorld.Instance.MessageOfTheDay;
