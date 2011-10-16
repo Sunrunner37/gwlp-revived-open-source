@@ -9,7 +9,7 @@ namespace ServerEngine.GuildWars.Tools
                         return
                                 BitConverter.ToChar(new byte[] {0x08, 0x01}, 0) +
                                 BitConverter.ToChar(new byte[] {0x07, 0x01}, 0) +
-                                "GWLP" +
+                                text +
                                 BitConverter.ToChar(new byte[] {0x01, 0x00}, 0);
                 }
         }
