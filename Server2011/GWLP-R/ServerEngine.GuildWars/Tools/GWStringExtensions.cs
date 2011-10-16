@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace ServerEngine.GuildWars.Tools
 {
@@ -6,11 +7,13 @@ namespace ServerEngine.GuildWars.Tools
         {
                 public static string ToGW(this string text)
                 {
-                        return
-                                BitConverter.ToChar(new byte[] {0x08, 0x01}, 0) +
-                                BitConverter.ToChar(new byte[] {0x07, 0x01}, 0) +
-                                text +
-                                BitConverter.ToChar(new byte[] {0x01, 0x00}, 0);
+                        var tmp = new StringBuilder();
+                        tmp.Append(BitConverter.ToChar(new byte[] {0x08, 0x01}, 0));
+                        tmp.Append(BitConverter.ToChar(new byte[] { 0x07, 0x01 }, 0));
+                        tmp.Append(text);
+                        tmp.Append(BitConverter.ToChar(new byte[] {0x01, 0x00}, 0));
+
+                        return tmp.ToString();
                 }
         }
 }

@@ -9,6 +9,7 @@ using GameServer.Packets.ToClient;
 using GameServer.ServerData;
 using ServerEngine;
 using ServerEngine.GuildWars.DataWrappers.Clients;
+using ServerEngine.GuildWars.Tools;
 using ServerEngine.NetworkManagement;
 
 namespace GameServer.Commands
@@ -89,16 +90,16 @@ namespace GameServer.Commands
                         {
                                 PacketTemplate = new P074_NpcGeneralStats.PacketSt74
                                 {
-                                        NpcID = npc.Data.LocalID.Value,
-                                        FileID = (uint)npc.Data.NpcFileID,
+                                        NpcID = 1095,
+                                        FileID = 116228,
                                         Data1 = 0,
-                                        Scale = (uint)(npc.Data.Scale << 24),
+                                        Scale = (uint)(100 << 24),
                                         Data2 = 0,
-                                        ProfessionFlags = (uint)npc.Data.NpcFlags, //| (0x00 << 8),
-                                        Profession = npc.Data.ProfessionPrimary,
-                                        Level = (byte)npc.Data.Level,
-                                        ArraySize1 = (ushort)(npc.Data.Appearance.Length / 2),
-                                        Appearance = npc.Data.Appearance
+                                        ProfessionFlags = 0,
+                                        Profession = 1,
+                                        Level = 20,
+                                        ArraySize1 = (ushort)"roflmao".ToGW().Length,
+                                        Appearance = Encoding.Unicode.GetBytes("roflmao".ToGW())
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(npcStats);
@@ -109,8 +110,7 @@ namespace GameServer.Commands
                                 PacketTemplate = new P075_NpcModel.PacketSt75
                                 {
                                         NpcID = 1095,
-                                        ArraySize1 = (ushort)(npc.Data.ModelHash.Length / 4),
-                                        ModelHash = npc.Data.ModelHash
+                                        ArraySize1 = 0,
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(npcModel);
@@ -120,7 +120,7 @@ namespace GameServer.Commands
                         {
                                 PacketTemplate = new P021_SpawnObject.PacketSt21
                                 {
-                                        AgentID = 1,
+                                        AgentID = 20,
                                         Data1 = (0x20 << 24) | 1095, // was assumed to be LocalID
                                         Data2 = 1,
                                         Data3 = 9,
