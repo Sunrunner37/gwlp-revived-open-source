@@ -5,6 +5,7 @@ using GameServer.Packets.ToClient;
 using GameServer.ServerData;
 using ServerEngine;
 using ServerEngine.GuildWars.DataWrappers.Clients;
+using ServerEngine.GuildWars.Tools;
 using ServerEngine.NetworkManagement;
 
 namespace GameServer.Commands
@@ -38,10 +39,7 @@ namespace GameServer.Commands
                                 {
                                         PacketTemplate = new P081_GeneralChatMessage.PacketSt81
                                         {
-                                                Message = "Ĉć" +
-                                                        name +
-                                                        message +
-                                                        BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0).ToString()
+                                                Message = (name + message).ToGW(),
                                         }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(chatMsg);

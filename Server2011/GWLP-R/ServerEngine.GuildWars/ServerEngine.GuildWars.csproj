@@ -52,6 +52,7 @@
     <Compile Include="DataWrappers\Maps\GameMapID.cs" />
     <Compile Include="DataWrappers\Maps\MapID.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tools\GWStringExtensions.cs" />
     <Compile Include="Tools\GWVector.cs" />
   </ItemGroup>
   <ItemGroup>

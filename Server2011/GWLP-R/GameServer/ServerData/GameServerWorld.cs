@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using GameServer.Commands;
@@ -44,7 +45,7 @@ namespace GameServer.ServerData
                         ChatCommandsDict.Add("ChangeMap", typeof(ChangeMap));
                         ChatCommandsDict.Add("ServerInfo", typeof(ServerInfo));
                         ChatCommandsDict.Add("SetSpawn", typeof(SetSpawn));
-                        ChatCommandsDict.Add("Test", typeof (Test));
+                        ChatCommandsDict.Add("Test", typeof(Test));
 
                         // GW commands alphabetical order
                         ChatCommandsDict.Add("stuck", typeof(GWStuck));
@@ -276,6 +277,35 @@ namespace GameServer.ServerData
                         result.Add(string.Format("[Server Uptime: ] {0}", DateTime.Now.Subtract(StartTime)));
 
                         return result;
+                }
+
+                /// <summary>
+                ///   This handler should be attached to the NetworkManager's LostClient event, if necessary
+                /// </summary>
+                public override void LostNetworkClientHandler(NetID netID)
+                {
+                        try
+                        {
+                                foreach (var dict in worldData.Values)
+                                {
+                                        // get the old value
+                                        IEnumerable<IWrapper> tmpValue;
+                                        if (dict.TryGetValue(netID, out tmpValue))
+                                        {
+                                                //// get the map of the client
+                                                //var tmpMap = Get<DataMap>(tmpValue.d)
+
+                                                // remove the old value
+                                                dict.RemoveAll(tmpValue);
+
+                                                break;
+                                        }
+                                }
+                        }
+                        catch (Exception)
+                        {
+                                Debug.WriteLine("Error: NetworkClient[{1}] could not be removed, although it has no connection.", netID.Value);
+                        }
                 }
         }
 }

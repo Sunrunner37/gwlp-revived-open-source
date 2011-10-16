@@ -155,7 +155,7 @@ namespace ServerEngine.DataManagement
                 ///   This handler should be attached to the NetworkManager's LostClient event, if necessary
                 /// </summary>
                 /// <param name="netID"></param>
-                public void LostNetworkClientHandler(NetID netID)
+                public virtual void LostNetworkClientHandler(NetID netID)
                 {
                         try
                         {

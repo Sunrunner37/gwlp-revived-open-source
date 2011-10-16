@@ -165,7 +165,7 @@ namespace ServerEngine.NetworkManagement
                                 result.Add((byte)netStream.ReadByte());
                         }
 
-                        //Debug.WriteLine("-->"+BitConverter.ToString(result.ToArray()).Replace("-", " "));
+                        Debug.WriteLine("-->"+BitConverter.ToString(result.ToArray()).Replace("-", " "));
 
                         return new NetworkMessage(new NetID(netID))
                         {
@@ -188,8 +188,8 @@ namespace ServerEngine.NetworkManagement
                         {
                                 tcpConnection.Client.Send(netMessage.PacketData.ToArray());//, 0, (int)netMessage.PacketData.Length);
 
-                                //if (netMessage.Header != 19)
-                                //        Debug.WriteLine(BitConverter.ToString(netMessage.PacketData.ToArray()).Replace("-", " "));
+                                if (netMessage.Header != 19)
+                                        Debug.WriteLine(BitConverter.ToString(netMessage.PacketData.ToArray()).Replace("-", " "));
                         }
                         catch (Exception)
                         {

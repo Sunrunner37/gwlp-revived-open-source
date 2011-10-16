@@ -13,7 +13,7 @@ namespace GameServer.Packets.ToClient
                 {
                         public UInt16 Header { get { return 81; } }
                         [PacketFieldType(ConstSize = false, MaxSize = 122)]
-                        public string Message;
+                        public string Message; // that is a GWString
                 }
 
                 public void InitPacket(object parser)
