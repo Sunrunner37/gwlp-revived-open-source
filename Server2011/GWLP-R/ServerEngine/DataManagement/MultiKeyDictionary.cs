@@ -11,7 +11,7 @@ namespace ServerEngine.DataManagement
         {
                 private readonly object objLock = new object();
 
-                private readonly Dictionary<Type, Dictionary<int, TValue>> dicts;
+                private readonly Dictionary<int, TValue> dicts;
                 private readonly Dictionary<TValue, int> values;
 
                 /// <summary>
@@ -19,7 +19,7 @@ namespace ServerEngine.DataManagement
                 /// </summary>
                 public MultiKeyDictionary()
                 {
-                        dicts = new Dictionary<Type, Dictionary<int, TValue>>();
+                        dicts = new Dictionary<int, TValue>();
                         values = new Dictionary<TValue, int>();
                 }
 
@@ -34,16 +34,10 @@ namespace ServerEngine.DataManagement
                 {
                         lock (objLock)
                         {
-                                Dictionary<int, TValue> tmpDict;
-
                                 try
                                 {
-                                        // try to get the right dictionary
-                                        tmpDict = dicts[typeof(TKey)];
-
                                         // add the new dictionary entry
-                                        if (key == null) return false;
-                                        tmpDict.Add(key.Hash(), value);
+                                        dicts.Add(key.Hash(), value);
 
                                         // add the values stuff
                                         if (values.ContainsKey(value))
@@ -58,21 +52,7 @@ namespace ServerEngine.DataManagement
 
                                         return true;
                                 }
-                                // the dictionary for this type does not yet exist
-                                catch (KeyNotFoundException)
-                                {
-                                        // add the new dictionary entry
-                                        tmpDict = new Dictionary<int, TValue> {{key.Hash(), value}};
-
-                                        // and add the new dictionary
-                                        dicts.Add(typeof(TKey), tmpDict);
-
-                                        // we have a new reference, so add a new entry in values
-                                        values.Add(value, 1);
-
-                                        return true;
-                                }
-                                // the value already exists within the sub-dictionary
+                                // the value already exists within the dictionary
                                 catch (ArgumentException)
                                 {
                                         // we suppress this expection, because we do not want to add try catch blocks later on
@@ -126,25 +106,8 @@ namespace ServerEngine.DataManagement
                 {
                         lock (objLock)
                         {
-                                try
-                                {
-                                        // try to get the right dictionary
-                                        var tmpDict = dicts[typeof(TKey)];
-
-                                        // retrieve the value
-                                        if (key == null)
-                                        {
-                                                value = default(TValue);
-                                                return false;
-                                        }
-                                        return tmpDict.TryGetValue(key.Hash(), out value);
-                                }
-                                // the dictionary for this type does not yet exist
-                                catch (KeyNotFoundException)
-                                {
-                                        value = default(TValue);
-                                        return false;
-                                }
+                                // retrieve the value
+                                return dicts.TryGetValue(key.Hash(), out value);
 
                                 // note that argument null exceptions still will be passed
                         }
@@ -161,11 +124,8 @@ namespace ServerEngine.DataManagement
                         {
                                 try
                                 {
-                                        // try to get the right dictionary
-                                        var tmpDict = dicts[typeof(TKey)];
-
                                         // get the value
-                                        var value = tmpDict[key.Hash()];
+                                        var value = dicts[key.Hash()];
 
                                         // do the values stuff
                                         if (values.ContainsKey(value))
@@ -175,7 +135,7 @@ namespace ServerEngine.DataManagement
                                         }
 
                                         // remove the value
-                                        return key == null || tmpDict.Remove(key.Hash());
+                                        return dicts.Remove(key.Hash());
                                 }
                                 // the dictionary for this type does not yet exist
                                 catch (KeyNotFoundException)
@@ -225,7 +185,7 @@ namespace ServerEngine.DataManagement
                         {
                                 lock (objLock)
                                 {
-                                        // NOTE: BUG: THE FOLLOWING NEEDS TO RETURN AN ENUMERATION THAT WILL NOT UPDATE WHEN dict.Values CHANGES!
+                                        // NOTE: THE FOLLOWING NEEDS TO RETURN AN ENUMERATION THAT WILL NOT UPDATE WHEN dict.Values CHANGES!
                                         return values.Keys;
                                 }
                         }

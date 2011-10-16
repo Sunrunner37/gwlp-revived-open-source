@@ -103,8 +103,11 @@ namespace GameServer
 
                                 // Init the network manager
                                 Debug.Write("Creating network manager...           ");
-                                NetworkManager.Instance.Init(localConfig.SrvMaxClients);
+                                NetworkManager.Instance.MaximumClients = localConfig.SrvMaxClients;
                                 NetworkManager.Instance.StartListeners(localConfig.SrvPort);
+
+                                // events...
+                                NetworkManager.Instance.LostClient += GameServerWorld.Instance.LostNetworkClientHandler;
 
                                 Debug.WriteLine("[done]");
 

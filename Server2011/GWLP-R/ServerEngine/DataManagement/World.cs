@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ServerEngine.DataManagement.DataInterfaces;
+using ServerEngine.DataManagement.DataWrappers;
 using ServerEngine.NetworkManagement;
 
 namespace ServerEngine.DataManagement
@@ -29,7 +30,7 @@ namespace ServerEngine.DataManagement
                         try
                         {
                                 // get the right dict
-                                var tmpDict = worldData[typeof(T)];
+                                var tmpDict = worldData[value.GetType()];
 
                                 // add the value
                                 return tmpDict.AddAll(value);
@@ -44,7 +45,7 @@ namespace ServerEngine.DataManagement
                                 if (tmpDict.AddAll(value))
                                 {
                                         // add the dict
-                                        worldData.Add(typeof(T), tmpDict);
+                                        worldData.Add(value.GetType(), tmpDict);
 
                                         return true;
                                 }
@@ -109,8 +110,10 @@ namespace ServerEngine.DataManagement
                 {
                         try
                         {
+                                if (!oldValue.GetType().Equals(newValue.GetType())) throw new Exception("Values are not of the same type");
+
                                 // get the right dict
-                                var tmpDict = worldData[typeof(T)];
+                                var tmpDict = worldData[oldValue.GetType()];
 
                                 // remove the old value and add the new one
                                 return tmpDict.RemoveAll(oldValue) && tmpDict.AddAll(newValue);
@@ -131,12 +134,8 @@ namespace ServerEngine.DataManagement
 
                         try
                         {
-                                // get the right dict
-                                var tmpDict = worldData[value.GetType()];
-
-                                // remove the old value
-                                tmpDict.RemoveAll(value as IEnumerable<IWrapper>);
-
+                                // the event will trigger the handler later on
+                                // so we just need to call:
                                 // kick the network interface
                                 NetworkManager.Instance.RemoveClient(netID);
 
@@ -149,6 +148,33 @@ namespace ServerEngine.DataManagement
                         {
                                 Debug.WriteLine("Error: {0}[{1}] could not be kicked.", value.GetType(), netID.Value);
                                 return false;
+                        }
+                }
+
+                /// <summary>
+                ///   This handler should be attached to the NetworkManager's LostClient event, if necessary
+                /// </summary>
+                /// <param name="netID"></param>
+                public void LostNetworkClientHandler(NetID netID)
+                {
+                        try
+                        {
+                                foreach (var dict in worldData.Values)
+                                {
+                                        // get the old value
+                                        IEnumerable<IWrapper> tmpValue;
+                                        if (dict.TryGetValue(netID, out tmpValue))
+                                        {
+                                                // remove the old value
+                                                dict.RemoveAll(tmpValue);
+
+                                                break;
+                                        }
+                                }
+                        }
+                        catch (Exception)
+                        {
+                                Debug.WriteLine("Error: NetworkClient[{1}] could not be removed, although it has no connection.", netID.Value);
                         }
                 }
         }

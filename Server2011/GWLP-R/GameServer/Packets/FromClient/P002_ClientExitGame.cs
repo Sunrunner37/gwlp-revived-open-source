@@ -29,14 +29,8 @@ namespace GameServer.Packets.FromClient
                         // get the client
                         var client = GameServerWorld.Instance.Get<DataClient>(message.NetID);
                         
-                        // check if it tries to change the game server
-                        if (client.Data.Status == SyncStatus.Dispatching)
-                        {
-                                // we cannot simply kick it then ;)
-#warning CHECKME Does this also work when we terminate the connection?
-                                NetworkManager.Instance.PauseClient(message.NetID);
-                        }
-                        else
+                        // check if it tries to change the game server, else kick it
+                        if (client.Data.Status != SyncStatus.Dispatching)
                         {
                                 GameServerWorld.Instance.Kick(client);
                         }

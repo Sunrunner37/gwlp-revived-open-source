@@ -15,8 +15,7 @@ namespace ServerEngine.NetworkManagement
                 private readonly Dictionary<int, ClientConnection> clients;
                 private readonly IDManager netIDs;
                 private TcpListener tcpListener;
-                private int maxClients;
-                private bool isInitialized;
+                private int maxClients = 100;
 
                 /// <summary>
                 ///   Singleton instance
@@ -33,9 +32,6 @@ namespace ServerEngine.NetworkManagement
 
                         // Adjust the NetID manager
                         netIDs = new IDManager(10, 10000);
-
-                        // Set this to 'not initialized'
-                        isInitialized = false;
                 }
 
                 /// <summary>
@@ -46,22 +42,20 @@ namespace ServerEngine.NetworkManagement
                         get { return instance; }
                 }
 
-                /// <summary>
-                ///   Init the object
-                /// </summary>
-                /// <param name="maxClients">
-                ///   The maximum client count
-                /// </param>
-                public void Init(int maxClients)
-                {
-                        this.maxClients = maxClients;
-                        isInitialized = true;
-                }
-
                 ~NetworkManager()
                 {
                         tcpListener.Stop();
                 }
+
+                /// <summary>
+                ///   This property contains the maximum amount of client that this NetMan will accept
+                /// </summary>
+                public int MaximumClients { set { maxClients = value; } }
+
+                /// <summary>
+                ///   This event is triggered whenever a client connection has terminated
+                /// </summary>
+                public event NetManEventHandler LostClient;
 
                 /// <summary>
                 ///   Starts the TCP listeners on the given ports
@@ -69,8 +63,6 @@ namespace ServerEngine.NetworkManagement
                 /// <param name="portGame" />
                 public void StartListeners(int portGame)
                 {
-                        if (!isInitialized) throw new Exception("Not initialized. Call Init() first."); 
-
                         // Start the tcp network interface
                         tcpListener = new TcpListener(IPAddress.Any, portGame);
                         tcpListener.Start();
@@ -81,22 +73,25 @@ namespace ServerEngine.NetworkManagement
                 /// </summary>
                 public void MainTask()
                 {
-                        if (!isInitialized) throw new Exception("Not initialized. Call Init() first."); 
-
                         // Check for incoming connections
                         if (tcpListener.Pending())
                         {
-                                if (clients.Count > maxClients)
+                                // check utilization
+                                if (clients.Count <= maxClients)
                                 {
-                                        throw new Exception("Client maximum reached.");
+                                        // Accept the client
+                                        var newClient = tcpListener.AcceptTcpClient();
+
+                                        // Create a new ClientConnetion object, pass the tcpClient
+                                        var tmpNetID = netIDs.RequestID();
+                                        clients.Add(tmpNetID, new ClientConnection(tmpNetID, newClient));
+
+                                        // note that we dont need an AddClient event, as the client will be added when the new packet arrives
                                 }
-
-                                // Accept the client
-                                var newClient = tcpListener.AcceptTcpClient();
-
-                                // Create a new ClientConnetion object, pass the tcpClient
-                                var tmpNetID = netIDs.RequestID();
-                                clients.Add(tmpNetID, new ClientConnection(tmpNetID, newClient) {IsPaused = false});
+                                else
+                                {
+                                        Debug.WriteLine("Client maximum reached.");
+                                }
                         }
 
                         // Distribute the client messages
@@ -107,7 +102,7 @@ namespace ServerEngine.NetworkManagement
                                 if (clients.TryGetValue(netMsg.NetID.Value, out client))
                                 {
                                         // Enqueue a new message from the global message queue
-                                        if (QueuingService.NetOutQueue.TryDequeue(out netMsg))
+                                        if (!client.IsTerminated && QueuingService.NetOutQueue.TryDequeue(out netMsg))
                                         {
                                                 client.ConOutQueue.Enqueue(netMsg);
                                         }
@@ -121,16 +116,9 @@ namespace ServerEngine.NetworkManagement
                         {
                                 lock (objLock)
                                 {
-                                        // If refresh failed, the client has terminated (check that)
-                                        if (!tcl.IsTerminated)
-                                        {
-                                                tcl.Terminate();
-                                        }
-
-                                        // Remove it
+                                        // the following will do every thing for us
+                                        // (termination check, remove, free id, event trigger etc.)
                                         clients.Remove(tcl.NetID);
-                                        // Free netID
-                                        netIDs.FreeID(tcl.NetID);
                                 }
                         }
                 }
@@ -143,8 +131,6 @@ namespace ServerEngine.NetworkManagement
                 /// </param>
                 public void RemoveClient(NetID netID)
                 {
-                        if (!isInitialized) throw new Exception("Not initialized. Call Init() first."); 
-
                         lock (objLock)
                         {
                                 ClientConnection client;
@@ -160,35 +146,11 @@ namespace ServerEngine.NetworkManagement
                                 clients.Remove(netID.Value);
                                 // Free netID
                                 netIDs.FreeID(netID.Value);
+
+                                // trigger event, cause client terminated
+                                OnClientLost(netID);
                         }
 
-                }
-
-                /// <summary>
-                ///   Pauses a client. It cannot send/recieve anything, but it cannot be terminated automatically too.
-                ///   Returns true if successfully paused, otherwise the client may have terminated.
-                /// </summary>
-                /// <param name="netID">
-                ///   The network ID of the client.
-                /// </param>
-                public bool PauseClient(NetID netID)
-                {
-                        if (!isInitialized) throw new Exception("Not initialized. Call Init() first.");
-
-                        lock (objLock)
-                        {
-                                ClientConnection client;
-                                if (!clients.TryGetValue(netID.Value, out client)) return false;
-
-                                // Check client for termination first
-                                if (!client.IsTerminated)
-                                {
-                                        client.IsPaused = true;
-                                        return true;
-                                }
-                        }
-
-                        return false;
                 }
 
                 /// <summary>
@@ -196,8 +158,6 @@ namespace ServerEngine.NetworkManagement
                 /// </summary>
                 public int GetUtilization()
                 {
-                        if (!isInitialized) throw new Exception("Not initialized. Call Init() first."); 
-
                         lock (objLock)
                         {
                                 var ratio = (int) Math.Round(clients.Count/(float) maxClients);
@@ -211,8 +171,6 @@ namespace ServerEngine.NetworkManagement
                 /// </summary>
                 public bool GetClientInfo(NetID netID, out byte[] clientIP, out uint clientPort)
                 {
-                        if (!isInitialized) throw new Exception("Not initialized. Call Init() first."); 
-
                         lock (objLock)
                         {
                                 clientIP = new byte[4];
@@ -227,6 +185,9 @@ namespace ServerEngine.NetworkManagement
                                         return true;
                                 }
 
+                                // remove if terminated
+                                RemoveClient(netID);
+
                                 return false;
                         }
                 }
@@ -239,8 +200,6 @@ namespace ServerEngine.NetworkManagement
                 /// </returns>
                 public NetID CreateConnection(string ip, int port)
                 {
-                        if (!isInitialized) throw new Exception("Not initialized. Call Init() first."); 
-
                         lock (objLock)
                         {
                                 var netID = -1;
@@ -256,11 +215,30 @@ namespace ServerEngine.NetworkManagement
                                 }
                                 catch (Exception e)
                                 {
-                                        Debug.Fail("No login server connection could be created.", e.ToString());
+                                        Debug.Fail("The connection could not be created.", e.ToString());
                                 }
 
                                 return new NetID(netID);
                         }
                 }
+
+                /// <summary>
+                ///   This method triggers the LostClient event
+                /// </summary>
+                private void OnClientLost(NetID netID)
+                {
+                        if (LostClient != null)
+                        {
+                                LostClient(netID);
+                        }
+                }
         }
+
+        /// <summary>
+        ///   This delegate represents handler methods for network manager events
+        /// </summary>
+        /// <param name="netID">
+        ///   This is to identify the client that triggered the event
+        /// </param>
+        public delegate void NetManEventHandler(NetID netID);
 }

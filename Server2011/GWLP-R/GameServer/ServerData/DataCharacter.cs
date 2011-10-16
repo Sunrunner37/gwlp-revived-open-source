@@ -15,7 +15,7 @@ using ServerEngine.GuildWars.Tools;
 
 namespace GameServer.ServerData
 {
-        public class DataCharacter : IIdentifiableData<CharacterData>
+        public sealed class DataCharacter : IIdentifiableData<CharacterData>
         {
                 private readonly object objLock = new object();
 

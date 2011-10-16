@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using LoginServer.DataBase;
+using LoginServer.ServerData;
 using MySql.Data.MySqlClient;
 using ServerEngine;
 using ServerEngine.NetworkManagement;
@@ -93,8 +94,11 @@ namespace LoginServer
 
                                 // Init the network manager
                                 Debug.Write("Creating network manager...           ");
-                                NetworkManager.Instance.Init(localConfig.SrvMaxClients);
+                                NetworkManager.Instance.MaximumClients = localConfig.SrvMaxClients;
                                 NetworkManager.Instance.StartListeners(localConfig.SrvPort);
+
+                                // events...
+                                NetworkManager.Instance.LostClient += LoginServerWorld.Instance.LostNetworkClientHandler;
 
                                 Debug.WriteLine("[done]");
 

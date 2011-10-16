@@ -20,7 +20,7 @@ using ServerEngine.PacketManagement.StaticConvert;
 
 namespace GameServer.ServerData
 {
-        public class DataMap : World, IIdentifiableData<MapData>
+        public sealed class DataMap : World, IIdentifiableData<MapData>
         {
                 private readonly object objLock = new object();
 

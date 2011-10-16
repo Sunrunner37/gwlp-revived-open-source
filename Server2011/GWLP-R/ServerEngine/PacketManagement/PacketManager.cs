@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -333,6 +334,7 @@ namespace ServerEngine.PacketManagement
 
                 public void ProcessPackets()
                 {
+                        // Note: INCOMING
                         // Determines how many tasks will be created as a maximum.
                         var msgCount = QueuingService.NetInQueue.Count;
                         var taskCount = (msgCount > 10) ? 10 : msgCount;
@@ -354,14 +356,15 @@ namespace ServerEngine.PacketManagement
 
                                         if (pck == null || !pck.Handler(ref tmpMessage))
                                         {
-                                                throw new Exception(
-                                                        string.Format(
-                                                                "Was unable to handle packet [{0}]. Missing packet handler?",
-                                                                header));
+                                                throw new Exception(string.Format("Was unable to handle packet [{0}]. Missing packet handler?", header));
                                         }
+
+                                        // info stuff
+                                        Debug.WriteLine(string.Format("< {0}--> {1} >", tmpMessage.NetID.Value, pck.GetType().Name));
                                 }
                         });
 
+                        // Note: OUTGOING
                         // Determines how many tasks will be created as a maximum.
                         msgCount = QueuingService.PostProcessingQueue.Count;
                         taskCount = (msgCount > 10) ? 10 : msgCount;
@@ -380,6 +383,9 @@ namespace ServerEngine.PacketManagement
                                         throw new Exception(
                                                 string.Format("Was unable to handle packet [{0}]. Missing packet handler?", tmpMessage.Header));
                                 }
+
+                                // info stuff
+                                Debug.WriteLine(string.Format("< -->{0} {1} >", tmpMessage.NetID.Value, pck.GetType().Name));
                         }
                 }
         }

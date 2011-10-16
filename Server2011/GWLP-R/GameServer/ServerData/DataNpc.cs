@@ -12,7 +12,7 @@ using ServerEngine.GuildWars.Tools;
 
 namespace GameServer.ServerData
 {
-        public class DataNpc : IIdentifiableData<NpcData>
+        public sealed class DataNpc : IIdentifiableData<NpcData>
         {
                 private readonly object objLock = new object();
 

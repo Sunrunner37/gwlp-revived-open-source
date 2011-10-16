@@ -14,7 +14,7 @@ using ServerEngine.GuildWars.Tools;
 
 namespace GameServer.ServerData
 {
-        public class GameServerWorld : World
+        public sealed class GameServerWorld : World
         {
                 /// <summary>
                 ///   Singleton instance
