@@ -526,11 +526,11 @@
     <Compile Include="Packets\ToClient\P311_ItemStreamEnd.cs" />
     <Compile Include="Packets\ToClient\Packet312.cs" />
     <Compile Include="Packets\ToClient\Packet313.cs" />
-    <Compile Include="Packets\ToClient\P314_ItemStreamHead1.cs" />
+    <Compile Include="Packets\ToClient\P314_ItemStreamHead.cs" />
     <Compile Include="Packets\ToClient\Packet315.cs" />
     <Compile Include="Packets\ToClient\Packet316.cs" />
     <Compile Include="Packets\ToClient\P317_ItemStreamWeaponBarSlot.cs" />
-    <Compile Include="Packets\ToClient\P318_ItemStreamHead2.cs" />
+    <Compile Include="Packets\ToClient\P318_ItemStreamActiveWeaponslot.cs" />
     <Compile Include="Packets\ToClient\Packet319.cs" />
     <Compile Include="Packets\ToClient\P032_MovementSpeedModifier.cs" />
     <Compile Include="Packets\ToClient\Packet321.cs" />

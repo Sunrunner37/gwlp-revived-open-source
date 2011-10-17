@@ -40,9 +40,9 @@ namespace GameServer.Packets.FromClient
                         // Note: ITEM STREAM HEAD1 
                         var head1 = new NetworkMessage(message.NetID)
                         {
-                                PacketTemplate = new P314_ItemStreamHead1.PacketSt314
+                                PacketTemplate = new P314_ItemStreamHead.PacketSt314
                                 {
-                                        Data1 = itemStreamID,
+                                        ItemStreamID = itemStreamID,
                                         Data2 = 0,
                                 }
                         };

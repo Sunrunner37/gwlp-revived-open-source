@@ -7,12 +7,12 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 318)]
-        public class P318_ItemStreamHead2 : IPacket
+        public class P318_ItemStreamActiveWeaponslot : IPacket
         {
                 public class PacketSt318 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 318; } }
-                        public UInt16 Data1;
+                        public UInt16 ItemStreamID;
                         public byte ActiveWeaponSlot;
                 }
 
