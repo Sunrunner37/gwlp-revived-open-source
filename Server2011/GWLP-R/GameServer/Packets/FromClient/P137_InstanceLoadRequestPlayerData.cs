@@ -124,6 +124,8 @@ namespace GameServer.Packets.FromClient
                         };
                         QueuingService.PostProcessingQueue.Enqueue(skillbar);
 
+                        chara.Data.Energy = 30; // dummy
+
                         // Note: UPDATE GENERICVALUE ENERGY
                         var genEne = new NetworkMessage(message.NetID)
                         {
@@ -131,7 +133,7 @@ namespace GameServer.Packets.FromClient
                                 {
                                         ID1 = chara.Data.AgentID.Value,
                                         ValueID = (int)GenericValues.Energy,
-                                        Value = (ushort)chara.Data.Energy
+                                        Value = (uint)chara.Data.Energy
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(genEne);
@@ -148,14 +150,16 @@ namespace GameServer.Packets.FromClient
                         };
                         QueuingService.PostProcessingQueue.Enqueue(genEneReg);
 
+                        chara.Data.Health = 100; // dummy
+
                         // Note: UPDATE GENERICVALUE HEALTH
                         var genHea = new NetworkMessage(message.NetID)
                         {
                                 PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
                                 {
                                         ID1 = chara.Data.AgentID.Value,
-                                        ValueID = (int)GenericValues.Health,
-                                        Value = (ushort)chara.Data.Health
+                                        ValueID = (uint)GenericValues.Health,
+                                        Value = (uint)chara.Data.Health
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(genHea);
@@ -171,6 +175,20 @@ namespace GameServer.Packets.FromClient
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(genHeaReg);
+
+                        chara.Data.Level = 22; // dummy
+
+                        // Note: UPDATE GENERICVALUE HEALTH
+                        var genLvl = new NetworkMessage(message.NetID)
+                        {
+                            PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
+                            {
+                                ID1 = chara.Data.AgentID.Value,
+                                ValueID = (uint)GenericValues.PublicLevel,
+                                Value = chara.Data.Level
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(genLvl);
 
                         // Note: PREPARE MAP DATA
                         var prepMap = new NetworkMessage(message.NetID)

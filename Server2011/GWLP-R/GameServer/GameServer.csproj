@@ -417,10 +417,10 @@
     <Compile Include="Packets\ToClient\Packet211.cs" />
     <Compile Include="Packets\ToClient\Packet212.cs" />
     <Compile Include="Packets\ToClient\Packet213.cs" />
-    <Compile Include="Packets\ToClient\Packet214.cs" />
+    <Compile Include="Packets\ToClient\P214_SkillCancel.cs" />
     <Compile Include="Packets\ToClient\Packet215.cs" />
-    <Compile Include="Packets\ToClient\Packet216.cs" />
-    <Compile Include="Packets\ToClient\Packet217.cs" />
+    <Compile Include="Packets\ToClient\P216_SkillActivate.cs" />
+    <Compile Include="Packets\ToClient\P217_SkillComplete.cs" />
     <Compile Include="Packets\ToClient\Packet218.cs" />
     <Compile Include="Packets\ToClient\Packet219.cs" />
     <Compile Include="Packets\ToClient\P022_FIXMEInvalidateAgentModel.cs" />

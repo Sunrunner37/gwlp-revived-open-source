@@ -8,19 +8,19 @@ namespace GameServer.Enums
                 ///   1-freeze
                 ///   0-unfreeze
                 /// </summary>
-                FreezePlayer = 7,
+                FreezePlayer = 8,
 
                 /// <summary>
                 ///   Shakes the screen. Value:
                 ///   1-effect
                 /// </summary>
-                Earthquake = 8,
+                //Earthquake = 8,
 
                 /// <summary>
                 ///   Show skill damage and put player into fight stance. Values:
                 ///   SkillID
                 /// </summary>
-                SkillDamage = 9,
+                //SkillDamage = 9,
 
                 /// <summary>
                 ///   Show a marker over players head. Values:
@@ -31,32 +31,32 @@ namespace GameServer.Enums
                 ///   4-arrow
                 ///   5-exclamation mark
                 /// </summary>
-                ShowMarker = 10,
+                //ShowMarker = 10,
 
                 /// <summary>
                 ///   Remove any marker from player. Value:
                 ///   0-effect
                 /// </summary>
-                RemoveMarker = 11,
+                //RemoveMarker = 11,
 
                 /// <summary>
                 ///   Apply any effect to player (auras etc.). Values:
                 ///   EffectID
                 /// </summary>
-                ApplyEffect1 = 17,
+                //ApplyEffect1 = 17,
 
                 /// <summary>
                 ///   Apply any effect to player (auras etc.). Values:
                 ///   EffectID
                 /// </summary>
-                ApplyEffect2 = 18,
+                //ApplyEffect2 = 18,
 
                 /// <summary>
                 ///   Apply any effect to player (auras etc.). Values:
                 ///   EffectID
                 ///   !COULD BE APPLY EFFECT 2!
                 /// </summary>
-                ApplyEffect3 = 19,
+                //ApplyEffect3 = 19,
 
                 /// <summary>
                 ///   Show the aion wings. Values:
@@ -64,39 +64,39 @@ namespace GameServer.Enums
                 ///   16-black
                 ///   Requires ApplyEffect2/EffectID 0xB9403536
                 /// </summary>
-                ShowWings = 22,
+                //ShowWings = 22,
 
                 /// <summary>
                 ///   Show the /rank animation. Values:
                 ///   (3-12)-rank
                 ///   Requires ApplyEffect2/EffectID 0xB9403536
                 /// </summary>
-                ShowRank = 23,
+                //ShowRank = 23,
 
                 /// <summary>
                 ///   Show the /zrank animation. Values:
                 ///   (1-12)-rank
                 ///   Requires ApplyEffect2/EffectID 0xB9403536
                 /// </summary>
-                ShowZaishen = 24,
+                //ShowZaishen = 24,
 
                 /// <summary>
-                ///   Apply a boss like glow to the payer. Values:
+                ///   Apply a boss like glow to the player. Values:
                 ///   BossGlowColors
                 /// </summary>
-                BossGlow = 26,
+                //BossGlow = 26,
 
                 /// <summary>
                 ///   Knocksdown player. Value:
                 ///   1-effect
                 /// </summary>
-                Knockdown = 32,
+                //Knockdown = 32,
 
                 /// <summary>
                 ///   The players publicly visible level. Value:
                 ///   (1-?)-level
                 /// </summary>
-                PublicLvl = 36,
+                PublicLevel = 36,
 
                 ///// <summary>
                 /////   Applies level up animation. Value:
@@ -120,13 +120,13 @@ namespace GameServer.Enums
                 ///   Set player energy. Values:
                 ///   (0-?)-energy
                 /// </summary>
-                Energy = 38,
+                Energy = 41,
 
                 /// <summary>
                 ///   Set player health. Values:
-                ///   (0-?)-health
+                ///   (1-?)-health
                 /// </summary>
-                Health = 39,
+                Health = 42,
 
                 /// <summary>
                 ///   Set player energy regeneration. Values:
@@ -136,7 +136,7 @@ namespace GameServer.Enums
                 ///   ... 
                 ///   0,33-reg+20 (?)
                 /// </summary>
-                EnergyRegen = 40,
+                EnergyRegen = 43,
 
                 /// <summary>
                 ///   Set player health regeneration. Values:
@@ -146,36 +146,50 @@ namespace GameServer.Enums
                 ///   ... 
                 ///   0,33-reg+20 (?)
                 /// </summary>
-                HealthRegen = 41,
+                HealthRegen = 44,
 
                 /// <summary>
                 ///   Instantly cast a spell, character freezes afterwards. Value:
                 ///   1-effect(?)
                 /// </summary>
-                CastSpellInstantly = 43,
+                //CastSpellInstantly = 43,
 
                 /// <summary>
                 ///   Interupted skill effect. Value:
                 ///   1-effect
                 /// </summary>
-                Interupted = 44,
+                //Interupted = 44,
 
                 /// <summary>
                 ///   Cast a spell, without animation. Value:
                 ///   1-effect(?)
                 /// </summary>
-                CastSpell = 45,
+                //CastSpell = 45,
 
                 /// <summary>
                 ///   Give energy (soul reaping etc.). Value:
                 ///   (1-?)-energy(?)
                 /// </summary>
-                GiveEnergy = 49,
+                GiveEnergy = 54,
 
                 /// <summary>
-                ///   Cast a spell like usual. Value:
+                ///   Cast a spell like usual. Value:          
                 ///   (1-?)-SkillID(?)
+                ///   miracle
                 /// </summary>
-                CastSpellAnimated = 55,
+                CastSpellAnimated = 60,
+
+                /// <summary>
+                ///   Change skill activation time. Values:                 
+                ///   float CastTimeModifier 0.5 = half casttime
+                /// </summary>
+                SkillActivation = 61,
+
+                /// <summary>
+                ///   Change player energy. Values:                 
+                ///   float +- energy in percent
+                /// </summary>
+                EnergyChange = 62,
+
         }
 }

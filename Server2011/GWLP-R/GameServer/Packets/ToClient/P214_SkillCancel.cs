@@ -7,13 +7,13 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 214)]
-        public class Packet214 : IPacket
+        public class P214_SkillCancel : IPacket
         {
                 public class PacketSt214 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 214; } }
-                        public UInt32 ID1;
-                        public UInt16 Data1;
+                        public UInt32 CasterAgentID;
+                        public UInt16 SkillID;
                         public UInt32 Data2;
                 }
 

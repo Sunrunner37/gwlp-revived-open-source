@@ -27,56 +27,28 @@ namespace GameServer.Commands
         public void Execute(DataMap map)
         {
             var chara = map.Get<DataCharacter>(newCharID);
-            DateTime dt = new DateTime();
-            dt = DateTime.Now;
-            UInt32 LocID = (uint)dt.Second;
 
-            var testItem = new NetworkMessage(chara.Data.NetID)
+            var testSkill = new NetworkMessage(chara.Data.NetID)
             {
-                PacketTemplate = new P343_ItemGeneral.PacketSt343
+                PacketTemplate = new P216_SkillActivate.PacketSt216
                 {
-                    LocalID = LocID,
-                    FileID = 0x80038637,
-                    ItemType = 0x16,
-                    Data2 = 4,
-                    DyeColor = 0,
-                    Data4 = 0,
-                    CanBeDyed = 0,
-                    Flags = 0x2200C611,
-                    MerchantPrice = 1337,
-                    ItemID = 0x0000073D,
-                    Quantity = 1,
-                    NameHash = BitConverter.ToChar(new byte[] { 0x08, 0x01 }, 0).ToString()+BitConverter.ToChar(new byte[] { 0x07, 0x01 }, 0).ToString() +"Hacker's Earthwand" +BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0).ToString(),
-                    NumStats = 0x05,
-                    Stats = new UInt32[] {  0x24B80B00,
-                                            0x26980003,
-                                            0x22186409,
-                                            0xA4980A10,
-                                            0xA488C864}
+                    CasterAgentID = chara.Data.AgentID.Value,
+                    SkillID = 0x615,
+                    Data2 = 0
                 }
             };
-            QueuingService.PostProcessingQueue.Enqueue(testItem);
-            
-            var testSpawn = new NetworkMessage(chara.Data.NetID)
+            QueuingService.PostProcessingQueue.Enqueue(testSkill);
+
+            testSkill = new NetworkMessage(chara.Data.NetID)
             {
-                PacketTemplate = new P021_SpawnObject.PacketSt21
+                PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
                 {
-                    AgentID = LocID,
-                    Data1 = LocID,
-                    Data2 = 4,
-                    Data3 = 0,
-                    PosX = chara.Data.Position.X,
-                    PosY = chara.Data.Position.Y,
-                    Plane = (ushort)chara.Data.Position.PlaneZ,
-                    Data4 = 1,
-                    Rotation = 0,
-                    Data5 = 1,
-                    Speed = 0,
-                    Data12 = 1,
-                    Data13 = 0x34000000
+                    ValueID = (uint)GenericValues.CastSpellAnimated,
+                    ID1 = chara.Data.AgentID.Value,
+                    Value = 0x615
                 }
             };
-            QueuingService.PostProcessingQueue.Enqueue(testSpawn);
-        }
+            QueuingService.PostProcessingQueue.Enqueue(testSkill);
+       } 
     }
 }
