@@ -51,12 +51,12 @@ namespace GameServer.Commands
                     Stats = new UInt32[] {  0x24B80B00,
                                             0x26980003,
                                             0x22186409,
-                                            0x23986409,
+                                            0xA4980A10,
                                             0xA488C864}
                 }
             };
             QueuingService.PostProcessingQueue.Enqueue(testItem);
-
+            
             var testSpawn = new NetworkMessage(chara.Data.NetID)
             {
                 PacketTemplate = new P021_SpawnObject.PacketSt21

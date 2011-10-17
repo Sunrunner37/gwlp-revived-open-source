@@ -13,8 +13,8 @@ namespace GameServer.Packets.ToClient
                 {
                         public UInt16 Header { get { return 309; } }
                         public UInt16 ItemStreamID;
-                        public byte StorageType;
-                        public byte StorageID;
+                        public byte StorageType; //Bags=0x1,Equiped=0x2,NotCollected=0x3 ???,Storage=0x4,StorageMaterial=0x5
+                        public byte StorageID; //see GameServer.Enums.ItemStorage
                         public UInt16 PageID;
                         public byte Slots;
                         public UInt32 ItemLocalID;

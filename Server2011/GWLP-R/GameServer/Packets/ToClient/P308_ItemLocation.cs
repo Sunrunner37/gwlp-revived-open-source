@@ -14,7 +14,7 @@ namespace GameServer.Packets.ToClient
                         public UInt16 Header { get { return 308; } }
                         public UInt16 ItemStreamID;
                         public UInt32 ItemLocalID;
-                        public UInt16 Storage;
+                        public UInt16 PageID;
                         public byte UserSlot;
                 }
 

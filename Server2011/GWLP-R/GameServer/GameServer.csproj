@@ -523,7 +523,7 @@
     <Compile Include="Packets\ToClient\P309_ItemPagePacket.cs" />
     <Compile Include="Packets\ToClient\Packet31.cs" />
     <Compile Include="Packets\ToClient\Packet310.cs" />
-    <Compile Include="Packets\ToClient\P311_ItemStreamEnd.cs" />
+    <Compile Include="Packets\ToClient\P311_ItemStreamGoldInStorage.cs" />
     <Compile Include="Packets\ToClient\Packet312.cs" />
     <Compile Include="Packets\ToClient\Packet313.cs" />
     <Compile Include="Packets\ToClient\P314_ItemStreamHead.cs" />

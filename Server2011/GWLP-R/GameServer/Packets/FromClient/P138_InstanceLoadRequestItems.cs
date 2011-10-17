@@ -59,6 +59,90 @@ namespace GameServer.Packets.FromClient
                         };
                         QueuingService.PostProcessingQueue.Enqueue(head2);
 
+                        var Backpack = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new P343_ItemGeneral.PacketSt343
+                            {
+                                LocalID = 42,
+                                FileID = 0x8001B536,
+                                ItemType = 0x3,
+                                Data2 = 1,
+                                DyeColor = 0,
+                                Data4 = 0,
+                                CanBeDyed = 0,
+                                Flags = 0x20001000,
+                                MerchantPrice = 5,
+                                ItemID = 0x00000020,
+                                Quantity = 1,
+                                NameHash = BitConverter.ToChar(new byte[] { 0x08, 0x01 }, 0).ToString() + BitConverter.ToChar(new byte[] { 0x07, 0x01 }, 0).ToString() + "Hacker's Backpack" + BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0).ToString(),
+                                NumStats = 0x01,
+                                Stats = new UInt32[] { 0x24481400 }
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(Backpack);
+                        
+                        /*var OwnerName = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new P304_ItemOwnerName.PacketSt304
+                            {
+                                ItemLocalID = 42,
+                                CharName = BitConverter.ToChar(new byte[] { 0x08, 0x01 }, 0).ToString() + BitConverter.ToChar(new byte[] { 0x07, 0x01 }, 0).ToString() + "Coca Cola" + BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0).ToString(),
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(OwnerName);*/
+
+                        var Page = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new P309_ItemPagePacket.PacketSt309
+                            {
+                                  ItemStreamID = itemStreamID,
+                                  StorageType = 1,
+                                  StorageID = 0,
+                                  PageID = 2,
+                                  Slots = 20,
+                                  ItemLocalID = 42
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(Page);
+
+                        var testItem = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new P343_ItemGeneral.PacketSt343
+                            {
+                                LocalID = 41,
+                                FileID = 0x80038637,
+                                ItemType = 0x16,
+                                Data2 = 4,
+                                DyeColor = 0,
+                                Data4 = 0,
+                                CanBeDyed = 0,
+                                Flags = 0x2200C611,
+                                MerchantPrice = 1337,
+                                ItemID = 0,
+                                Quantity = 1,
+                                NameHash = BitConverter.ToChar(new byte[] { 0x08, 0x01 }, 0).ToString() + BitConverter.ToChar(new byte[] { 0x07, 0x01 }, 0).ToString() + "Hacker's Earthwand" + BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0).ToString(),
+                                NumStats = 0x05,
+                                Stats = new UInt32[] {  0x24B80B00,
+                                            0x26980003,
+                                            0x22186409,
+                                            0xA4980A10,
+                                            0xA488C864}
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(testItem);
+
+                        var testLocation = new NetworkMessage(chara.Data.NetID)
+                        {
+                            PacketTemplate = new P308_ItemLocation.PacketSt308
+                            {
+                                ItemStreamID = itemStreamID,
+                                ItemLocalID = 41,
+                                PageID = 2,
+                                UserSlot = 7
+                            }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(testLocation);
+
                         // Note: ITEM STREAM WEAPON BAR SLOTS
                         // (would go here)
 
