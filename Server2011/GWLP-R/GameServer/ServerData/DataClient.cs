@@ -34,6 +34,20 @@ namespace GameServer.ServerData
                         }
                 }
 
+                ~DataClient()
+                {
+                        lock (objLock)
+                        {
+                                if (chara == null) return;
+
+                                // get the map
+                                var map = GameServerWorld.Instance.Get<DataMap>(Data.MapID);
+
+                                // remove the character
+                                map.Remove(chara);
+                        }
+                }
+
                 #region Implementation of IEnumerable
 
                 public IEnumerator<IWrapper> GetEnumerator()

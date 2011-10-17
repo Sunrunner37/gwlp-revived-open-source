@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using GameServer.Enums;
 using GameServer.ServerData.DataInterfaces;
+using GameServer.ServerData.Items;
 using ServerEngine.DataManagement;
 using ServerEngine.DataManagement.DataInterfaces;
 using ServerEngine.DataManagement.DataWrappers;
@@ -88,6 +89,7 @@ namespace GameServer.ServerData
                 IHasGeneralCharData,
                 IHasGenericValueData,
                 IHasHeartbeatData,
+                IHasItemData,
                 IHasMapData,
                 IHasMovementData,
                 IHasPlayStatusData,
@@ -98,13 +100,22 @@ namespace GameServer.ServerData
                 public CharacterData()
                 {
                         Attributes = new Dictionary<int, int>();
+                        
                         ChatCommands = new Dictionary<string, bool>();
+                        
                         Appearance = new byte[0];
+                        
+                        Inventory = new DataInventory();
+                        
+                        Storage = new DataStorage();
+                        
                         LastHeartBeat = DateTime.Now;
+                        
                         Position = new GWVector(0,0,0);
                         Direction = new GWVector(0,0,0);
                         LastMovement = DateTime.Now;
                         MoveState = MovementState.NotMoving;
+                        
                         SkillBar = new byte[8];
                         UnlockedSkills = new byte[4];
                 }
@@ -181,6 +192,13 @@ namespace GameServer.ServerData
                 public float EnergyRegen { get; set; }
                 public int Health { get; set; }
                 public float HealthRegen { get; set; }
+
+                #endregion
+
+                #region Implementation of IHasItemData
+
+                public DataInventory Inventory { get; set; }
+                public DataStorage Storage { get; set; }
 
                 #endregion
 

@@ -141,7 +141,7 @@ namespace ServerEngine.PacketManagement.StaticConvert
 
                 public static void WriteByteAr(byte[] fromData, MemoryStream toRaw)
                 {
-                        if (fromData.Length > 0)
+                        if (fromData != null && fromData.Length > 0)
                         {
                                 toRaw.Write(fromData, 0, fromData.Length);
                         }

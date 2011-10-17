@@ -278,34 +278,5 @@ namespace GameServer.ServerData
 
                         return result;
                 }
-
-                /// <summary>
-                ///   This handler should be attached to the NetworkManager's LostClient event, if necessary
-                /// </summary>
-                public override void LostNetworkClientHandler(NetID netID)
-                {
-                        try
-                        {
-                                foreach (var dict in worldData.Values)
-                                {
-                                        // get the old value
-                                        IEnumerable<IWrapper> tmpValue;
-                                        if (dict.TryGetValue(netID, out tmpValue))
-                                        {
-                                                //// get the map of the client
-                                                //var tmpMap = Get<DataMap>(tmpValue.d)
-
-                                                // remove the old value
-                                                dict.RemoveAll(tmpValue);
-
-                                                break;
-                                        }
-                                }
-                        }
-                        catch (Exception)
-                        {
-                                Debug.WriteLine("Error: NetworkClient[{1}] could not be removed, although it has no connection.", netID.Value);
-                        }
-                }
         }
 }
