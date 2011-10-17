@@ -7,13 +7,13 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 311)]
-        public class P311_ItemStreamEnd : IPacket
+        public class P311_ItemStreamGoldInStorage : IPacket
         {
                 public class PacketSt311 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 311; } }
-                        public UInt16 Data1;
-                        public UInt32 Data2;
+                        public UInt16 ItemStreamID;
+                        public UInt32 GoldInStorage;
                 }
 
                 public void InitPacket(object parser)
