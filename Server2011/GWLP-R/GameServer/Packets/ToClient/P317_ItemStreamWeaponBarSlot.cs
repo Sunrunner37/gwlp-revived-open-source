@@ -14,8 +14,8 @@ namespace GameServer.Packets.ToClient
                         public UInt16 Header { get { return 317; } }
                         public UInt16 ItemStreamID;
                         public byte SlotNumber;
-                        public UInt32 Data3;
-                        public UInt32 Data4;
+                        public UInt32 LeadhandItemLocalID;
+                        public UInt32 OffhandItemLocalID;
                 }
 
                 public void InitPacket(object parser)

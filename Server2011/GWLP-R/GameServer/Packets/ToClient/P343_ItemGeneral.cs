@@ -12,22 +12,22 @@ namespace GameServer.Packets.ToClient
                 public class PacketSt343 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 343; } }
-                        public UInt32 ItemLocalID;
-                        public UInt32 ItemFileID; // 3d model file
-                        public byte Type;
-                        public byte Data2; // color?
-                        public UInt16 Data3;
-                        public UInt16 Data4;
-                        public byte Data5;
-                        public UInt32 ItemFlags; // bitfield containig rarity, uniqueness, is unidentified, etc.
+                        public UInt32 LocalID;
+                        public UInt32 FileID; // 3d model file
+                        public byte ItemType; //sword 1b, axe 2
+                        public byte Data2; //sword 3, axe 6
+                        public UInt16 DyeColor;
+                        public UInt16 Data4; // Standard Color?
+                        public byte CanBeDyed;
+                        public UInt32 Flags;
                         public UInt32 MerchantPrice;
-                        public UInt32 ItemID;
+                        public UInt32 ItemID; //sword 46C2, axe 45D4   icon?
                         public UInt32 Quantity;
                         [PacketFieldType(ConstSize = false, MaxSize = 64)]
-                        public string ItemNameHash;
-                        public byte ArraySize1;
+                        public string NameHash;
+                        public byte NumStats;
                         [PacketFieldType(ConstSize = false, MaxSize = 256)]
-                        public UInt32[] ItemMods; // guessed: 1st byte: mod flags; 2nd byte mod value; next 2 bytes ModID
+                        public UInt32[] Stats;
                 }
 
                 public void InitPacket(object parser)

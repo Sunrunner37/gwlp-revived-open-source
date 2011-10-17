@@ -12,11 +12,11 @@ namespace GameServer.Packets.ToClient
                 public class PacketSt309 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 309; } }
-                        public UInt16 Data1;
-                        public byte Data2;
-                        public byte Data3;
-                        public UInt16 Data4;
-                        public byte Data5;
+                        public UInt16 ItemStreamID;
+                        public byte StorageType;
+                        public byte StorageID;
+                        public UInt16 PageID;
+                        public byte Slots;
                         public UInt32 ItemLocalID;
                 }
 

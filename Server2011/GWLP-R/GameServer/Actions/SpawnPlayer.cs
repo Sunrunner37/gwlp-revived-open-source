@@ -322,7 +322,7 @@ namespace GameServer.Actions
                                 PacketTemplate = new P144_UpdateMorale.PacketSt144
                                 {
                                         ID1 = chara.Data.AgentID.Value,
-                                        Morale = chara.Data.Morale,
+                                        Morale = chara.Data.Morale
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(charMorale);

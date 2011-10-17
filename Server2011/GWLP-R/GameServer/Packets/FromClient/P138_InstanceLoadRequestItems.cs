@@ -54,7 +54,7 @@ namespace GameServer.Packets.FromClient
                                 PacketTemplate = new P318_ItemStreamHead2.PacketSt318
                                 {
                                         Data1 = itemStreamID,
-                                        Data2 = 0,
+                                        ActiveWeaponSlot = 0,
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(head2);

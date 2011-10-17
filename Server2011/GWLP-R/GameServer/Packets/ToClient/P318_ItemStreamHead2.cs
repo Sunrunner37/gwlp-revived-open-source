@@ -13,7 +13,7 @@ namespace GameServer.Packets.ToClient
                 {
                         public UInt16 Header { get { return 318; } }
                         public UInt16 Data1;
-                        public byte Data2;
+                        public byte ActiveWeaponSlot;
                 }
 
                 public void InitPacket(object parser)
