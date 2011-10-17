@@ -6,26 +6,25 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.ToClient
 {
-        [PacketAttributes(IsIncoming = false, Header = 310)]
-        public class Packet310 : IPacket
+        [PacketAttributes(IsIncoming = false, Header = 101)]
+        public class P101_NpcStatsTerminator : IPacket
         {
-                public class PacketSt310 : IPacketTemplate
+                public class PacketSt101 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 310; } }
-                        public UInt16 Data1;
-                        public UInt32 Data2;
+                        public UInt16 Header { get { return 101; } }
+                        public UInt32 AgentID;
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt310>)parser;
+                        pParser = (PacketParser<PacketSt101>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
 
                 public bool Handler(ref NetworkMessage message)
                 {
-                        pParser((PacketSt310)message.PacketTemplate, message.PacketData);
+                        pParser((PacketSt101)message.PacketTemplate, message.PacketData);
                         QueuingService.NetOutQueue.Enqueue(message);
                         return true;
                 }
@@ -34,7 +33,7 @@ namespace GameServer.Packets.ToClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt310> pParser;
+                private PacketParser<PacketSt101> pParser;
 
         }
 }

@@ -293,7 +293,7 @@
     <Compile Include="Packets\ToClient\P001_PingRequest.cs" />
     <Compile Include="Packets\ToClient\Packet10.cs" />
     <Compile Include="Packets\ToClient\Packet100.cs" />
-    <Compile Include="Packets\ToClient\Packet101.cs" />
+    <Compile Include="Packets\ToClient\P101_NpcStatsTerminator.cs" />
     <Compile Include="Packets\ToClient\Packet102.cs" />
     <Compile Include="Packets\ToClient\P103_UpdateHero.cs" />
     <Compile Include="Packets\ToClient\Packet104.cs" />
@@ -426,10 +426,10 @@
     <Compile Include="Packets\ToClient\P022_FIXMEInvalidateAgentModel.cs" />
     <Compile Include="Packets\ToClient\Packet220.cs" />
     <Compile Include="Packets\ToClient\P221_UpdateFactionPts.cs" />
-    <Compile Include="Packets\ToClient\Packet222.cs" />
-    <Compile Include="Packets\ToClient\Packet223.cs" />
-    <Compile Include="Packets\ToClient\Packet224.cs" />
-    <Compile Include="Packets\ToClient\Packet225.cs" />
+    <Compile Include="Packets\ToClient\P222_UpdateMaxKurzickFaction.cs" />
+    <Compile Include="Packets\ToClient\P223_UpdateMaxLuxonFaction.cs" />
+    <Compile Include="Packets\ToClient\P224_UpdateMaxBalthazarFaction.cs" />
+    <Compile Include="Packets\ToClient\P225_UpdateMaxImperialFaction.cs" />
     <Compile Include="Packets\ToClient\Packet226.cs" />
     <Compile Include="Packets\ToClient\Packet227.cs" />
     <Compile Include="Packets\ToClient\P228_UpdateVitalStats.cs" />
@@ -486,7 +486,7 @@
     <Compile Include="Packets\ToClient\Packet276.cs" />
     <Compile Include="Packets\ToClient\Packet277.cs" />
     <Compile Include="Packets\ToClient\Packet278.cs" />
-    <Compile Include="Packets\ToClient\Packet279.cs" />
+    <Compile Include="Packets\ToClient\P279_GuildGeneral.cs" />
     <Compile Include="Packets\ToClient\Packet28.cs" />
     <Compile Include="Packets\ToClient\Packet280.cs" />
     <Compile Include="Packets\ToClient\Packet281.cs" />
@@ -522,7 +522,7 @@
     <Compile Include="Packets\ToClient\P308_ItemLocation.cs" />
     <Compile Include="Packets\ToClient\P309_ItemPagePacket.cs" />
     <Compile Include="Packets\ToClient\Packet31.cs" />
-    <Compile Include="Packets\ToClient\Packet310.cs" />
+    <Compile Include="Packets\ToClient\P310_ItemStreamGoldOnCharacter.cs" />
     <Compile Include="Packets\ToClient\P311_ItemStreamGoldInStorage.cs" />
     <Compile Include="Packets\ToClient\Packet312.cs" />
     <Compile Include="Packets\ToClient\Packet313.cs" />
@@ -762,7 +762,7 @@
     <Compile Include="Packets\ToClient\Packet94.cs" />
     <Compile Include="Packets\ToClient\Packet95.cs" />
     <Compile Include="Packets\ToClient\Packet96.cs" />
-    <Compile Include="Packets\ToClient\Packet97.cs" />
+    <Compile Include="Packets\ToClient\P097_NpcUpdateWeapons.cs" />
     <Compile Include="Packets\ToClient\P098_UpdateAgentEquipment.cs" />
     <Compile Include="Packets\ToClient\Packet99.cs" />
     <Compile Include="Packets\ToLoginServer\P65285_ClientDispatchAcknowledgement.cs" />

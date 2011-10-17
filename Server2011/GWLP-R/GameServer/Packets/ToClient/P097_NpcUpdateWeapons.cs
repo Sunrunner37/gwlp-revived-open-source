@@ -7,14 +7,14 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 97)]
-        public class Packet97 : IPacket
+        public class P097_NpcUpdateWeapons : IPacket
         {
                 public class PacketSt97 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 97; } }
-                        public UInt32 ID1;
-                        public UInt32 Data1;
-                        public UInt32 Data2;
+                        public UInt32 AgentID;
+                        public UInt32 LeadhandItemLocalID;
+                        public UInt32 OffhandItemLocalID;
                 }
 
                 public void InitPacket(object parser)

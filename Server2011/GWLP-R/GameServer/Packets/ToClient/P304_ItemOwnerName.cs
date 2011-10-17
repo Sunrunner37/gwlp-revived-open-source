@@ -14,7 +14,7 @@ namespace GameServer.Packets.ToClient
                         public UInt16 Header { get { return 304; } }
                         public UInt32 ItemLocalID;
                         [PacketFieldType(ConstSize = false, MaxSize = 32)]
-                        public string CharName;
+                        public string CharName; //NO gw string
                 }
 
                 public void InitPacket(object parser)

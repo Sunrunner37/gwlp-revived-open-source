@@ -7,7 +7,7 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 279)]
-        public class Packet279 : IPacket
+        public class P279_GuildGeneral : IPacket
         {
                 public class PacketSt279 : IPacketTemplate
                 {
@@ -16,9 +16,9 @@ namespace GameServer.Packets.ToClient
                         [PacketFieldType(ConstSize = true, MaxSize = 16)]
                         public byte[] Data2;
                         [PacketFieldType(ConstSize = false, MaxSize = 32)]
-                        public string Data3;
+                        public string GuildName;
                         [PacketFieldType(ConstSize = false, MaxSize = 6)]
-                        public string Data4;
+                        public string GuildTag; //???
                         public byte Data5;
                         public byte Data6;
                         public byte Data7;
@@ -29,10 +29,10 @@ namespace GameServer.Packets.ToClient
                         public UInt16 Data12;
                         public byte Data13;
                         public byte Data14;
-                        public UInt32 Data15;
-                        public UInt32 Data16;
-                        public UInt32 Data17;
-                        public UInt32 Data18;
+                        public UInt32 Data15; //rank
+                        public UInt32 AllianceFaction;
+                        public UInt32 Rating; 
+                        public UInt32 Data18; //qualy points
                         public byte Data19;
                 }
 
