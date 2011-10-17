@@ -803,10 +803,9 @@
     <Compile Include="ServerData\DataMap.cs" />
     <Compile Include="ServerData\DataNpc.cs" />
     <Compile Include="ServerData\GameServerWorld.cs" />
-    <Compile Include="ServerData\Items\DataInventory.cs" />
+    <Compile Include="ServerData\Items\ItemDictionary.cs" />
     <Compile Include="ServerData\Items\Item.cs" />
     <Compile Include="ServerData\Items\ItemStats.cs" />
-    <Compile Include="ServerData\Items\DataStorage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServerEngine.GuildWars\ServerEngine.GuildWars.csproj">

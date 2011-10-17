@@ -105,9 +105,7 @@ namespace GameServer.ServerData
                         
                         Appearance = new byte[0];
                         
-                        Inventory = new DataInventory();
-                        
-                        Storage = new DataStorage();
+                        Items = new ItemDictionary();
                         
                         LastHeartBeat = DateTime.Now;
                         
@@ -197,8 +195,7 @@ namespace GameServer.ServerData
 
                 #region Implementation of IHasItemData
 
-                public DataInventory Inventory { get; set; }
-                public DataStorage Storage { get; set; }
+                public ItemDictionary Items { get; set; }
 
                 #endregion
 
@@ -258,5 +255,6 @@ namespace GameServer.ServerData
                 public int VitalStatus { get; set; }
 
                 #endregion
+
         }
 }

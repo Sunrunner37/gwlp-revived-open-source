@@ -86,8 +86,7 @@ namespace GameServer.ServerData
                         Attributes = new Dictionary<int, int>();
                         ChatCommands = new Dictionary<string, bool>();
 
-                        Inventory = new DataInventory();
-                        Storage = new DataStorage();
+                        Items = new ItemDictionary();
                         
                         Appearance = new byte[0];
                         ModelHash = new byte[0];
@@ -163,8 +162,7 @@ namespace GameServer.ServerData
 
                 #region Implementation of IHasItemData
 
-                public DataInventory Inventory { get; set; }
-                public DataStorage Storage { get; set; }
+                public ItemDictionary Items { get; set; }
 
                 #endregion
 
