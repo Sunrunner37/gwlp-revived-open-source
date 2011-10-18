@@ -173,9 +173,14 @@ namespace GameServer.Enums
                 GiveEnergy = 54,
 
                 /// <summary>
+                ///   Puts player into fight stance. Value:
+                ///   0
+                /// </summary>
+                FightStance = 58,
+
+                /// <summary>
                 ///   Cast a spell like usual. Value:          
                 ///   (1-?)-SkillID(?)
-                ///   miracle
                 /// </summary>
                 CastSpellAnimated = 60,
 

@@ -13,7 +13,7 @@ namespace GameServer.Packets.ToClient
                 {
                         public UInt16 Header { get { return 147; } }
                         public UInt32 ValueID;
-                        public UInt32 ID1;
+                        public UInt32 AgentID;
                         public UInt32 Value;
                 }
 

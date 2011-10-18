@@ -8,16 +8,23 @@ namespace GameServer.Enums
         public enum ItemType
         {
                 Salvage = 0,
+                Axe = 2,
+                Bow = 5,
                 Rune = 8,
                 Consumable = 9,
                 Dye = 10,
                 Material = 11,
-                Offhand = 12,
+                Focus = 12,
+                Hammer = 15,
                 Key = 18,
                 QuestItem = 21,
+                Wand = 22,
                 Staff = 26,
+                Sword = 27,
                 Kit = 29,
                 Trophy = 30,
-                Scroll = 31
+                Scroll = 31,
+                Dagger = 32,
+                Spear = 36
         }
 }

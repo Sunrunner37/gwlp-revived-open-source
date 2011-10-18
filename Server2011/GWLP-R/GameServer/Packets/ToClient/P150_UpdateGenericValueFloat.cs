@@ -13,8 +13,8 @@ namespace GameServer.Packets.ToClient
                 {
                         public UInt16 Header { get { return 150; } }
                         public UInt32 ValueID;
-                        public UInt32 ID1;
-                        public float Value; // was UInt32
+                        public UInt32 AgentID;
+                        public Single Value;
                 }
 
                 public void InitPacket(object parser)

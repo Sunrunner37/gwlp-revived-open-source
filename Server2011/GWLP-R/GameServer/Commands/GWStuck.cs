@@ -32,7 +32,7 @@ namespace GameServer.Commands
                                 {
                                         PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
                                         {
-                                                ID1 = chara.Data.AgentID.Value,
+                                                AgentID = chara.Data.AgentID.Value,
                                                 ValueID = (uint)GenericValues.FreezePlayer,
                                                 Value = 1
                                         }
@@ -67,7 +67,7 @@ namespace GameServer.Commands
                                 {
                                         PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
                                         {
-                                                ID1 = chara.Data.AgentID.Value,
+                                                AgentID = chara.Data.AgentID.Value,
                                                 ValueID = (uint)GenericValues.FreezePlayer,
                                                 Value = 0
                                         }

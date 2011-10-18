@@ -131,7 +131,7 @@ namespace GameServer.Packets.FromClient
                         {
                                 PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
                                 {
-                                        ID1 = chara.Data.AgentID.Value,
+                                        AgentID = chara.Data.AgentID.Value,
                                         ValueID = (int)GenericValues.Energy,
                                         Value = (uint)chara.Data.Energy
                                 }
@@ -143,7 +143,7 @@ namespace GameServer.Packets.FromClient
                         {
                                 PacketTemplate = new P150_UpdateGenericValueFloat.PacketSt150
                                 {
-                                        ID1 = chara.Data.AgentID.Value,
+                                        AgentID = chara.Data.AgentID.Value,
                                         ValueID = (int)GenericValues.EnergyRegen,
                                         Value = chara.Data.EnergyRegen
                                 }
@@ -157,7 +157,7 @@ namespace GameServer.Packets.FromClient
                         {
                                 PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
                                 {
-                                        ID1 = chara.Data.AgentID.Value,
+                                        AgentID = chara.Data.AgentID.Value,
                                         ValueID = (uint)GenericValues.Health,
                                         Value = (uint)chara.Data.Health
                                 }
@@ -169,7 +169,7 @@ namespace GameServer.Packets.FromClient
                         {
                                 PacketTemplate = new P150_UpdateGenericValueFloat.PacketSt150
                                 {
-                                        ID1 = chara.Data.AgentID.Value,
+                                        AgentID = chara.Data.AgentID.Value,
                                         ValueID = (int)GenericValues.HealthRegen,
                                         Value = chara.Data.HealthRegen
                                 }
@@ -183,7 +183,7 @@ namespace GameServer.Packets.FromClient
                         {
                             PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
                             {
-                                ID1 = chara.Data.AgentID.Value,
+                                AgentID = chara.Data.AgentID.Value,
                                 ValueID = (uint)GenericValues.PublicLevel,
                                 Value = chara.Data.Level
                             }
