@@ -44,7 +44,7 @@ namespace GameServer.Commands
                 PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
                 {
                     ValueID = (uint)GenericValues.CastSpellAnimated,
-                    ID1 = chara.Data.AgentID.Value,
+                    AgentID = chara.Data.AgentID.Value,
                     Value = 0x615
                 }
             };
