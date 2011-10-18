@@ -9,14 +9,14 @@ using ServerEngine.NetworkManagement;
 
 namespace ServerEngine.DataManagement
 {
-        public class World
+        public class DataManager
         {
                 protected Dictionary<Type, MultiKeyDictionary<IEnumerable<IWrapper>>> worldData;
 
                 /// <summary>
                 ///   Creates a new instance of the class
                 /// </summary>
-                public World()
+                protected DataManager()
                 {
                         worldData = new Dictionary<Type, MultiKeyDictionary<IEnumerable<IWrapper>>>();
                 }
@@ -144,9 +144,9 @@ namespace ServerEngine.DataManagement
 
                                 return true;
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
-                                Debug.WriteLine("Error: {0}[{1}] could not be kicked.", value.GetType(), netID.Value);
+                                Debug.WriteLine("Error: {0}[{1}] could not be kicked. {2}", value.GetType(), netID.Value, e.Message);
                                 return false;
                         }
                 }
@@ -155,7 +155,7 @@ namespace ServerEngine.DataManagement
                 ///   This handler should be attached to the NetworkManager's LostClient event, if necessary
                 /// </summary>
                 /// <param name="netID"></param>
-                public void LostNetworkClientHandler(NetID netID)
+                public virtual void LostNetworkClientHandler(NetID netID)
                 {
                         try
                         {
@@ -175,6 +175,27 @@ namespace ServerEngine.DataManagement
                         catch (Exception)
                         {
                                 Debug.WriteLine("Error: NetworkClient[{1}] could not be removed, although it has no connection.", netID.Value);
+                        }
+                }
+
+                /// <summary>
+                ///   Remove a value from the MultiKeyDictionaries. This will not kick the network interface, if it has any!
+                /// </summary>
+                protected bool Remove<T>(T value)
+                        where T : IEnumerable<IWrapper>
+                {
+                        try
+                        {
+                                // get the right dict
+                                var tmpDict = worldData[value.GetType()];
+
+                                // remove the value
+                                return tmpDict.RemoveAll(value);
+                        }
+                        // we've got no dict of it ;)
+                        catch (KeyNotFoundException)
+                        {
+                                return false;
                         }
                 }
         }

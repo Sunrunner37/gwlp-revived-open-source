@@ -54,10 +54,11 @@
     <Compile Include="DataManagement\IWrapper.cs" />
     <Compile Include="DataManagement\KeyEqualityComparer.cs" />
     <Compile Include="DataManagement\MultiKeyDictionary.cs" />
-    <Compile Include="DataManagement\World.cs" />
+    <Compile Include="DataManagement\DataManager.cs" />
     <Compile Include="DataManagement\WrapperExtensions.cs" />
     <Compile Include="IDManager.cs" />
     <Compile Include="NetworkManagement\ClientConnection.cs" />
+    <Compile Include="NetworkManagement\NetworkClientEventHandler.cs" />
     <Compile Include="NetworkManagement\NetworkManager.cs" />
     <Compile Include="NetworkManagement\NetworkMessage.cs" />
     <Compile Include="DataManagement\DataWrappers\NetID.cs" />

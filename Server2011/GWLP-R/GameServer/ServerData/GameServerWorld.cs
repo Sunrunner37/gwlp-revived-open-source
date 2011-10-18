@@ -15,7 +15,7 @@ using ServerEngine.GuildWars.Tools;
 
 namespace GameServer.ServerData
 {
-        public sealed class GameServerWorld : World
+        public sealed class GameServerWorld : DataManager
         {
                 /// <summary>
                 ///   Singleton instance
@@ -277,6 +277,28 @@ namespace GameServer.ServerData
                         result.Add(string.Format("[Server Uptime: ] {0}", DateTime.Now.Subtract(StartTime)));
 
                         return result;
+                }
+
+                /// <summary>
+                ///   This handler should be attached to the NetworkManager's LostClient event
+                /// </summary>
+                public override void LostNetworkClientHandler(NetID netID)
+                {
+                        try
+                        {
+                                // get the client
+                                var tmpClient = Get<DataClient>(netID);
+
+                                // remove the character from the map
+                                tmpClient.RemoveCharacter();
+
+                                // remove the client
+                                Remove(tmpClient);
+                        }
+                        catch (Exception)
+                        {
+                                Debug.WriteLine("Error: NetworkClient[{0}] could not be removed, although it has no connection.", netID.Value);
+                        }
                 }
         }
 }

@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using ServerEngine.DataManagement;
 using ServerEngine.GuildWars.DataWrappers.Maps;
 
 namespace LoginServer.ServerData
 {
-        public sealed class LoginServerWorld : World
+        public sealed class LoginServerWorld : DataManager
         {
                 /// <summary>
                 ///   Singleton instance

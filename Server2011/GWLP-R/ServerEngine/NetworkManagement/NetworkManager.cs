@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using ServerEngine.DataManagement.DataWrappers;
 using IPAddress = System.Net.IPAddress;
 
@@ -55,7 +56,7 @@ namespace ServerEngine.NetworkManagement
                 /// <summary>
                 ///   This event is triggered whenever a client connection has terminated
                 /// </summary>
-                public event NetManEventHandler LostClient;
+                public event NetworkClientEventHandler LostClient;
 
                 /// <summary>
                 ///   Starts the TCP listeners on the given ports
@@ -73,52 +74,60 @@ namespace ServerEngine.NetworkManagement
                 /// </summary>
                 public void MainTask()
                 {
-                        // Check for incoming connections
-                        if (tcpListener.Pending())
+                        lock (objLock)
                         {
-                                // check utilization
-                                if (clients.Count <= maxClients)
+                                // Check for incoming connections
+                                if (tcpListener.Pending())
                                 {
-                                        // Accept the client
-                                        var newClient = tcpListener.AcceptTcpClient();
-
-                                        // Create a new ClientConnetion object, pass the tcpClient
-                                        var tmpNetID = netIDs.RequestID();
-                                        clients.Add(tmpNetID, new ClientConnection(tmpNetID, newClient));
-
-                                        // note that we dont need an AddClient event, as the client will be added when the new packet arrives
-                                }
-                                else
-                                {
-                                        Debug.WriteLine("Client maximum reached.");
-                                }
-                        }
-
-                        // Distribute the client messages
-                        NetworkMessage netMsg;
-                        if (QueuingService.NetOutQueue.TryPeek(out netMsg))
-                        {
-                                ClientConnection client;
-                                if (clients.TryGetValue(netMsg.NetID.Value, out client))
-                                {
-                                        // Enqueue a new message from the global message queue
-                                        if (!client.IsTerminated && QueuingService.NetOutQueue.TryDequeue(out netMsg))
+                                        // check utilization
+                                        if (clients.Count <= maxClients)
                                         {
-                                                client.ConOutQueue.Enqueue(netMsg);
+                                                // Accept the client
+                                                var newClient = tcpListener.AcceptTcpClient();
+
+                                                // Create a new ClientConnetion object, pass the tcpClient
+                                                var tmpNetID = netIDs.RequestID();
+                                                var tmpClient = new ClientConnection(new NetID(tmpNetID), newClient.Client);
+
+                                                // add event handler
+                                                tmpClient.LostConnection += RemoveClient;
+
+                                                // add the client
+                                                clients.Add(tmpNetID, tmpClient);
+                                        }
+                                        else
+                                        {
+                                                Debug.WriteLine("Client maximum reached.");
                                         }
                                 }
-                        }
 
-                        // Refresh the clients / Remove them if they have terminated their connection
-                        var terminatedClients = clients.Values.Where(cl => !cl.Refresh()).ToList();
+                                // Distribute the client messages
+                                // Determines how many tasks will be created as a maximum.
+                                var msgCount = QueuingService.NetOutQueue.Count;
+                                var taskCount = (msgCount > 10) ? 10 : msgCount;
 
-                        foreach (var tcl in terminatedClients)
-                        {
-                                lock (objLock)
+                                Parallel.For(0, taskCount, delegate(int i)
                                 {
-                                        // the following will do every thing for us
-                                        // (termination check, remove, free id, event trigger etc.)
-                                        clients.Remove(tcl.NetID);
+                                        NetworkMessage netMsg;
+                                        if (QueuingService.NetOutQueue.TryPeek(out netMsg))
+                                        {
+                                                ClientConnection client;
+                                                if (clients.TryGetValue(netMsg.NetID.Value, out client))
+                                                {
+                                                        // Enqueue a new message from the global message queue
+                                                        if (QueuingService.NetOutQueue.TryDequeue(out netMsg))
+                                                        {
+                                                                client.OutgoingQueue.Enqueue(netMsg);
+                                                        }
+                                                }
+                                        }
+                                });
+
+                                // Refresh the clients
+                                // when a client has lost its connection, it will automatically remove the itself
+                                for (int i = 0; i < clients.Values.Count; i++)
+                                {
+                                        clients.Values.ElementAt(i).Refresh();
                                 }
                         }
                 }
@@ -136,11 +145,8 @@ namespace ServerEngine.NetworkManagement
                                 ClientConnection client;
                                 if (!clients.TryGetValue(netID.Value, out client)) return;
 
-                                // Check client for termination first
-                                if (!client.IsTerminated)
-                                {
-                                        client.Terminate();
-                                }
+                                // terminate any network connection of the client
+                                client.Disconnect();
 
                                 // Remove it
                                 clients.Remove(netID.Value);
@@ -177,18 +183,13 @@ namespace ServerEngine.NetworkManagement
                                 clientPort = 0;
 
                                 ClientConnection client;
+                                // failcheck
                                 if (!clients.TryGetValue(netID.Value, out client)) return false;
-                                if (!client.IsTerminated)
-                                {
-                                        clientIP = client.IP;
-                                        clientPort = (uint)client.Port;
-                                        return true;
-                                }
 
-                                // remove if terminated
-                                RemoveClient(netID);
-
-                                return false;
+                                // get the client's network stats
+                                clientIP = client.IP;
+                                clientPort = (uint)client.Port;
+                                return true;
                         }
                 }
 
@@ -202,23 +203,29 @@ namespace ServerEngine.NetworkManagement
                 {
                         lock (objLock)
                         {
-                                var netID = -1;
-
                                 try
                                 {
                                         // Open a new connection
                                         var newClient = new TcpClient(ip, port);
 
-                                        // Create a new client and add it to the server connections list
-                                        netID = netIDs.RequestID();
-                                        clients.Add(netID, new ClientConnection(netID, newClient));
+                                        // Create a new ClientConnetion object, pass the tcpClient
+                                        var tmpNetID = netIDs.RequestID();
+                                        var tmpClient = new ClientConnection(new NetID(tmpNetID), newClient.Client);
+
+                                        // add event handler
+                                        tmpClient.LostConnection += RemoveClient;
+
+                                        // add the client
+                                        clients.Add(tmpNetID, tmpClient);
+
+                                        return new NetID(tmpNetID);
                                 }
                                 catch (Exception e)
                                 {
                                         Debug.Fail("The connection could not be created.", e.ToString());
                                 }
 
-                                return new NetID(netID);
+                                return new NetID(-1);
                         }
                 }
 
@@ -233,12 +240,4 @@ namespace ServerEngine.NetworkManagement
                         }
                 }
         }
-
-        /// <summary>
-        ///   This delegate represents handler methods for network manager events
-        /// </summary>
-        /// <param name="netID">
-        ///   This is to identify the client that triggered the event
-        /// </param>
-        public delegate void NetManEventHandler(NetID netID);
 }

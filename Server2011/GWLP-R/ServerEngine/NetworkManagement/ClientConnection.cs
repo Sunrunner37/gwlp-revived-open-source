@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Timers;
 using ServerEngine.DataManagement.DataWrappers;
 
@@ -11,13 +12,16 @@ namespace ServerEngine.NetworkManagement
 {
         internal sealed class ClientConnection
         {
-                private readonly Queue<NetworkMessage> conOutQueue;
-                private readonly NetworkStream netStream;
+                private readonly object objLock = new object();
+
+                private const int RecieveTimeout = 1000;
+                private const int SendTimeout = 1000;
+
+                private readonly Queue<NetworkMessage> outgoingQueue;
                 private DateTime lastWrittenPacket;
                 private DateTime lastConCheck;
-                private readonly TcpClient tcpConnection;
-                private readonly int netID;
-
+                private readonly Socket socket;
+                private readonly NetID netID;
 
                 /// <summary>
                 ///   Initializes a new instance of the class.
@@ -25,32 +29,36 @@ namespace ServerEngine.NetworkManagement
                 /// <param name="netID">
                 ///   The unique ID of this client connection object.
                 /// </param>
-                /// <param name="tcpClient">
-                ///   The TCP client object.
+                /// <param name="socket">
+                ///   The TCP network socket.
                 /// </param>
-                public ClientConnection(int netID, TcpClient tcpClient)
+                public ClientConnection(NetID netID, Socket socket)
                 {
                         this.netID = netID;
 
-                        tcpConnection = tcpClient;
-                        netStream = tcpClient.GetStream();
+                        this.socket = socket;
+                        this.socket.ReceiveTimeout = RecieveTimeout;
+                        this.socket.SendTimeout = SendTimeout;
 
-                        IsTerminated = false;
-
-                        conOutQueue = new Queue<NetworkMessage>();
+                        outgoingQueue = new Queue<NetworkMessage>();
                         lastWrittenPacket = DateTime.Now;
                         lastConCheck = DateTime.Now;
                 }
 
+                ~ClientConnection()
+                {
+                        socket.Dispose();
+                }
+
                 /// <summary>
-                ///   This property determines whether a client connection has been terminated
+                ///   This event is triggered when the connection to the client is lost
                 /// </summary>
-                public bool IsTerminated { get; private set; }
+                public event NetworkClientEventHandler LostConnection;
 
                 /// <summary>
                 ///   This property contains the network ID of the client
                 /// </summary>
-                public int NetID
+                public NetID NetID
                 {
                         get { return netID; }
                 }
@@ -60,7 +68,7 @@ namespace ServerEngine.NetworkManagement
                 /// </summary>
                 public int Port
                 {
-                        get { return ((IPEndPoint)tcpConnection.Client.RemoteEndPoint).Port; }
+                        get { return ((IPEndPoint)socket.RemoteEndPoint).Port; }
                 }
 
                 /// <summary>
@@ -68,136 +76,143 @@ namespace ServerEngine.NetworkManagement
                 /// </summary>
                 public byte[] IP
                 {
-                        get { return ((IPEndPoint)tcpConnection.Client.RemoteEndPoint).Address.GetAddressBytes(); }
+                        get { return ((IPEndPoint)socket.RemoteEndPoint).Address.GetAddressBytes(); }
                 }
 
                 /// <summary>
                 ///   This property contains all messages that have to be send.
                 /// </summary>
-                public Queue<NetworkMessage> ConOutQueue
+                public Queue<NetworkMessage> OutgoingQueue
                 {
-                        get { return conOutQueue; }
+                        get { return outgoingQueue; }
                 }
 
                 /// <summary>
-                ///   This refreshes the network connection, and writes/reads
-                ///   packets if necessary.
-                ///   This must be called by the <c>ClientManager</c> object
+                ///   Writes/reads packets if necessary.
                 /// </summary>
-                /// <returns>
-                ///   Returns false if the client connection has been terminated.
-                /// </returns>
-                public bool Refresh()
+                public void Refresh()
                 {
-                        // termination check
-                        if (IsTerminated) return false;
-
-                        // Check for connection
-                        if(DateTime.Now.Subtract(lastConCheck).TotalMilliseconds > 10)
+                        lock (objLock)
                         {
-                                if (!IsConnected())
+
+                                // connection check
+                                if (!IsConnected()) return;
+
+                                // read data if possible
+                                if (socket.Available > 0)
                                 {
-                                        Terminate();
-                                        return false;
+                                        NetworkMessage tmpPck;
+
+                                        if (ReadPacket(out tmpPck))
+                                        {
+                                                // if everything went correctly, enqueue the new packet
+                                                QueuingService.NetInQueue.Enqueue(tmpPck);
+                                        }
                                 }
 
-                                lastConCheck = DateTime.Now;
-                        }
-                        
-                        // read data if possible
-                        if (netStream.DataAvailable)
-                        {
-                                var tmpPck = ReadPacket();
-
-                                // failcheck
-                                if (tmpPck != null)
+                                // write data if there is any and the time is ok
+                                if (DateTime.Now.Subtract(lastWrittenPacket).TotalMilliseconds > 5 &&
+                                    outgoingQueue.Count != 0)
                                 {
-                                        QueuingService.NetInQueue.Enqueue(tmpPck);
+                                        // send this packet
+                                        var tmpMsg = outgoingQueue.Dequeue();
+                                        if (WritePacket(tmpMsg))
+                                        {
+                                                lastWrittenPacket = DateTime.Now;
+                                        }
                                 }
                         }
-
-                        // write data if there is any and the time is ok
-                        if (DateTime.Now.Subtract(lastWrittenPacket).TotalMilliseconds > 5 && conOutQueue.Count != 0)
-                        {
-                                // send this packet
-                                var tmpMsg = conOutQueue.Dequeue();
-                                WritePacket(tmpMsg);
-
-                                lastWrittenPacket = DateTime.Now;
-                        }
-
-                        // this returns false if the refresh failed because the client connection has terminated
-                        return !IsTerminated;
                 }
 
                 /// <summary>
                 ///   This terminates the network connections.
                 /// </summary>
-                public void Terminate()
+                public void Disconnect()
                 {
-                        // termination check
-                        if (IsTerminated) return;
+                        lock (objLock)
+                        {
+                                // connection check
+                                if (!IsConnected()) return;
 
-                        IsTerminated = true;
-
-                        netStream.Close();
-                        tcpConnection.Close();
-
-                        Debug.WriteLine("Lost connection to Client[{0}].", netID);
+                                OnConnectionLost();
+                        }
                 }
 
-                /// <summary>
-                ///   Recieves a packet from the current network stream. (helps by automatic decryption if necessary)
-                /// </summary>
-                /// <returns>
-                ///   Returns the message if there were no errors,
-                ///   else returns an invalid message with <c>InternalMessage(0, 0, new List of byte'())</c>.
-                /// </returns>
-                private NetworkMessage ReadPacket()
+                private bool ReadPacket(out NetworkMessage netMessage)
                 {
-                        // termination check
-                        if (IsTerminated) return null;
+                        // create a new network message
+                        netMessage = new NetworkMessage(netID);
+                        var tmpData = new List<byte>();
 
-                        var result = new List<byte>();
+                        // connection check
+                        if (!socket.Connected) return false;
 
-                        while (netStream.DataAvailable)
+                        // get the data if any is available
+                        while (socket.Available > 0)
                         {
-                                result.Add((byte)netStream.ReadByte());
+                                var buffer = new byte[socket.Available];
+
+                                try
+                                {
+                                        // read data from the socket
+                                        socket.Receive(buffer);
+
+                                        // save it to the temporary byte list
+                                        tmpData.AddRange(buffer);
+
+                                        // debug output
+                                        Debug.WriteLine("-->" + BitConverter.ToString(tmpData.ToArray()).Replace("-", " "));
+                                }
+                                catch (SocketException e)
+                                {
+
+                                        if (e.SocketErrorCode == SocketError.WouldBlock ||
+                                        e.SocketErrorCode == SocketError.IOPending ||
+                                        e.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
+                                        {
+                                                // socket buffer is probably full, wait and try again
+                                                Thread.Sleep(30);
+                                        }
+                                        else
+                                                return false;
+                                }
                         }
 
-                        Debug.WriteLine("-->"+BitConverter.ToString(result.ToArray()).Replace("-", " "));
-
-                        return new NetworkMessage(new NetID(netID))
-                        {
-                                PacketData = new MemoryStream(result.ToArray())
-                        };
+                        // everything finished, return true
+                        netMessage.PacketData = new MemoryStream(tmpData.ToArray());
+                        return true;
                 }
 
-                /// <summary>
-                ///   Sends a packet via the current network stream. (helps by automatic encryption if necessary)
-                /// </summary>
-                /// <param name="netMessage">
-                ///   The message that has to be send
-                /// </param>
-                private void WritePacket(NetworkMessage netMessage)
+                private bool WritePacket(NetworkMessage netMessage)
                 {
-                        // termination check
-                        if (IsTerminated) return;
+                        // connection check
+                        if (!socket.Connected) return false;
 
+                        // try sending the raw packet data
                         try
                         {
-                                tcpConnection.Client.Send(netMessage.PacketData.ToArray());//, 0, (int)netMessage.PacketData.Length);
+                                // write the data
+                                socket.Send(netMessage.PacketData.ToArray());
 
+                                // debug output
                                 if (netMessage.Header != 19)
                                         Debug.WriteLine(BitConverter.ToString(netMessage.PacketData.ToArray()).Replace("-", " "));
                         }
-                        catch (Exception)
+                        catch (SocketException e)
                         {
-                                
-                                Debug.WriteLine("Failed to send data to Client[{0}]", netID);
-                                Terminate();
+
+                                if (e.SocketErrorCode == SocketError.WouldBlock ||
+                                e.SocketErrorCode == SocketError.IOPending ||
+                                e.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
+                                {
+                                        // socket buffer is probably full, wait and try again
+                                        Thread.Sleep(30);
+                                }
+                                else
+                                        return false;  // any serious error occurr
                         }
-                        
+
+                        return true;
                 }
 
                 /// <summary>
@@ -208,17 +223,43 @@ namespace ServerEngine.NetworkManagement
                 /// </returns>
                 private bool IsConnected()
                 {
-                        // termination check
-                        if (IsTerminated) return false;
+                        if (!socket.Connected)
+                        {
+                                return false;
+                        }
 
                         try
                         {
-                                return !(tcpConnection.Client.Poll(1, SelectMode.SelectRead) && tcpConnection.Client.Available == 0);
+                                if (socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0)
+                                {
+                                        OnConnectionLost();
+                                        return false;
+                                }
+
+                                return true;
                         }
                         catch (SocketException)
                         {
-                                Debug.WriteLine("Failed to send connection-check data to Client[{0}]", netID);
+                                Debug.WriteLine("Failed to check connection of Client[{0}]", netID.Value);
                                 return false;
+                        }
+                }
+
+                /// <summary>
+                ///   This method triggers the LostClient event
+                /// </summary>
+                private void OnConnectionLost()
+                {
+                        if (LostConnection != null)
+                        {
+                                // disconnect the socket
+                                socket.Disconnect(false);
+
+                                // debug output
+                                Debug.WriteLine("Lost connection to Client[{0}].", netID.Value);
+
+                                // trigger event
+                                LostConnection(netID);
                         }
                 }
         }
