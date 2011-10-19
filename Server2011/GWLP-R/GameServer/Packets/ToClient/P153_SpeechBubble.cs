@@ -7,14 +7,14 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 153)]
-        public class Packet153 : IPacket
+        public class P153_SpeechBubble : IPacket
         {
                 public class PacketSt153 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 153; } }
-                        public UInt32 ID1;
+                        public UInt32 AgentID;
                         [PacketFieldType(ConstSize = false, MaxSize = 122)]
-                        public string Data1;
+                        public string TextInBubble;
                 }
 
                 public void InitPacket(object parser)

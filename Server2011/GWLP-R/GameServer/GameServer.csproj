@@ -353,7 +353,7 @@
     <Compile Include="Packets\ToClient\P150_UpdateGenericValueFloat.cs" />
     <Compile Include="Packets\ToClient\P151_InflictDamage.cs" />
     <Compile Include="Packets\ToClient\Packet152.cs" />
-    <Compile Include="Packets\ToClient\Packet153.cs" />
+    <Compile Include="Packets\ToClient\P153_SpeechBubble.cs" />
     <Compile Include="Packets\ToClient\P154_UpdatePublicProfessions.cs" />
     <Compile Include="Packets\ToClient\Packet155.cs" />
     <Compile Include="Packets\ToClient\Packet156.cs" />
