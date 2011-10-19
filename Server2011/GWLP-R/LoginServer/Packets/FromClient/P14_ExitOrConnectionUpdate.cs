@@ -32,6 +32,10 @@ namespace LoginServer.Packets.FromClient
                         pParser(pack, message.PacketData);
                         
                         var client= LoginServerWorld.Instance.Get<DataClient>(message.NetID);
+
+                        // check if it already disconnected
+                        if (client == null) return true;
+
                         switch (pack.ExitCode)
                         {
                                 // possible exit

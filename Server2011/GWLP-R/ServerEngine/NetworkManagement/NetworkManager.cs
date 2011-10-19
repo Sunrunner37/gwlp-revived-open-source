@@ -120,6 +120,11 @@ namespace ServerEngine.NetworkManagement
                                                                 client.OutgoingQueue.Enqueue(netMsg);
                                                         }
                                                 }
+                                                else
+                                                {
+                                                        // just dequeue the message because the recipient has disconnected
+                                                        QueuingService.NetOutQueue.TryDequeue(out netMsg);
+                                                }
                                         }
                                 });
 

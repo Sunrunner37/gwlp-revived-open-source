@@ -96,7 +96,11 @@ namespace ServerEngine.NetworkManagement
                         {
 
                                 // connection check
-                                if (!IsConnected()) return;
+                                if (!IsConnected())
+                                {
+                                        OnConnectionLost();
+                                        return;
+                                }
 
                                 // read data if possible
                                 if (socket.Available > 0)
@@ -129,13 +133,8 @@ namespace ServerEngine.NetworkManagement
                 /// </summary>
                 public void Disconnect()
                 {
-                        lock (objLock)
-                        {
-                                // connection check
-                                if (!IsConnected()) return;
 
-                                OnConnectionLost();
-                        }
+                        socket.Disconnect(false);
                 }
 
                 private bool ReadPacket(out NetworkMessage netMessage)
@@ -146,7 +145,7 @@ namespace ServerEngine.NetworkManagement
 
                         // connection check
                         if (!socket.Connected) return false;
-
+                        
                         // get the data if any is available
                         while (socket.Available > 0)
                         {
@@ -185,6 +184,9 @@ namespace ServerEngine.NetworkManagement
 
                 private bool WritePacket(NetworkMessage netMessage)
                 {
+                        // failcheck
+                        if (netMessage == null) return false;
+
                         // connection check
                         if (!socket.Connected) return false;
 
@@ -232,7 +234,9 @@ namespace ServerEngine.NetworkManagement
                         {
                                 if (socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0)
                                 {
-                                        OnConnectionLost();
+                                        // if theres no connection anymore
+                                        // disconnect the socket
+                                        socket.Disconnect(false);
                                         return false;
                                 }
 
@@ -252,7 +256,7 @@ namespace ServerEngine.NetworkManagement
                 {
                         if (LostConnection != null)
                         {
-                                // disconnect the socket
+                                // disconnect the socket (if it isnt already disconnected)
                                 socket.Disconnect(false);
 
                                 // debug output

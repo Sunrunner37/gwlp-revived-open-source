@@ -6,7 +6,7 @@
                 ///   Explicit ToString override, because wrapper structs' ToString will hide the properties
                 /// </summary>
                 /// <returns></returns>
-                int Hash();
+                ulong Hash();
         }
 
         public interface IWrapper<out T> : IWrapper

@@ -351,16 +351,27 @@ namespace ServerEngine.PacketManagement
                                         var header = BitConverter.ToUInt16(buffer, 0);
 
                                         IPacket pck;
-                                        packetInDict.TryGetValue(header, out pck);
-
-
-                                        if (pck == null || !pck.Handler(ref tmpMessage))
+                                        if (packetInDict.TryGetValue(header, out pck))
                                         {
-                                                throw new Exception(string.Format("Was unable to handle packet [{0}]. Missing packet handler?", header));
-                                        }
+                                                // info stuff
+                                                Debug.WriteLine(string.Format("< {0}--> {1} >", tmpMessage.NetID.Value, pck.GetType().Name));
 
-                                        // info stuff
-                                        Debug.WriteLine(string.Format("< {0}--> {1} >", tmpMessage.NetID.Value, pck.GetType().Name));
+                                                // try to handle the packet
+                                                try
+                                                {
+                                                        pck.Handler(ref tmpMessage);
+                                                }
+                                                catch (Exception e)
+                                                {
+                                                        // possibly we've got a fail within the packet handler code, so display what has happened
+                                                        Debug.WriteLine(string.Format("Error in packet [{0}]: {1}", header, e.Message));
+                                                }
+                                        }
+                                        else
+                                        {
+                                                // we've got no packet header (should never happen, because we dumped everything possible)
+                                                Debug.WriteLine(string.Format("Was unable to handle packet [{0}]. Missing packet handler?", header));
+                                        }
                                 }
                         });
 
@@ -376,16 +387,27 @@ namespace ServerEngine.PacketManagement
                                 QueuingService.PostProcessingQueue.TryDequeue(out tmpMessage);
 
                                 IPacket pck;
-                                packetOutDict.TryGetValue(tmpMessage.Header, out pck);
-
-                                if (pck == null || !pck.Handler(ref tmpMessage))
+                                if (packetOutDict.TryGetValue(tmpMessage.Header, out pck))
                                 {
-                                        throw new Exception(
-                                                string.Format("Was unable to handle packet [{0}]. Missing packet handler?", tmpMessage.Header));
-                                }
+                                        // info stuff
+                                        Debug.WriteLine(string.Format("< -->{0} {1} >", tmpMessage.NetID.Value, pck.GetType().Name));
 
-                                // info stuff
-                                Debug.WriteLine(string.Format("< -->{0} {1} >", tmpMessage.NetID.Value, pck.GetType().Name));
+                                        // try to handle the packet
+                                        try
+                                        {
+                                                pck.Handler(ref tmpMessage);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                                // possibly we've got a fail within the packet handler code, so display what has happened
+                                                Debug.WriteLine(string.Format("Error in packet [{0}]: {1}", tmpMessage.Header, e.Message));
+                                        }
+                                }
+                                else
+                                {
+                                        // we've got no packet header (should never happen, because we dumped everything possible)
+                                        Debug.WriteLine(string.Format("Was unable to compile packet [{0}]. Missing packet handler?", tmpMessage.Header));
+                                }
                         }
                 }
         }

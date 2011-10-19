@@ -167,14 +167,12 @@ namespace ServerEngine.DataManagement
                                         {
                                                 // remove the old value
                                                 dict.RemoveAll(tmpValue);
-
-                                                break;
                                         }
                                 }
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
-                                Debug.WriteLine("Error: NetworkClient[{1}] could not be removed, although it has no connection.", netID.Value);
+                                Debug.WriteLine(string.Format("Error: NetworkClient[{0}] could not be removed, although it has no connection. {1}", netID.Value, e.Message));
                         }
                 }
 

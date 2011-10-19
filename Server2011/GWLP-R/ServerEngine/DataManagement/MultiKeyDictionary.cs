@@ -11,7 +11,7 @@ namespace ServerEngine.DataManagement
         {
                 private readonly object objLock = new object();
 
-                private readonly Dictionary<int, TValue> dicts;
+                private readonly Dictionary<ulong, TValue> dicts;
                 private readonly Dictionary<TValue, int> values;
 
                 /// <summary>
@@ -19,7 +19,7 @@ namespace ServerEngine.DataManagement
                 /// </summary>
                 public MultiKeyDictionary()
                 {
-                        dicts = new Dictionary<int, TValue>();
+                        dicts = new Dictionary<ulong, TValue>();
                         values = new Dictionary<TValue, int>();
                 }
 
@@ -81,6 +81,8 @@ namespace ServerEngine.DataManagement
                                                 if (!AddOnly(key, value))
                                                 {
                                                         result = false;
+
+                                                        break;
                                                 }
                                         }
 

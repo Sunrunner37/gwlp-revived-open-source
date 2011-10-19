@@ -126,8 +126,7 @@ namespace GameServer.ServerData
                 /// <summary>
                 ///   Try to remove a character
                 /// </summary>
-                public bool Remove<TData>(IIdentifiableData<TData> value)
-                        where TData : class, IHasClientData, IHasCharData, IHasNetworkData
+                public bool Remove(DataCharacter value)
                 {
                         var netID = value.Data.NetID;
 
@@ -148,7 +147,7 @@ namespace GameServer.ServerData
                                 }
 
                                 // add the action
-                                data.ActionQueue.Enqueue(new DespawnPlayer(value.Data.CharID).Execute);
+                                data.ActionQueue.Enqueue(new DespawnPlayer(value).Execute);
 
                                 // message
                                 Debug.WriteLine("{0}[{1}] removed from map.", value.GetType(), netID.Value);

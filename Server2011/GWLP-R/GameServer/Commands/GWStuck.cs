@@ -39,7 +39,7 @@ namespace GameServer.Commands
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(freeze);
 
-                                // Note: INVALIDATE AGENT MODEL
+                                // Note: DESPAWN AGENT
                                 var imod = new NetworkMessage(netID)
                                 {
                                         PacketTemplate = new P022_DespawnObject.PacketSt22

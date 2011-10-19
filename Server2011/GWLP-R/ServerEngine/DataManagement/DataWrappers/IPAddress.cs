@@ -11,9 +11,10 @@ namespace ServerEngine.DataManagement.DataWrappers
                         Value = value;
                 }
 
-                public int Hash()
+                public ulong Hash()
                 {
-                        return (BitConverter.ToString(Value).GetHashCode() << 16) | GetType().GetHashCode();
+                        return (((ulong)GetType().GetHashCode() << 32) & 0xFFFFFFFF00000000) |
+                               ((ulong)BitConverter.ToInt32(Value, 0).GetHashCode() & 0x00000000FFFFFFFF);
                 }
         }
 }

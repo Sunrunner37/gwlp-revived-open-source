@@ -295,9 +295,9 @@ namespace GameServer.ServerData
                                 // remove the client
                                 Remove(tmpClient);
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
-                                Debug.WriteLine("Error: NetworkClient[{0}] could not be removed, although it has no connection.", netID.Value);
+                                Debug.WriteLine(string.Format("Error: NetworkClient[{0}] could not be removed, although it has no connection. {1}", netID.Value, e.Message));
                         }
                 }
         }

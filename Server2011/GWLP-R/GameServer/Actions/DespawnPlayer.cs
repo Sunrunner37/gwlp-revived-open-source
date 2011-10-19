@@ -10,11 +10,11 @@ namespace GameServer.Actions
 {
         public class DespawnPlayer : IAction
         {
-                private readonly CharID newCharID;
+                private readonly DataCharacter chara;
 
-                public DespawnPlayer(CharID charID)
+                public DespawnPlayer(DataCharacter chara)
                 {
-                        newCharID = charID;
+                        this.chara = chara;
                 }
 
                 public void Execute(DataMap map)
@@ -23,26 +23,24 @@ namespace GameServer.Actions
                         // the following linq expression returns an IEnumerable<CharID> of all characters on that map
                         foreach (var charID in map.GetAll<DataCharacter>().Select(x => x.Data.CharID))
                         {
-                                if (newCharID.Value != charID.Value)
+                                if (chara.Data.CharID.Value != charID.Value)
                                 {
-                                        CreatePackets(newCharID, charID);
+                                        CreatePackets(chara, charID);
                                 }
                         }
                 }
 
-                private static void CreatePackets(CharID senderCharID, CharID recipientCharID)
+                private static void CreatePackets(DataCharacter senderChara, CharID recipientCharID)
                 {
-                        var chara = GameServerWorld.Instance.Get<DataClient>(senderCharID).Character;
-
                         // get the recipient of all those packets
                         var reNetID = GameServerWorld.Instance.Get<DataClient>(recipientCharID).Data.NetID;
 
                         // Note: REMOVE PLAYER
-                        var despawnAgent = new NetworkMessage(chara.Data.NetID)
+                        var despawnAgent = new NetworkMessage(reNetID)
                         {
                                 PacketTemplate = new P022_DespawnObject.PacketSt22
                                 {
-                                        AgentID = chara.Data.AgentID.Value,
+                                        AgentID = senderChara.Data.AgentID.Value,
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(despawnAgent);
