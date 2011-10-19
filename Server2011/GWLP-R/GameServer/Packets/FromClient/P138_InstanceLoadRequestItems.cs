@@ -51,7 +51,7 @@ namespace GameServer.Packets.FromClient
                         // Note: ITEM STREAM HEAD2
                         var head2 = new NetworkMessage(message.NetID)
                         {
-                                PacketTemplate = new P318_ItemStreamActiveWeaponslot.PacketSt318
+                                PacketTemplate = new P318_UpdateActiveWeaponslot.PacketSt318
                                 {
                                         ItemStreamID = itemStreamID,
                                         ActiveWeaponSlot = 0,

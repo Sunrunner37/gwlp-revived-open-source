@@ -300,7 +300,7 @@ namespace GameServer.Actions
                         // Note: UPDATE AGENT EQUIPMENT
                         var charEquip = new NetworkMessage(reNetID)
                         {
-                                PacketTemplate = new P098_UpdateAgentEquipment.PacketSt98
+                                PacketTemplate = new P098_UpdateAgentFullEquipment.PacketSt98
                                 {
                                         ID1 = chara.Data.AgentID.Value,
                                         Weapon1 = 0,

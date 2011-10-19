@@ -6,26 +6,26 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.ToClient
 {
-        [PacketAttributes(IsIncoming = false, Header = 323)]
-        public class Packet323 : IPacket
+        [PacketAttributes(IsIncoming = false, Header = 335)]
+        public class P335_RemoveAgent : IPacket //like removing an item from the ground when its picked up
         {
-                public class PacketSt323 : IPacketTemplate
+                public class PacketSt335 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 323; } }
-                        public UInt16 Data1;
-                        public UInt32 Data2;
+                        public UInt16 Header { get { return 335; } }
+                        public UInt32 AgentLocalID;
+                        public UInt16 Data2; // always 6?
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt323>)parser;
+                        pParser = (PacketParser<PacketSt335>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
 
                 public bool Handler(ref NetworkMessage message)
                 {
-                        pParser((PacketSt323)message.PacketTemplate, message.PacketData);
+                        pParser((PacketSt335)message.PacketTemplate, message.PacketData);
                         QueuingService.NetOutQueue.Enqueue(message);
                         return true;
                 }
@@ -34,7 +34,7 @@ namespace GameServer.Packets.ToClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt323> pParser;
+                private PacketParser<PacketSt335> pParser;
 
         }
 }

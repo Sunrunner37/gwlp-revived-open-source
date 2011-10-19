@@ -6,26 +6,29 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.ToClient
 {
-        [PacketAttributes(IsIncoming = false, Header = 306)]
-        public class Packet306 : IPacket
+        [PacketAttributes(IsIncoming = false, Header = 54)]
+        public class P054_ApplySkillEffect : IPacket
         {
-                public class PacketSt306 : IPacketTemplate
+                public class PacketSt54 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 306; } }
-                        public byte Data1;
+                        public UInt16 Header { get { return 54; } }
+                        public UInt32 AgentID;
+                        public UInt16 SkillID;
                         public UInt32 Data2;
+                        public UInt32 SkillEffectID;
+                        public Single Duration;
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt306>)parser;
+                        pParser = (PacketParser<PacketSt54>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
 
                 public bool Handler(ref NetworkMessage message)
                 {
-                        pParser((PacketSt306)message.PacketTemplate, message.PacketData);
+                        pParser((PacketSt54)message.PacketTemplate, message.PacketData);
                         QueuingService.NetOutQueue.Enqueue(message);
                         return true;
                 }
@@ -34,7 +37,7 @@ namespace GameServer.Packets.ToClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt306> pParser;
+                private PacketParser<PacketSt54> pParser;
 
         }
 }

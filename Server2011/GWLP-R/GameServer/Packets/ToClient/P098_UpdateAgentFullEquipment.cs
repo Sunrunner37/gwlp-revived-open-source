@@ -7,21 +7,21 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 98)]
-        public class P098_UpdateAgentEquipment : IPacket
+        public class P098_UpdateAgentFullEquipment : IPacket
         {
                 public class PacketSt98 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 98; } }
                         public UInt32 ID1;
-                        public UInt32 Weapon1;
-                        public UInt32 Weapon2;
+                        public UInt32 Weapon1; // Leadhand?
+                        public UInt32 Weapon2; // Offhand?
                         public UInt32 Chest;
                         public UInt32 Feet;
                         public UInt32 Legs;
                         public UInt32 Arms;
                         public UInt32 Head;
-                        public UInt32 Data8;
-                        public UInt32 Data9;
+                        public UInt32 Data8; //costume head?
+                        public UInt32 Data9; //costume?
                 }
 
                 public void InitPacket(object parser)

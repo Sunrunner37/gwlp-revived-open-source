@@ -7,13 +7,13 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 302)]
-        public class Packet302 : IPacket
+        public class P302_HandbookEntry : IPacket
         {
                 public class PacketSt302 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 302; } }
-                        public UInt32 Data1;
-                        public byte Data2;
+                        public UInt32 Data1; //sort of handbook id
+                        public byte HandbookEntry; // 0 based
                         [PacketFieldType(ConstSize = false, MaxSize = 8)]
                         public string Data3;
                         [PacketFieldType(ConstSize = false, MaxSize = 8)]
