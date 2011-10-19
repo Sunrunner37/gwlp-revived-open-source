@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\ChatMessage.cs" />
+    <Compile Include="Actions\DespawnPlayer.cs" />
     <Compile Include="Actions\MovePlayer.cs" />
     <Compile Include="Actions\RotatePlayer.cs" />
     <Compile Include="Actions\SpawnPlayer.cs" />
@@ -426,7 +427,7 @@
     <Compile Include="Packets\ToClient\P217_SkillRecharging.cs" />
     <Compile Include="Packets\ToClient\P218_SkillRecharged.cs" />
     <Compile Include="Packets\ToClient\Packet219.cs" />
-    <Compile Include="Packets\ToClient\P022_FIXMEInvalidateAgentModel.cs" />
+    <Compile Include="Packets\ToClient\P022_DespawnObject.cs" />
     <Compile Include="Packets\ToClient\Packet220.cs" />
     <Compile Include="Packets\ToClient\P221_UpdateFactionPts.cs" />
     <Compile Include="Packets\ToClient\P222_UpdateMaxKurzickFaction.cs" />
@@ -551,7 +552,7 @@
     <Compile Include="Packets\ToClient\Packet332.cs" />
     <Compile Include="Packets\ToClient\Packet333.cs" />
     <Compile Include="Packets\ToClient\Packet334.cs" />
-    <Compile Include="Packets\ToClient\P335_RemoveAgent.cs" />
+    <Compile Include="Packets\ToClient\P335_PickupItemConfirmation.cs" />
     <Compile Include="Packets\ToClient\P336_ItemProfession.cs" />
     <Compile Include="Packets\ToClient\Packet337.cs" />
     <Compile Include="Packets\ToClient\Packet338.cs" />

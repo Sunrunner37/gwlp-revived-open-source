@@ -42,7 +42,7 @@ namespace GameServer.Commands
                                 // Note: INVALIDATE AGENT MODEL
                                 var imod = new NetworkMessage(netID)
                                 {
-                                        PacketTemplate = new P022_FIXMEInvalidateAgentModel.PacketSt22
+                                        PacketTemplate = new P022_DespawnObject.PacketSt22
                                         {
                                                 AgentID = chara.Data.AgentID.Value,
                                         }

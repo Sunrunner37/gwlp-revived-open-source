@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using GameServer.Actions;
 using GameServer.DataBase;
 using GameServer.Enums;
 using GameServer.ServerData.DataInterfaces;
@@ -123,10 +124,10 @@ namespace GameServer.ServerData
                 }
 
                 /// <summary>
-                ///   Try to remove a value that implements IIdentifiableData and IHasCharData
+                ///   Try to remove a character
                 /// </summary>
                 public bool Remove<TData>(IIdentifiableData<TData> value)
-                        where TData : class, IHasCharData, IHasNetworkData
+                        where TData : class, IHasClientData, IHasCharData, IHasNetworkData
                 {
                         var netID = value.Data.NetID;
 
@@ -145,6 +146,9 @@ namespace GameServer.ServerData
                                         data.AgentIDs.FreeID((int)value.Data.AgentID.Value);
                                         data.LocalIDs.FreeID((int)value.Data.LocalID.Value);
                                 }
+
+                                // add the action
+                                data.ActionQueue.Enqueue(new DespawnPlayer(value.Data.CharID).Execute);
 
                                 // message
                                 Debug.WriteLine("{0}[{1}] removed from map.", value.GetType(), netID.Value);
