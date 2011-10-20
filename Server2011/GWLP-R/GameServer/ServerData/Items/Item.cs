@@ -45,6 +45,41 @@ namespace GameServer.ServerData.Items
                 }
 
                 /// <summary>
+                ///   Generates a new item object, containing the basic item data copied from the MasterData table
+                ///   Note that this item has now owner (accID, charID)! do NOT save this to database as is!
+                /// </summary>
+                public static Item CreateItemStubFromDB(int dbItemID, int itemLocalID)
+                {
+                        // get the database stuff
+                        using (var db = (MySQL)DataBaseProvider.GetDataBase())
+                        {
+                                // get the master data
+                                var masterDatas = from im in db.itemsMasterData
+                                                  where im.itemID == dbItemID
+                                                  select im;
+
+                                // failcheck
+                                if (masterDatas.Count() == 0) return null;
+                                var masterData = masterDatas.First();
+
+                                // create the item
+                                var tmpItem = new Item
+                                {
+                                        Data = new ItemData
+                                        {
+                                                ItemLocalID = itemLocalID,
+                                                GameItemID = masterData.gameItemID,
+                                                GameItemFileID = masterData.gameItemFileID,
+                                                Name = masterData.name,
+                                                Type = (ItemType)Enum.ToObject(typeof(ItemType), masterData.itemType),
+                                        }
+                                };
+
+                                return tmpItem;
+                        }
+                }
+
+                /// <summary>
                 ///   Fill an item with values from the database, and set a new itemLocalID
                 ///   Note that CharID will be set to 0 if it is 0 in the db!
                 /// </summary>
