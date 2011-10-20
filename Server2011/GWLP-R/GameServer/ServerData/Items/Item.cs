@@ -68,6 +68,7 @@ namespace GameServer.ServerData.Items
                                         Data = new ItemData
                                         {
                                                 ItemLocalID = itemLocalID,
+                                                ItemID = dbItemID,
                                                 GameItemID = masterData.gameItemID,
                                                 GameItemFileID = masterData.gameItemFileID,
                                                 Name = masterData.name,
