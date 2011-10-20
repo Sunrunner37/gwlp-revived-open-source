@@ -138,6 +138,7 @@ namespace LoginServer.Packets.FromGameServer
                                             where c.charID == client.Data.CharID.Value
                                             select c;
 
+                                // when the check fails, we still return true because the packet-manager expects the packet to be incomplete otherwise.
                                 if (chars.Count() == 0) return true;
 
                                 var chara = chars.First();

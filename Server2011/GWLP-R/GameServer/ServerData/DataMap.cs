@@ -9,6 +9,7 @@ using GameServer.Actions;
 using GameServer.DataBase;
 using GameServer.Enums;
 using GameServer.ServerData.DataInterfaces;
+using GameServer.ServerData.Items;
 using ServerEngine;
 using ServerEngine.DataManagement;
 using ServerEngine.DataManagement.DataInterfaces;
@@ -26,6 +27,7 @@ namespace GameServer.ServerData
                 private readonly object objLock = new object();
 
                 private MapData data;
+                private IDManager itemLocalIDs;
 
                 /// <summary>
                 ///   Create a new instance of the class
@@ -35,6 +37,7 @@ namespace GameServer.ServerData
                         lock (objLock)
                         {
                                 this.data = data;
+                                itemLocalIDs = new IDManager(10, 1000);
 
                                 Debug.WriteLine(string.Format("Created new {0}", GetType().Name));
                         }
@@ -283,9 +286,48 @@ namespace GameServer.ServerData
                                                 charData.ChatCommands.Add(cmd.commandName, (grpID >= cmd.groupID));
                                         }
 
-                                        // add the char
+                                        // create the char
                                         newlyCreatedChar = new DataCharacter(charData);
+
+                                        // finally, load all of the char's items
+                                        LoadCharItems(newlyCreatedChar);
+
+                                        // and add it
                                         return Add(newlyCreatedChar);
+                                }
+                        }
+                }
+
+                /// <summary>
+                ///   Loads all items on the account(storage) and of the specified character and adds them to the char's itemdict
+                /// </summary>
+                /// <param name="character"></param>
+                private void LoadCharItems(DataCharacter character)
+                {
+                        // get the database stuff
+                        using (var db = (MySQL)DataBaseProvider.GetDataBase())
+                        {
+                                // get all character items (equipment, bags etc.)
+                                var itemsChara = from pi in db.itemsPerSonALData
+                                                 where pi.charID == character.Data.CharID.Value
+                                                 select pi;
+
+                                // get all storage items
+                                var itemsStorage = from pi in db.itemsPerSonALData
+                                                   where (pi.accountID == character.Data.AccID.Value) &&
+                                                         (pi.charID == 0) // meaning it is in the storage
+                                                   select pi;
+
+                                foreach (var persItem in itemsChara.Concat(itemsStorage))
+                                {
+                                        // load the item
+                                        var tmpItem = Item.LoadFromDB(persItem, itemLocalIDs.RequestID());
+
+                                        // update char id (it might be 0)
+                                        tmpItem.Data.OwnerCharID = character.Data.CharID;
+
+                                        // add the item
+                                        character.Data.Items.Add(tmpItem.Data.ItemLocalID, tmpItem);
                                 }
                         }
                 }

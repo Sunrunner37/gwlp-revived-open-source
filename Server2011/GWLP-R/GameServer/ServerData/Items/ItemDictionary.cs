@@ -16,7 +16,7 @@ namespace GameServer.ServerData.Items
                         // only containing items that are located at a specific storage
                         return this
                                 .AsEnumerable()
-                                .Where(x => x.Value.Storage == storageType)
+                                .Where(x => x.Value.Data.Storage == storageType)
                                 .ToDictionary(x => x.Key, x => x.Value);
                 }
         }

@@ -5,7 +5,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from gwlpr on 2011-10-05 23:51:07Z.
+// Auto-generated from gwlpr on 2011-10-20 22:29:38Z.
 // Please visit http://code.google.com/p/dblinq2007/ for more information.
 //
 namespace GameServer.DataBase
@@ -78,6 +78,22 @@ namespace GameServer.DataBase
 			get
 			{
 				return this.GetTable<groupsMasterData>();
+			}
+		}
+		
+		public Table<itemsMasterData> itemsMasterData
+		{
+			get
+			{
+				return this.GetTable<itemsMasterData>();
+			}
+		}
+		
+		public Table<itemsPerSonALData> itemsPerSonALData
+		{
+			get
+			{
+				return this.GetTable<itemsPerSonALData>();
 			}
 		}
 		
@@ -1740,6 +1756,546 @@ namespace GameServer.DataBase
 					this._groupPrefix = value;
 					this.SendPropertyChanged("groupPrefix");
 					this.OngroupPrefixChanged();
+				}
+			}
+		}
+		
+		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
+		
+		public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			System.ComponentModel.PropertyChangingEventHandler h = this.PropertyChanging;
+			if ((h != null))
+			{
+				h(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(string propertyName)
+		{
+			System.ComponentModel.PropertyChangedEventHandler h = this.PropertyChanged;
+			if ((h != null))
+			{
+				h(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[Table(Name="gwlpr.items_masterdata")]
+	public partial class itemsMasterData : System.ComponentModel.INotifyPropertyChanging, System.ComponentModel.INotifyPropertyChanged
+	{
+		
+		private static System.ComponentModel.PropertyChangingEventArgs emptyChangingEventArgs = new System.ComponentModel.PropertyChangingEventArgs("");
+		
+		private int _gameItemFileID;
+		
+		private int _gameItemID;
+		
+		private int _itemID;
+		
+		private int _itemType;
+		
+		private string _name;
+		
+		#region Extensibility Method Declarations
+		partial void OnCreated();
+		
+		partial void OngameItemFileIDChanged();
+		
+		partial void OngameItemFileIDChanging(int value);
+		
+		partial void OngameItemIDChanged();
+		
+		partial void OngameItemIDChanging(int value);
+		
+		partial void OnitemIDChanged();
+		
+		partial void OnitemIDChanging(int value);
+		
+		partial void OnitemTypeChanged();
+		
+		partial void OnitemTypeChanging(int value);
+		
+		partial void OnnameChanged();
+		
+		partial void OnnameChanging(string value);
+		#endregion
+		
+		
+		public itemsMasterData()
+		{
+			this.OnCreated();
+		}
+		
+		[Column(Storage="_gameItemFileID", Name="GameItemFileID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int gameItemFileID
+		{
+			get
+			{
+				return this._gameItemFileID;
+			}
+			set
+			{
+				if ((_gameItemFileID != value))
+				{
+					this.OngameItemFileIDChanging(value);
+					this.SendPropertyChanging();
+					this._gameItemFileID = value;
+					this.SendPropertyChanged("gameItemFileID");
+					this.OngameItemFileIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_gameItemID", Name="GameItemID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int gameItemID
+		{
+			get
+			{
+				return this._gameItemID;
+			}
+			set
+			{
+				if ((_gameItemID != value))
+				{
+					this.OngameItemIDChanging(value);
+					this.SendPropertyChanging();
+					this._gameItemID = value;
+					this.SendPropertyChanged("gameItemID");
+					this.OngameItemIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_itemID", Name="ItemID", DbType="int", IsPrimaryKey=true, IsDbGenerated=true, AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int itemID
+		{
+			get
+			{
+				return this._itemID;
+			}
+			set
+			{
+				if ((_itemID != value))
+				{
+					this.OnitemIDChanging(value);
+					this.SendPropertyChanging();
+					this._itemID = value;
+					this.SendPropertyChanged("itemID");
+					this.OnitemIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_itemType", Name="ItemType", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int itemType
+		{
+			get
+			{
+				return this._itemType;
+			}
+			set
+			{
+				if ((_itemType != value))
+				{
+					this.OnitemTypeChanging(value);
+					this.SendPropertyChanging();
+					this._itemType = value;
+					this.SendPropertyChanged("itemType");
+					this.OnitemTypeChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_name", Name="Name", DbType="char(28)", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public string name
+		{
+			get
+			{
+				return this._name;
+			}
+			set
+			{
+				if (((_name == value) 
+							== false))
+				{
+					this.OnnameChanging(value);
+					this.SendPropertyChanging();
+					this._name = value;
+					this.SendPropertyChanged("name");
+					this.OnnameChanged();
+				}
+			}
+		}
+		
+		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
+		
+		public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			System.ComponentModel.PropertyChangingEventHandler h = this.PropertyChanging;
+			if ((h != null))
+			{
+				h(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(string propertyName)
+		{
+			System.ComponentModel.PropertyChangedEventHandler h = this.PropertyChanged;
+			if ((h != null))
+			{
+				h(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[Table(Name="gwlpr.items_personaldata")]
+	public partial class itemsPerSonALData : System.ComponentModel.INotifyPropertyChanging, System.ComponentModel.INotifyPropertyChanged
+	{
+		
+		private static System.ComponentModel.PropertyChangingEventArgs emptyChangingEventArgs = new System.ComponentModel.PropertyChangingEventArgs("");
+		
+		private int _accountID;
+		
+		private int _charID;
+		
+		private int _creatorCharID;
+		
+		private string _creatorName;
+		
+		private int _dyeColor;
+		
+		private int _flags;
+		
+		private int _itemID;
+		
+		private long _personalItemID;
+		
+		private int _quantity;
+		
+		private int _slot;
+		
+		private byte[] _stats;
+		
+		private int _storage;
+		
+		#region Extensibility Method Declarations
+		partial void OnCreated();
+		
+		partial void OnaccountIDChanged();
+		
+		partial void OnaccountIDChanging(int value);
+		
+		partial void OncharIDChanged();
+		
+		partial void OncharIDChanging(int value);
+		
+		partial void OncreatorCharIDChanged();
+		
+		partial void OncreatorCharIDChanging(int value);
+		
+		partial void OncreatorNameChanged();
+		
+		partial void OncreatorNameChanging(string value);
+		
+		partial void OndyeColorChanged();
+		
+		partial void OndyeColorChanging(int value);
+		
+		partial void OnflagsChanged();
+		
+		partial void OnflagsChanging(int value);
+		
+		partial void OnitemIDChanged();
+		
+		partial void OnitemIDChanging(int value);
+		
+		partial void OnpersonalItemIDChanged();
+		
+		partial void OnpersonalItemIDChanging(long value);
+		
+		partial void OnquantityChanged();
+		
+		partial void OnquantityChanging(int value);
+		
+		partial void OnslotChanged();
+		
+		partial void OnslotChanging(int value);
+		
+		partial void OnstatsChanged();
+		
+		partial void OnstatsChanging(byte[] value);
+		
+		partial void OnstorageChanged();
+		
+		partial void OnstorageChanging(int value);
+		#endregion
+		
+		
+		public itemsPerSonALData()
+		{
+			this.OnCreated();
+		}
+		
+		[Column(Storage="_accountID", Name="AccountID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int accountID
+		{
+			get
+			{
+				return this._accountID;
+			}
+			set
+			{
+				if ((_accountID != value))
+				{
+					this.OnaccountIDChanging(value);
+					this.SendPropertyChanging();
+					this._accountID = value;
+					this.SendPropertyChanged("accountID");
+					this.OnaccountIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_charID", Name="CharID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int charID
+		{
+			get
+			{
+				return this._charID;
+			}
+			set
+			{
+				if ((_charID != value))
+				{
+					this.OncharIDChanging(value);
+					this.SendPropertyChanging();
+					this._charID = value;
+					this.SendPropertyChanged("charID");
+					this.OncharIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_creatorCharID", Name="CreatorCharID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int creatorCharID
+		{
+			get
+			{
+				return this._creatorCharID;
+			}
+			set
+			{
+				if ((_creatorCharID != value))
+				{
+					this.OncreatorCharIDChanging(value);
+					this.SendPropertyChanging();
+					this._creatorCharID = value;
+					this.SendPropertyChanged("creatorCharID");
+					this.OncreatorCharIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_creatorName", Name="CreatorName", DbType="char(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public string creatorName
+		{
+			get
+			{
+				return this._creatorName;
+			}
+			set
+			{
+				if (((_creatorName == value) 
+							== false))
+				{
+					this.OncreatorNameChanging(value);
+					this.SendPropertyChanging();
+					this._creatorName = value;
+					this.SendPropertyChanged("creatorName");
+					this.OncreatorNameChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_dyeColor", Name="DyeColor", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int dyeColor
+		{
+			get
+			{
+				return this._dyeColor;
+			}
+			set
+			{
+				if ((_dyeColor != value))
+				{
+					this.OndyeColorChanging(value);
+					this.SendPropertyChanging();
+					this._dyeColor = value;
+					this.SendPropertyChanged("dyeColor");
+					this.OndyeColorChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_flags", Name="Flags", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int flags
+		{
+			get
+			{
+				return this._flags;
+			}
+			set
+			{
+				if ((_flags != value))
+				{
+					this.OnflagsChanging(value);
+					this.SendPropertyChanging();
+					this._flags = value;
+					this.SendPropertyChanged("flags");
+					this.OnflagsChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_itemID", Name="ItemID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int itemID
+		{
+			get
+			{
+				return this._itemID;
+			}
+			set
+			{
+				if ((_itemID != value))
+				{
+					this.OnitemIDChanging(value);
+					this.SendPropertyChanging();
+					this._itemID = value;
+					this.SendPropertyChanged("itemID");
+					this.OnitemIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_personalItemID", Name="PersonalItemID", DbType="bigint(20)", IsPrimaryKey=true, IsDbGenerated=true, AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public long personalItemID
+		{
+			get
+			{
+				return this._personalItemID;
+			}
+			set
+			{
+				if ((_personalItemID != value))
+				{
+					this.OnpersonalItemIDChanging(value);
+					this.SendPropertyChanging();
+					this._personalItemID = value;
+					this.SendPropertyChanged("personalItemID");
+					this.OnpersonalItemIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_quantity", Name="Quantity", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int quantity
+		{
+			get
+			{
+				return this._quantity;
+			}
+			set
+			{
+				if ((_quantity != value))
+				{
+					this.OnquantityChanging(value);
+					this.SendPropertyChanging();
+					this._quantity = value;
+					this.SendPropertyChanged("quantity");
+					this.OnquantityChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_slot", Name="Slot", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int slot
+		{
+			get
+			{
+				return this._slot;
+			}
+			set
+			{
+				if ((_slot != value))
+				{
+					this.OnslotChanging(value);
+					this.SendPropertyChanging();
+					this._slot = value;
+					this.SendPropertyChanged("slot");
+					this.OnslotChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_stats", Name="Stats", DbType="blob", AutoSync=AutoSync.Never)]
+		[DebuggerNonUserCode()]
+		public byte[] stats
+		{
+			get
+			{
+				return this._stats;
+			}
+			set
+			{
+				if (((_stats == value) 
+							== false))
+				{
+					this.OnstatsChanging(value);
+					this.SendPropertyChanging();
+					this._stats = value;
+					this.SendPropertyChanged("stats");
+					this.OnstatsChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_storage", Name="Storage", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int storage
+		{
+			get
+			{
+				return this._storage;
+			}
+			set
+			{
+				if ((_storage != value))
+				{
+					this.OnstorageChanging(value);
+					this.SendPropertyChanging();
+					this._storage = value;
+					this.SendPropertyChanged("storage");
+					this.OnstorageChanged();
 				}
 			}
 		}
