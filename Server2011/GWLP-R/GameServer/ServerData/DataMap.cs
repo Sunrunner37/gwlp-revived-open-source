@@ -350,7 +350,7 @@ namespace GameServer.ServerData
                                                 if (tmpItem.Data.PersonalItemID == weaponSets[i, 0])
                                                 {
                                                         Weaponset set;
-                                                        if (character.Data.Items.Weaponsets.TryGetValue(i, out set))
+                                                        if (!character.Data.Items.Weaponsets.TryGetValue(i, out set))
                                                         {
                                                                 character.Data.Items.Weaponsets.Add(i, new Weaponset { Number = i, LeadHand = tmpItem });
                                                                 continue;
@@ -362,7 +362,7 @@ namespace GameServer.ServerData
                                                 if (tmpItem.Data.PersonalItemID == weaponSets[i, 1])
                                                 {
                                                         Weaponset set;
-                                                        if (character.Data.Items.Weaponsets.TryGetValue(i, out set))
+                                                        if (!character.Data.Items.Weaponsets.TryGetValue(i, out set))
                                                         {
                                                                 character.Data.Items.Weaponsets.Add(i, new Weaponset { Number = i, OffHand = tmpItem });
                                                                 continue;
