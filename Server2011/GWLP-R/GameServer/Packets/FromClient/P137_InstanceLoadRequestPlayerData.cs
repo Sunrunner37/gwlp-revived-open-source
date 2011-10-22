@@ -124,8 +124,6 @@ namespace GameServer.Packets.FromClient
                         };
                         QueuingService.PostProcessingQueue.Enqueue(skillbar);
 
-                        chara.Data.Energy = 30; // dummy
-
                         // Note: UPDATE GENERICVALUE ENERGY
                         var genEne = new NetworkMessage(message.NetID)
                         {
@@ -149,8 +147,6 @@ namespace GameServer.Packets.FromClient
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(genEneReg);
-
-                        chara.Data.Health = 100; // dummy
 
                         // Note: UPDATE GENERICVALUE HEALTH
                         var genHea = new NetworkMessage(message.NetID)

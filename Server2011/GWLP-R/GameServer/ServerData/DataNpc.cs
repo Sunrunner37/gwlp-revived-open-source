@@ -163,6 +163,7 @@ namespace GameServer.ServerData
                 #region Implementation of IHasItemData
 
                 public ItemDictionary Items { get; set; }
+                public ItemEquipment Equipment { get; set; }
 
                 #endregion
 

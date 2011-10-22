@@ -634,17 +634,7 @@ namespace GameServer.DataBase
 		private static System.ComponentModel.PropertyChangingEventArgs emptyChangingEventArgs = new System.ComponentModel.PropertyChangingEventArgs("");
 		
 		private int _accountID;
-		
-		private byte[] _armorArms;
-		
-		private byte[] _armorChest;
-		
-		private byte[] _armorFeet;
-		
-		private byte[] _armorHead;
-		
-		private byte[] _armorLegs;
-		
+
 		private int _attrPtsFree;
 		
 		private int _attrPtsTotal;
@@ -690,37 +680,29 @@ namespace GameServer.DataBase
 		private int _skillPtsTotal;
 		
 		private byte[] _skillsAvailable;
-		
-		private byte[] _weaponPrimary;
-		
-		private byte[] _weaponSecondary;
+
+                private uint _leadhandWeaponSet1;
+
+                private uint _offhandWeaponSet1;
+
+                private uint _leadhandWeaponSet2;
+
+                private uint _offhandWeaponSet2;
+
+                private uint _leadhandWeaponSet3;
+
+                private uint _offhandWeaponSet3;
+
+                private uint _leadhandWeaponSet4;
+
+                private uint _offhandWeaponSet4;
 		
 		#region Extensibility Method Declarations
 		partial void OnCreated();
 		
 		partial void OnaccountIDChanged();
-		
-		partial void OnaccountIDChanging(int value);
-		
-		partial void OnarmorArmsChanged();
-		
-		partial void OnarmorArmsChanging(byte[] value);
-		
-		partial void OnarmorChestChanged();
-		
-		partial void OnarmorChestChanging(byte[] value);
-		
-		partial void OnarmorFeetChanged();
-		
-		partial void OnarmorFeetChanging(byte[] value);
-		
-		partial void OnarmorHeadChanged();
-		
-		partial void OnarmorHeadChanging(byte[] value);
-		
-		partial void OnarmorLegsChanged();
-		
-		partial void OnarmorLegsChanging(byte[] value);
+
+                partial void OnaccountIDChanging(int value);
 		
 		partial void OnattrPtsFreeChanged();
 		
@@ -814,13 +796,37 @@ namespace GameServer.DataBase
 		
 		partial void OnskillsAvailableChanging(byte[] value);
 		
-		partial void OnweaponPrimaryChanged();
-		
-		partial void OnweaponPrimaryChanging(byte[] value);
-		
-		partial void OnweaponSecondaryChanged();
-		
-		partial void OnweaponSecondaryChanging(byte[] value);
+		partial void OnleadhandWeaponSet1Changed();
+
+                partial void OnleadhandWeaponSet1Changing(uint value);
+
+                partial void OnoffhandWeaponSet1Changed();
+
+                partial void OnoffhandWeaponSet1Changing(uint value);
+
+                partial void OnleadhandWeaponSet2Changed();
+
+                partial void OnleadhandWeaponSet2Changing(uint value);
+
+                partial void OnoffhandWeaponSet2Changed();
+
+                partial void OnoffhandWeaponSet2Changing(uint value);
+
+                partial void OnleadhandWeaponSet3Changed();
+
+                partial void OnleadhandWeaponSet3Changing(uint value);
+
+                partial void OnoffhandWeaponSet3Changed();
+
+                partial void OnoffhandWeaponSet3Changing(uint value);
+
+                partial void OnleadhandWeaponSet4Changed();
+
+                partial void OnleadhandWeaponSet4Changing(uint value);
+
+                partial void OnoffhandWeaponSet4Changed();
+
+                partial void OnoffhandWeaponSet4Changing(uint value);
 		#endregion
 		
 		
@@ -846,116 +852,6 @@ namespace GameServer.DataBase
 					this._accountID = value;
 					this.SendPropertyChanged("accountID");
 					this.OnaccountIDChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_armorArms", Name="ArmorArms", DbType="blob", AutoSync=AutoSync.Never)]
-		[DebuggerNonUserCode()]
-		public byte[] armorArms
-		{
-			get
-			{
-				return this._armorArms;
-			}
-			set
-			{
-				if (((_armorArms == value) 
-							== false))
-				{
-					this.OnarmorArmsChanging(value);
-					this.SendPropertyChanging();
-					this._armorArms = value;
-					this.SendPropertyChanged("armorArms");
-					this.OnarmorArmsChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_armorChest", Name="ArmorChest", DbType="blob", AutoSync=AutoSync.Never)]
-		[DebuggerNonUserCode()]
-		public byte[] armorChest
-		{
-			get
-			{
-				return this._armorChest;
-			}
-			set
-			{
-				if (((_armorChest == value) 
-							== false))
-				{
-					this.OnarmorChestChanging(value);
-					this.SendPropertyChanging();
-					this._armorChest = value;
-					this.SendPropertyChanged("armorChest");
-					this.OnarmorChestChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_armorFeet", Name="ArmorFeet", DbType="blob", AutoSync=AutoSync.Never)]
-		[DebuggerNonUserCode()]
-		public byte[] armorFeet
-		{
-			get
-			{
-				return this._armorFeet;
-			}
-			set
-			{
-				if (((_armorFeet == value) 
-							== false))
-				{
-					this.OnarmorFeetChanging(value);
-					this.SendPropertyChanging();
-					this._armorFeet = value;
-					this.SendPropertyChanged("armorFeet");
-					this.OnarmorFeetChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_armorHead", Name="ArmorHead", DbType="blob", AutoSync=AutoSync.Never)]
-		[DebuggerNonUserCode()]
-		public byte[] armorHead
-		{
-			get
-			{
-				return this._armorHead;
-			}
-			set
-			{
-				if (((_armorHead == value) 
-							== false))
-				{
-					this.OnarmorHeadChanging(value);
-					this.SendPropertyChanging();
-					this._armorHead = value;
-					this.SendPropertyChanged("armorHead");
-					this.OnarmorHeadChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_armorLegs", Name="ArmorLegs", DbType="blob", AutoSync=AutoSync.Never)]
-		[DebuggerNonUserCode()]
-		public byte[] armorLegs
-		{
-			get
-			{
-				return this._armorLegs;
-			}
-			set
-			{
-				if (((_armorLegs == value) 
-							== false))
-				{
-					this.OnarmorLegsChanging(value);
-					this.SendPropertyChanging();
-					this._armorLegs = value;
-					this.SendPropertyChanged("armorLegs");
-					this.OnarmorLegsChanged();
 				}
 			}
 		}
@@ -1445,50 +1341,174 @@ namespace GameServer.DataBase
 				}
 			}
 		}
-		
-		[Column(Storage="_weaponPrimary", Name="WeaponPrimary", DbType="blob", AutoSync=AutoSync.Never)]
+
+                [Column(Storage = "_leadhandWeaponSet1", Name = "LeadhandWeaponSet1", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
+                [DebuggerNonUserCode()]
+                public uint leadhandWeaponSet1
+                {
+                        get
+                        {
+                                return this._leadhandWeaponSet1;
+                        }
+                        set
+                        {
+                                if (_leadhandWeaponSet1 != value)
+                                {
+                                        this.OnleadhandWeaponSet1Changing(value);
+                                        this.SendPropertyChanging();
+                                        this._leadhandWeaponSet1 = value;
+                                        this.SendPropertyChanged("leadhandWeaponSet1");
+                                        this.OnleadhandWeaponSet1Changed();
+                                }
+                        }
+                }
+
+                [Column(Storage = "_offhandWeaponSet1", Name = "OffhandWeaponSet1", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
+                [DebuggerNonUserCode()]
+                public uint offhandWeaponSet1
+                {
+                        get
+                        {
+                                return this._offhandWeaponSet1;
+                        }
+                        set
+                        {
+                                if (_offhandWeaponSet1 != value)
+                                {
+                                        this.OnoffhandWeaponSet1Changing(value);
+                                        this.SendPropertyChanging();
+                                        this._offhandWeaponSet1 = value;
+                                        this.SendPropertyChanged("offhandWeaponSet1");
+                                        this.OnoffhandWeaponSet1Changed();
+                                }
+                        }
+                }
+
+                [Column(Storage = "_leadhandWeaponSet2", Name = "LeadhandWeaponSet2", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
+                [DebuggerNonUserCode()]
+                public uint leadhandWeaponSet2
+                {
+                        get
+                        {
+                                return this._leadhandWeaponSet2;
+                        }
+                        set
+                        {
+                                if (_leadhandWeaponSet2 != value)
+                                {
+                                        this.OnleadhandWeaponSet2Changing(value);
+                                        this.SendPropertyChanging();
+                                        this._leadhandWeaponSet2 = value;
+                                        this.SendPropertyChanged("leadhandWeaponSet2");
+                                        this.OnleadhandWeaponSet2Changed();
+                                }
+                        }
+                }
+
+                [Column(Storage = "_offhandWeaponSet2", Name = "OffhandWeaponSet2", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
+                [DebuggerNonUserCode()]
+                public uint offhandWeaponSet2
+                {
+                        get
+                        {
+                                return this._offhandWeaponSet2;
+                        }
+                        set
+                        {
+                                if (_offhandWeaponSet2 != value)
+                                {
+                                        this.OnoffhandWeaponSet2Changing(value);
+                                        this.SendPropertyChanging();
+                                        this._offhandWeaponSet2 = value;
+                                        this.SendPropertyChanged("offhandWeaponSet2");
+                                        this.OnoffhandWeaponSet2Changed();
+                                }
+                        }
+                }
+
+                [Column(Storage = "_leadhandWeaponSet3", Name = "LeadhandWeaponSet3", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
+                [DebuggerNonUserCode()]
+                public uint leadhandWeaponSet3
+                {
+                        get
+                        {
+                                return this._leadhandWeaponSet3;
+                        }
+                        set
+                        {
+                                if (_leadhandWeaponSet3 != value)
+                                {
+                                        this.OnleadhandWeaponSet3Changing(value);
+                                        this.SendPropertyChanging();
+                                        this._leadhandWeaponSet3 = value;
+                                        this.SendPropertyChanged("leadhandWeaponSet3");
+                                        this.OnleadhandWeaponSet3Changed();
+                                }
+                        }
+                }
+
+                [Column(Storage = "_offhandWeaponSet3", Name = "OffhandWeaponSet3", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
 		[DebuggerNonUserCode()]
-		public byte[] weaponPrimary
+                public uint offhandWeaponSet3
 		{
 			get
 			{
-				return this._weaponPrimary;
+				return this._offhandWeaponSet3;
 			}
 			set
 			{
-				if (((_weaponPrimary == value) 
-							== false))
+				if (_offhandWeaponSet3 != value)
 				{
-					this.OnweaponPrimaryChanging(value);
+                                        this.OnoffhandWeaponSet3Changing(value);
 					this.SendPropertyChanging();
-					this._weaponPrimary = value;
-					this.SendPropertyChanged("weaponPrimary");
-					this.OnweaponPrimaryChanged();
+					this._offhandWeaponSet3 = value;
+                                        this.SendPropertyChanged("offhandWeaponSet3");
+                                        this.OnoffhandWeaponSet3Changed();
 				}
 			}
 		}
-		
-		[Column(Storage="_weaponSecondary", Name="WeaponSecondary", DbType="blob", AutoSync=AutoSync.Never)]
+
+                [Column(Storage = "_leadhandWeaponSet4", Name = "LeadhandWeaponSet4", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
 		[DebuggerNonUserCode()]
-		public byte[] weaponSecondary
+                public uint leadhandWeaponSet4
 		{
 			get
 			{
-				return this._weaponSecondary;
+				return this._leadhandWeaponSet4;
 			}
 			set
 			{
-				if (((_weaponSecondary == value) 
-							== false))
+				if (_leadhandWeaponSet4 != value)
 				{
-					this.OnweaponSecondaryChanging(value);
+                                        this.OnleadhandWeaponSet4Changing(value);
 					this.SendPropertyChanging();
-					this._weaponSecondary = value;
-					this.SendPropertyChanged("weaponSecondary");
-					this.OnweaponSecondaryChanged();
+					this._leadhandWeaponSet4 = value;
+                                        this.SendPropertyChanged("leadhandWeaponSet4");
+                                        this.OnleadhandWeaponSet4Changed();
 				}
 			}
 		}
+
+                [Column(Storage = "_offhandWeaponSet4", Name = "OffhandWeaponSet4", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
+                [DebuggerNonUserCode()]
+                public uint offhandWeaponSet4
+                {
+                        get
+                        {
+                                return this._offhandWeaponSet4;
+                        }
+                        set
+                        {
+                                if (_offhandWeaponSet4 != value)
+                                {
+                                        this.OnoffhandWeaponSet4Changing(value);
+                                        this.SendPropertyChanging();
+                                        this._offhandWeaponSet4 = value;
+                                        this.SendPropertyChanged("offhandWeaponSet4");
+                                        this.OnoffhandWeaponSet4Changed();
+                                }
+                        }
+                }
 		
 		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
 		
@@ -1789,22 +1809,24 @@ namespace GameServer.DataBase
 		
 		private static System.ComponentModel.PropertyChangingEventArgs emptyChangingEventArgs = new System.ComponentModel.PropertyChangingEventArgs("");
 		
-		private int _gameItemFileID;
+		private uint _gameItemFileID;
 		
 		private int _gameItemID;
 		
 		private int _itemID;
 		
 		private int _itemType;
-		
-		private string _name;
+
+                private string _name;
+
+                private byte _profession;
 		
 		#region Extensibility Method Declarations
 		partial void OnCreated();
 		
 		partial void OngameItemFileIDChanged();
 		
-		partial void OngameItemFileIDChanging(int value);
+		partial void OngameItemFileIDChanging(uint value);
 		
 		partial void OngameItemIDChanged();
 		
@@ -1817,10 +1839,14 @@ namespace GameServer.DataBase
 		partial void OnitemTypeChanged();
 		
 		partial void OnitemTypeChanging(int value);
-		
-		partial void OnnameChanged();
-		
-		partial void OnnameChanging(string value);
+
+                partial void OnnameChanged();
+
+                partial void OnnameChanging(string value);
+
+                partial void OnprofessionChanged();
+
+                partial void OnprofessionChanging(byte value);
 		#endregion
 		
 		
@@ -1831,7 +1857,7 @@ namespace GameServer.DataBase
 		
 		[Column(Storage="_gameItemFileID", Name="GameItemFileID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-		public int gameItemFileID
+		public uint gameItemFileID
 		{
 			get
 			{
@@ -1934,6 +1960,28 @@ namespace GameServer.DataBase
 				}
 			}
 		}
+
+                [Column(Storage = "_profession", Name = "Profession", DbType = "byte", AutoSync = AutoSync.Never, CanBeNull = false)]
+                [DebuggerNonUserCode()]
+                public byte profession
+                {
+                        get
+                        {
+                                return this._profession;
+                        }
+                        set
+                        {
+                                if (((_profession == value)
+                                                        == false))
+                                {
+                                        this.OnprofessionChanging(value);
+                                        this.SendPropertyChanging();
+                                        this._profession = value;
+                                        this.SendPropertyChanged("name");
+                                        this.OnprofessionChanged();
+                                }
+                        }
+                }
 		
 		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
 		
@@ -2321,7 +2369,7 @@ namespace GameServer.DataBase
 				h(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
 			}
 		}
-	}
+        }
 	
 	[Table(Name="gwlpr.maps_masterdata")]
 	public partial class mapsMasterData : System.ComponentModel.INotifyPropertyChanging, System.ComponentModel.INotifyPropertyChanged

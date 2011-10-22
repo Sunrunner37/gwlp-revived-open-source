@@ -184,11 +184,11 @@ namespace LoginServer.Packets.FromClient
 
                                                         byte remainderLen = 0;
 
-                                                        if (dbChar.armorHead.Length != 0) remainderLen++;
+                                                        /*if (dbChar.armorHead.Length != 0) remainderLen++;
                                                         if (dbChar.armorChest.Length != 0) remainderLen++;
                                                         if (dbChar.armorArms.Length != 0) remainderLen++;
                                                         if (dbChar.armorLegs.Length != 0) remainderLen++;
-                                                        if (dbChar.armorFeet.Length != 0) remainderLen++;
+                                                        if (dbChar.armorFeet.Length != 0) remainderLen++;*/
 
                                                         var appearance = new MemoryStream();
                                                         RawConverter.WriteUInt16(6, appearance);
@@ -210,11 +210,11 @@ namespace LoginServer.Packets.FromClient
                                                         RawConverter.WriteByteAr(new byte[] { 0xDD, 0xDD }, appearance);
                                                         RawConverter.WriteByte(remainderLen, appearance);
                                                         RawConverter.WriteByteAr(new byte[] { 0xDD, 0xDD, 0xDD, 0xDD }, appearance);
-                                                        if (dbChar.armorHead != null) RawConverter.WriteByteAr(dbChar.armorHead, appearance);
+                                                        /*if (dbChar.armorHead != null) RawConverter.WriteByteAr(dbChar.armorHead, appearance);
                                                         if (dbChar.armorChest != null) RawConverter.WriteByteAr(dbChar.armorChest, appearance);
                                                         if (dbChar.armorArms != null) RawConverter.WriteByteAr(dbChar.armorArms, appearance);
                                                         if (dbChar.armorLegs != null) RawConverter.WriteByteAr(dbChar.armorLegs, appearance);
-                                                        if (dbChar.armorFeet != null) RawConverter.WriteByteAr(dbChar.armorFeet, appearance);
+                                                        if (dbChar.armorFeet != null) RawConverter.WriteByteAr(dbChar.armorFeet, appearance);*/
 
                                                         #endregion appearance
 

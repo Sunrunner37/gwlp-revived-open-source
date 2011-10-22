@@ -9,7 +9,9 @@ namespace GameServer.Enums
         {
                 Salvage = 0,
                 Axe = 2,
+                Bag = 3,
                 Bow = 5,
+                Armor = 7,
                 Rune = 8,
                 Consumable = 9,
                 Dye = 10,
@@ -19,6 +21,7 @@ namespace GameServer.Enums
                 Key = 18,
                 QuestItem = 21,
                 Wand = 22,
+                Shield = 24,
                 Staff = 26,
                 Sword = 27,
                 Kit = 29,

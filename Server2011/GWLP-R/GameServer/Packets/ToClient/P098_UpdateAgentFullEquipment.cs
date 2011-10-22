@@ -12,16 +12,16 @@ namespace GameServer.Packets.ToClient
                 public class PacketSt98 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 98; } }
-                        public UInt32 ID1;
-                        public UInt32 Weapon1; // Leadhand?
-                        public UInt32 Weapon2; // Offhand?
+                        public UInt32 AgentID;
+                        public UInt32 Leadhand;
+                        public UInt32 Offhand;
                         public UInt32 Chest;
                         public UInt32 Feet;
                         public UInt32 Legs;
                         public UInt32 Arms;
                         public UInt32 Head;
-                        public UInt32 Data8; //costume head?
-                        public UInt32 Data9; //costume?
+                        public UInt32 Costume; //costume head?
+                        public UInt32 CostumeHead; //costume?
                 }
 
                 public void InitPacket(object parser)

@@ -7,7 +7,10 @@ using GameServer.Enums;
 using ServerEngine;
 using ServerEngine.DataManagement.DataWrappers;
 using ServerEngine.GuildWars.DataWrappers.Clients;
+using ServerEngine.GuildWars.Tools;
 using ServerEngine.PacketManagement.StaticConvert;
+using ServerEngine.NetworkManagement;
+using GameServer.Packets.ToClient;
 
 namespace GameServer.ServerData.Items
 {
@@ -42,6 +45,121 @@ namespace GameServer.ServerData.Items
                 public void SendPackets(NetID netID)
                 {
                         // send all packets from this item to 'netID'
+                        var itemPacket = new NetworkMessage(netID)
+                        {
+                                PacketTemplate = new P343_ItemGeneral.PacketSt343
+                                {
+                                        LocalID = (uint)Data.ItemLocalID,
+                                        FileID = (uint)Data.GameItemFileID,
+                                        ItemType = (byte)Data.Type,
+                                        Data2 = 32,
+                                        DyeColor = (ushort)Data.DyeColor,
+                                        Data4 = 0,
+                                        CanBeDyed = 1,
+                                        Flags = (uint)Data.Flags,
+                                        ItemID = (uint)Data.GameItemID,
+                                        Quantity = (uint)Data.Quantity,
+                                        NameHash = GWStringExtensions.ToGW(Data.Name),
+                                        NumStats = (byte)Data.Stats.Count,
+                                        Stats = StatsToGW(Data.Stats)
+                                }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(itemPacket);
+
+                        // if its customized...
+                        if (Data.CreatorName != null) //failcheck
+                        {
+                                if (Data.CreatorName.Length > 0)
+                                {
+                                        var itemOwner = new NetworkMessage(netID)
+                                        {
+                                                PacketTemplate = new P304_ItemOwnerName.PacketSt304
+                                                {
+                                                        ItemLocalID = (uint)Data.ItemLocalID,
+                                                        CharName = Data.CreatorName
+                                                }
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(itemOwner);
+                                }
+                        }
+
+                        // some items have unnecessary restrictments...
+                        if (Data.Profession > 0)
+                        {
+                                var itemProfession = new NetworkMessage(netID)
+                                {
+                                        PacketTemplate = new P336_ItemProfession.PacketSt336
+                                        {
+                                                ItemLocalID = (uint)Data.ItemLocalID,
+                                                Profession = Data.Profession
+                                        }
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(itemProfession);
+                        }
+
+                        // if the item is owned by someone send its inventory location
+                        if (Data.OwnerAccID.Value > 0)
+                        {
+                                var bagSize = GetBagSize();
+
+                                if (Data.Storage == ItemStorage.Equiped && bagSize > 0) // special handling for bags
+                                {
+                                        var itemPage = new NetworkMessage(netID)
+                                        {
+                                                PacketTemplate = new P309_ItemPagePacket.PacketSt309
+                                                {
+                                                        ItemStreamID = 1,
+                                                        StorageType = 1, // must be a bag (only item to come here)
+                                                        StorageID = (byte)(Data.Slot - AgentEquipment.Backpack),
+                                                        PageID = (ushort)(Data.Slot - AgentEquipment.Backpack),
+                                                        Slots = bagSize,
+                                                        ItemLocalID = (uint)Data.ItemLocalID
+                                                }
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(itemPage);
+                                }
+                                else
+                                {
+                                        var itemLocation = new NetworkMessage(netID)
+                                        {
+                                                PacketTemplate = new P308_ItemLocation.PacketSt308
+                                                {
+                                                        ItemStreamID = 1,
+                                                        ItemLocalID = (uint)Data.ItemLocalID,
+                                                        PageID = (ushort)Data.Storage,
+                                                        UserSlot = (byte)Data.Slot
+                                                }
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(itemLocation);
+                                }
+                        }
+                }
+
+                private static UInt32[] StatsToGW(List<ItemStat> stats)
+                {
+                        UInt32[] GWFormat = new UInt32[stats.Count];
+                        int i = 0;
+
+                        foreach (ItemStat stat in stats)
+                        {
+                                GWFormat[i++] = stat.ToGW();
+                        }
+
+                        return GWFormat;
+                }
+
+                private byte GetBagSize()
+                {
+                        ItemStat firstStat = data.Stats.First<ItemStat>();
+
+                        if (firstStat.Stat == ItemStatEnums.Slots)
+                        {
+                                return firstStat.Value1;
+                        }
+                        else
+                        {
+                                return 0;
+                        }
                 }
 
                 /// <summary>
@@ -121,7 +239,8 @@ namespace GameServer.ServerData.Items
                                                 Storage = (ItemStorage)Enum.ToObject(typeof(ItemStorage), personalDataBaseItem.storage),
                                                 Slot = personalDataBaseItem.slot,
                                                 CreatorCharID = personalDataBaseItem.creatorCharID,
-                                                CreatorName = personalDataBaseItem.creatorName
+                                                CreatorName = personalDataBaseItem.creatorName,
+                                                Profession = masterData.profession
                                         }
                                 };
 
@@ -169,6 +288,7 @@ namespace GameServer.ServerData.Items
                                 var charID = ((int)Data.Storage >= 5 && (int)Data.Storage <= 14) ? 0 : Data.OwnerCharID.Value;
 
                                 // update the item
+                                item.personalItemID = data.PersonalItemID;
                                 item.itemID = Data.ItemID;
                                 item.accountID = (int)Data.OwnerAccID.Value;
                                 item.charID = (int)charID;
@@ -186,6 +306,7 @@ namespace GameServer.ServerData.Items
                                 {
                                         tmpList.AddRange(stat);
                                 }
+                                item.stats = tmpList.ToArray();
 
                                 // finally, change the database
                                 if (!existsAlready) db.itemsPerSonALData.InsertOnSubmit(item);
@@ -228,7 +349,7 @@ namespace GameServer.ServerData.Items
                 ///   The file id (also called file-hash within the gw.dat-explorers)
                 ///   of the item-3d-model file
                 /// </summary>
-                public int GameItemFileID { get; set; }
+                public uint GameItemFileID { get; set; }
 
                 /// <summary>
                 ///   This id is only used within the database 'items_personaldata' and
@@ -255,6 +376,11 @@ namespace GameServer.ServerData.Items
                 ///   The type of the item, see the enum
                 /// </summary>
                 public ItemType Type { get; set; }
+
+                /// <summary>
+                ///   The profession of the item to make it limited to one profession
+                /// </summary>
+                public byte Profession { get; set; }
 
                 /// <summary>
                 ///   The color of the item (if it is dyed)

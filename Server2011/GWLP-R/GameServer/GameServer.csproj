@@ -81,7 +81,8 @@
     <Compile Include="Commands\SetSpawn.cs" />
     <Compile Include="Commands\Test.cs" />
     <Compile Include="Enums\AgentEquipment.cs" />
-    <Compile Include="Enums\Attribute.cs" />
+    <Compile Include="Enums\DamageType.cs" />
+    <Compile Include="Enums\GWAttribute.cs" />
     <Compile Include="Enums\EquipmentDisplayStatus.cs" />
     <Compile Include="Enums\ItemStats.cs" />
     <Compile Include="Enums\ItemStorage.cs" />
@@ -535,7 +536,7 @@
     <Compile Include="Packets\ToClient\Packet315.cs" />
     <Compile Include="Packets\ToClient\P316_EquipBag.cs" />
     <Compile Include="Packets\ToClient\P317_ItemStreamWeaponBarSlot.cs" />
-    <Compile Include="Packets\ToClient\P318_UpdateActiveWeaponslot.cs" />
+    <Compile Include="Packets\ToClient\P318_UpdateActiveWeaponset.cs" />
     <Compile Include="Packets\ToClient\Packet319.cs" />
     <Compile Include="Packets\ToClient\P032_MovementSpeedModifier.cs" />
     <Compile Include="Packets\ToClient\P321_MoveItem.cs" />
@@ -810,7 +811,9 @@
     <Compile Include="ServerData\GameServerWorld.cs" />
     <Compile Include="ServerData\Items\ItemDictionary.cs" />
     <Compile Include="ServerData\Items\Item.cs" />
+    <Compile Include="ServerData\Items\ItemEquipment.cs" />
     <Compile Include="ServerData\Items\ItemStat.cs" />
+    <Compile Include="ServerData\Items\ItemWeaponset.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServerEngine.GuildWars\ServerEngine.GuildWars.csproj">

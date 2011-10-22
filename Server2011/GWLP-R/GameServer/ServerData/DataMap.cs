@@ -249,6 +249,8 @@ namespace GameServer.ServerData
                                                 ProfessionSecondary = (byte)ch.professionSecondary,
                                                 Level = (uint)ch.level,
                                                 Morale = 100,
+                                                Health = 123,
+                                                Energy = 45,
 
                                                 SkillPtsFree = ch.skillPtsFree,
                                                 SkillPtsTotal = ch.skillPtsTotal,
@@ -259,6 +261,18 @@ namespace GameServer.ServerData
                                                 AttPtsTotal = ch.attrPtsTotal,
 
                                                 Appearance = appearance.ToArray(),
+
+                                                Weaponset =
+                                                {
+                                                        Leadhand1 = ch.leadhandWeaponSet1,
+                                                        Offhand1 = ch.offhandWeaponSet1,
+                                                        Leadhand2 = ch.leadhandWeaponSet2,
+                                                        Offhand2 = ch.offhandWeaponSet2,
+                                                        Leadhand3 = ch.leadhandWeaponSet3,
+                                                        Offhand3 = ch.offhandWeaponSet3,
+                                                        Leadhand4 = ch.leadhandWeaponSet4,
+                                                        Offhand4 = ch.offhandWeaponSet4,
+                                                },
 
                                                 Position = { X = spawn.X, Y = spawn.Y, PlaneZ = spawn.PlaneZ },
                                                 Direction = new GWVector(0, 0, 0),
@@ -318,6 +332,21 @@ namespace GameServer.ServerData
                                                          (pi.charID == 0) // meaning it is in the storage
                                                    select pi;
 
+                                bool[] leadhandLoaded = new bool[4];
+                                bool[] offhandLoaded = new bool[4];
+                                for (int i = 0; i < 4; i++)
+                                {
+                                        if (character.Data.Weaponset.GetLeadhand(i) == 0)
+                                        {
+                                                leadhandLoaded[i] = true;
+                                        }
+
+                                        if (character.Data.Weaponset.GetOffhand(i) == 0)
+                                        {
+                                                offhandLoaded[i] = true;
+                                        }
+                                }
+
                                 foreach (var persItem in itemsChara.Concat(itemsStorage))
                                 {
                                         // load the item
@@ -328,6 +357,26 @@ namespace GameServer.ServerData
 
                                         // add the item
                                         character.Data.Items.Add(tmpItem.Data.ItemLocalID, tmpItem);
+
+                                        // update equipment
+                                        if (tmpItem.Data.Storage == ItemStorage.Equiped)
+                                        {
+                                                character.Data.Equipment.SetPart((AgentEquipment)tmpItem.Data.Slot, (uint)tmpItem.Data.ItemLocalID);
+                                        }
+
+                                        for (int i = 0; i < 4; i++)
+                                        {
+                                                if (!leadhandLoaded[i] && tmpItem.Data.PersonalItemID == character.Data.Weaponset.GetLeadhand(i))
+                                                {
+                                                        leadhandLoaded[i] = true;
+                                                        character.Data.Weaponset.SetLeadhand(i, (uint)tmpItem.Data.ItemLocalID);
+                                                }
+                                                else if (!offhandLoaded[i] && tmpItem.Data.PersonalItemID == character.Data.Weaponset.GetOffhand(i))
+                                                {
+                                                        offhandLoaded[i] = true;
+                                                        character.Data.Weaponset.SetOffhand(i, (uint)tmpItem.Data.ItemLocalID);
+                                                }
+                                        }
                                 }
                         }
                 }

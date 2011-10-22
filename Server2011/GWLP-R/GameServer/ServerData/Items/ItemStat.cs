@@ -8,8 +8,8 @@ namespace GameServer.ServerData.Items
         public class ItemStat
         {
                 private readonly ItemStatEnums stat;
-                private readonly int value1;
-                private readonly int value2;
+                private readonly byte value1;
+                private readonly byte value2;
 
                 /// <summary>
                 ///   Create a new instance of the class
@@ -23,7 +23,7 @@ namespace GameServer.ServerData.Items
                 /// <param name="value2">
                 ///   This is the second byte of the itemstat, read in littleendian
                 /// </param>
-                public ItemStat(ItemStatEnums stat, int value1, int value2)
+                public ItemStat(ItemStatEnums stat, byte value1, byte value2)
                 {
                         this.stat = stat;
                         this.value1 = value1;
@@ -56,7 +56,7 @@ namespace GameServer.ServerData.Items
                 ///   This property is the second byte (littleendian) of the ItemStat
                 ///   It may be some sort of value or ID...
                 /// </summary>
-                public int Value2
+                public byte Value2
                 {
                         get { return value2; }
                 }
@@ -65,7 +65,7 @@ namespace GameServer.ServerData.Items
                 ///   This property is the first byte (littleendian) of the ItemStat
                 ///   It may be some sort of value or ID...
                 /// </summary>
-                public int Value1
+                public byte Value1
                 {
                         get { return value1; }
                 }
@@ -81,12 +81,23 @@ namespace GameServer.ServerData.Items
                 /// <summary>
                 ///   Generates the GW-Item-Stat code out of this object's data
                 /// </summary>
+                public UInt32 ToGW()
+                {
+                        UInt32 ret = (UInt32)value2;
+                        ret |= (UInt32)value1 << 8;
+                        ret |= (UInt32)stat << 16;
+                        return ret;
+                }
+
+                /// <summary>
+                ///   Generates the GW-Item-Stat code out of this object's data
+                /// </summary>
                 public byte[] Compile()
                 {
                         using (var ms = new MemoryStream())
                         {
-                                RawConverter.WriteByte((byte)value1, ms);
-                                RawConverter.WriteByte((byte)value2, ms);
+                                RawConverter.WriteByte(value1, ms);
+                                RawConverter.WriteByte(value2, ms);
                                 RawConverter.WriteUInt16((ushort)stat, ms);
 
                                 return ms.ToArray();

@@ -141,6 +141,25 @@ namespace GameServer.Actions
                         }
 
 
+                        // show equipment
+                        var charEquipment = new NetworkMessage(chara.Data.NetID)
+                        {
+                                PacketTemplate = new P098_UpdateAgentFullEquipment.PacketSt98
+                                {
+                                        AgentID = chara.Data.AgentID.Value,
+                                        Leadhand = chara.Data.Equipment.Leadhand,
+                                        Offhand = chara.Data.Equipment.Offhand,
+                                        Head = chara.Data.Equipment.Head,
+                                        Chest = chara.Data.Equipment.Chest,
+                                        Arms = chara.Data.Equipment.Arms,
+                                        Legs = chara.Data.Equipment.Legs,
+                                        Feet = chara.Data.Equipment.Feet,
+                                        Costume = chara.Data.Equipment.Costume,
+                                        CostumeHead = chara.Data.Equipment.CostumeHead
+                                }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(charEquipment);
+
                         // partywindow test
                         var teamWindow1 = new NetworkMessage(chara.Data.NetID)
                         {
@@ -302,16 +321,16 @@ namespace GameServer.Actions
                         {
                                 PacketTemplate = new P098_UpdateAgentFullEquipment.PacketSt98
                                 {
-                                        ID1 = chara.Data.AgentID.Value,
-                                        Weapon1 = 0,
-                                        Weapon2 = 0,
+                                        AgentID = chara.Data.AgentID.Value,
+                                        Leadhand = 0,
+                                        Offhand = 0,
                                         Chest = 0,
                                         Head = 0,
                                         Arms = 0,
                                         Feet = 0,
                                         Legs = 0,
-                                        Data8 = 0,
-                                        Data9 = 0
+                                        Costume = 0,
+                                        CostumeHead = 0
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(charEquip);

@@ -106,6 +106,8 @@ namespace GameServer.ServerData
                         Appearance = new byte[0];
                         
                         Items = new ItemDictionary();
+                        Equipment = new ItemEquipment();
+                        Weaponset = new ItemWeaponset();
                         
                         LastHeartBeat = DateTime.Now;
                         
@@ -196,6 +198,8 @@ namespace GameServer.ServerData
                 #region Implementation of IHasItemData
 
                 public ItemDictionary Items { get; set; }
+                public ItemEquipment Equipment { get; set; }
+                public ItemWeaponset Weaponset { get; set; }
 
                 #endregion
 

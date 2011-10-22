@@ -5,6 +5,8 @@ using ServerEngine;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
+using GameServer.ServerData.Items;
+using System.Collections.Generic;
 
 namespace GameServer.Packets.FromClient
 {
@@ -33,8 +35,6 @@ namespace GameServer.Packets.FromClient
 
                         // get the character
                         var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
-
-#warning FIXME: Item stuff is not implemented!
                         const ushort itemStreamID = 1;
 
                         // Note: ITEM STREAM HEAD1 
@@ -48,106 +48,62 @@ namespace GameServer.Packets.FromClient
                         };
                         QueuingService.PostProcessingQueue.Enqueue(head1);
 
-                        // Note: ITEM STREAM HEAD2
-                        var head2 = new NetworkMessage(message.NetID)
+                        var activeWeaponset = new NetworkMessage(message.NetID)
                         {
-                                PacketTemplate = new P318_UpdateActiveWeaponslot.PacketSt318
+                                PacketTemplate = new P318_UpdateActiveWeaponset.PacketSt318
                                 {
                                         ItemStreamID = itemStreamID,
                                         ActiveWeaponSlot = 0,
                                 }
                         };
-                        QueuingService.PostProcessingQueue.Enqueue(head2);
+                        QueuingService.PostProcessingQueue.Enqueue(activeWeaponset);
 
-                        var Backpack = new NetworkMessage(chara.Data.NetID)
+                        // itempages for equipment and storage
+                        var equipedPage = new NetworkMessage(message.NetID)
                         {
-                            PacketTemplate = new P343_ItemGeneral.PacketSt343
-                            {
-                                LocalID = 42,
-                                FileID = 0x8001B536,
-                                ItemType = 0x3,
-                                Data2 = 1,
-                                DyeColor = 0,
-                                Data4 = 0,
-                                CanBeDyed = 0,
-                                Flags = 0x20001000,
-                                MerchantPrice = 5,
-                                ItemID = 0x00000020,
-                                Quantity = 1,
-                                NameHash = BitConverter.ToChar(new byte[] { 0x08, 0x01 }, 0).ToString() + BitConverter.ToChar(new byte[] { 0x07, 0x01 }, 0).ToString() + "Hacker's Backpack" + BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0).ToString(),
-                                NumStats = 0x01,
-                                Stats = new UInt32[] { 0x24481400 }
-                            }
+                                PacketTemplate = new P309_ItemPagePacket.PacketSt309
+                                {
+                                        ItemStreamID = itemStreamID,
+                                        StorageType = 2, // equiped
+                                        StorageID = (byte)Enums.ItemStorage.Equiped,
+                                        PageID = (ushort)Enums.ItemStorage.Equiped,
+                                        Slots = 9,
+                                        ItemLocalID = 0
+                                }
                         };
-                        QueuingService.PostProcessingQueue.Enqueue(Backpack);
-                        
-                        /*var OwnerName = new NetworkMessage(chara.Data.NetID)
+                        QueuingService.PostProcessingQueue.Enqueue(equipedPage);
+
+                        // send characters items
+                        foreach (KeyValuePair<int, Item> charItem in chara.Data.Items)
                         {
-                            PacketTemplate = new P304_ItemOwnerName.PacketSt304
-                            {
-                                ItemLocalID = 42,
-                                CharName = BitConverter.ToChar(new byte[] { 0x08, 0x01 }, 0).ToString() + BitConverter.ToChar(new byte[] { 0x07, 0x01 }, 0).ToString() + "Coca Cola" + BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0).ToString(),
-                            }
-                        };
-                        QueuingService.PostProcessingQueue.Enqueue(OwnerName);*/
+                                charItem.Value.SendPackets(message.NetID);
+                        }
 
-                        var Page = new NetworkMessage(chara.Data.NetID)
+                        //weaponbar slots
+                        for (int i = 0; i < 4; i++)
                         {
-                            PacketTemplate = new P309_ItemPagePacket.PacketSt309
-                            {
-                                  ItemStreamID = itemStreamID,
-                                  StorageType = 1,
-                                  StorageID = 0,
-                                  PageID = 2,
-                                  Slots = 20,
-                                  ItemLocalID = 42
-                            }
-                        };
-                        QueuingService.PostProcessingQueue.Enqueue(Page);
+                                var weaponbarSlot = new NetworkMessage(message.NetID)
+                                {
+                                        PacketTemplate = new P317_ItemStreamWeaponBarSlot.PacketSt317
+                                        {
+                                                ItemStreamID = itemStreamID,
+                                                LeadhandItemLocalID = chara.Data.Weaponset.GetLeadhand(i),
+                                                OffhandItemLocalID = chara.Data.Weaponset.GetOffhand(i),
+                                                SlotNumber = (byte)i
+                                        }
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(weaponbarSlot);
+                        }
 
-                        var testItem = new NetworkMessage(chara.Data.NetID)
+                        var goldOnCharacter = new NetworkMessage(message.NetID)
                         {
-                            PacketTemplate = new P343_ItemGeneral.PacketSt343
-                            {
-                                LocalID = 41,
-                                FileID = 0x80038637,
-                                ItemType = 0x16,
-                                Data2 = 4,
-                                DyeColor = 0,
-                                Data4 = 0,
-                                CanBeDyed = 0,
-                                Flags = 0x2200C611,
-                                MerchantPrice = 1337,
-                                ItemID = 0,
-                                Quantity = 1,
-                                NameHash = BitConverter.ToChar(new byte[] { 0x08, 0x01 }, 0).ToString() + BitConverter.ToChar(new byte[] { 0x07, 0x01 }, 0).ToString() + "Hacker's Earthwand" + BitConverter.ToChar(new byte[] { 0x01, 0x00 }, 0).ToString(),
-                                NumStats = 0x05,
-                                Stats = new UInt32[] {  0x24B80B00,
-                                            0x26980003,
-                                            0x22186409,
-                                            0xA4980A10,
-                                            0xA488C864}
-                            }
+                                PacketTemplate = new P310_ItemStreamGoldOnCharacter.PacketSt310
+                                {
+                                        ItemStreamID = itemStreamID,
+                                        GoldOnCharacter = 1337
+                                }
                         };
-                        QueuingService.PostProcessingQueue.Enqueue(testItem);
-
-                        var testLocation = new NetworkMessage(chara.Data.NetID)
-                        {
-                            PacketTemplate = new P308_ItemLocation.PacketSt308
-                            {
-                                ItemStreamID = itemStreamID,
-                                ItemLocalID = 41,
-                                PageID = 2,
-                                UserSlot = 7
-                            }
-                        };
-                        QueuingService.PostProcessingQueue.Enqueue(testLocation);
-
-                        // Note: ITEM STREAM WEAPON BAR SLOTS
-                        // (would go here)
-
-                        // Note: ITEM STREAM END
-                        // (would go here)
+                        QueuingService.PostProcessingQueue.Enqueue(goldOnCharacter);
 
                         // Note: ITEM STREAM Terminator
                         var terminator = new NetworkMessage(message.NetID)
