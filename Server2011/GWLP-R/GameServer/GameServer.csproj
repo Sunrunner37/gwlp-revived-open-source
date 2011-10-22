@@ -81,6 +81,7 @@
     <Compile Include="Commands\SetSpawn.cs" />
     <Compile Include="Commands\Test.cs" />
     <Compile Include="Enums\AgentEquipment.cs" />
+    <Compile Include="Enums\Profession.cs" />
     <Compile Include="Enums\DamageType.cs" />
     <Compile Include="Enums\GWAttribute.cs" />
     <Compile Include="Enums\EquipmentDisplayStatus.cs" />
