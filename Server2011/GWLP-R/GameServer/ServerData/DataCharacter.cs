@@ -89,7 +89,6 @@ namespace GameServer.ServerData
                 IHasGeneralCharData,
                 IHasGenericValueData,
                 IHasHeartbeatData,
-                IHasItemData,
                 IHasMapData,
                 IHasMovementData,
                 IHasPlayStatusData,
@@ -105,9 +104,7 @@ namespace GameServer.ServerData
                         
                         Appearance = new byte[0];
                         
-                        Items = new ItemDictionary();
-                        Equipment = new ItemEquipment();
-                        Weaponset = new ItemWeaponset();
+                        Items = new CharacterItems();
                         
                         LastHeartBeat = DateTime.Now;
                         
@@ -183,6 +180,8 @@ namespace GameServer.ServerData
                 public uint Level { get; set; }
                 public uint Morale { get; set; }
 
+                public CharacterItems Items { get; set; }
+
                 #endregion
 
                 #region Implementation of IHasGenericValueData
@@ -192,14 +191,6 @@ namespace GameServer.ServerData
                 public float EnergyRegen { get; set; }
                 public int Health { get; set; }
                 public float HealthRegen { get; set; }
-
-                #endregion
-
-                #region Implementation of IHasItemData
-
-                public ItemDictionary Items { get; set; }
-                public ItemEquipment Equipment { get; set; }
-                public ItemWeaponset Weaponset { get; set; }
 
                 #endregion
 

@@ -142,20 +142,21 @@ namespace GameServer.Actions
 
 
                         // show equipment
+                        var equip = chara.Data.Items.Equipment;
                         var charEquipment = new NetworkMessage(chara.Data.NetID)
                         {
                                 PacketTemplate = new P098_UpdateAgentFullEquipment.PacketSt98
                                 {
                                         AgentID = chara.Data.AgentID.Value,
-                                        Leadhand = chara.Data.Equipment.Leadhand,
-                                        Offhand = chara.Data.Equipment.Offhand,
-                                        Head = chara.Data.Equipment.Head,
-                                        Chest = chara.Data.Equipment.Chest,
-                                        Arms = chara.Data.Equipment.Arms,
-                                        Legs = chara.Data.Equipment.Legs,
-                                        Feet = chara.Data.Equipment.Feet,
-                                        Costume = chara.Data.Equipment.Costume,
-                                        CostumeHead = chara.Data.Equipment.CostumeHead
+                                        Leadhand = (uint)equip[AgentEquipment.Leadhand].Data.ItemLocalID,
+                                        Offhand = (uint)equip[AgentEquipment.Offhand].Data.ItemLocalID,
+                                        Head = (uint)equip[AgentEquipment.Head].Data.ItemLocalID,
+                                        Chest = (uint)equip[AgentEquipment.Chest].Data.ItemLocalID,
+                                        Arms = (uint)equip[AgentEquipment.Arms].Data.ItemLocalID,
+                                        Legs = (uint)equip[AgentEquipment.Legs].Data.ItemLocalID,
+                                        Feet = (uint)equip[AgentEquipment.Feet].Data.ItemLocalID,
+                                        Costume = (uint)equip[AgentEquipment.Costume].Data.ItemLocalID,
+                                        CostumeHead = (uint)equip[AgentEquipment.CostumeHead].Data.ItemLocalID
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(charEquipment);

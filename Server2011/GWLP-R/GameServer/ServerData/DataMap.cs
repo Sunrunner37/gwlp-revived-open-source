@@ -69,8 +69,8 @@ namespace GameServer.ServerData
 
                 public MapData Data
                 {
-                        get { lock(objLock) return data; }
-                        set { lock(objLock) data = value; }
+                        get { lock (objLock) return data; }
+                        set { lock (objLock) data = value; }
                 }
 
                 #endregion
@@ -139,7 +139,7 @@ namespace GameServer.ServerData
                                 var tmpDict = worldData[value.GetType()];
 
                                 // remove the old value
-                                tmpDict.RemoveAll(value as IEnumerable<IWrapper>);
+                                tmpDict.RemoveAll(value);
 
                                 // thats the map-only part:
                                 // free ids
@@ -167,8 +167,6 @@ namespace GameServer.ServerData
                 /// <summary>
                 ///   Add a char directly via charID
                 /// </summary>
-                /// <param name="charID"></param>
-                /// <returns></returns>
                 public bool LoadCharacter(CharID charID, out DataCharacter newlyCreatedChar)
                 {
                         lock (objLock)
@@ -262,18 +260,6 @@ namespace GameServer.ServerData
 
                                                 Appearance = appearance.ToArray(),
 
-                                                Weaponset =
-                                                {
-                                                        Leadhand1 = (uint)ch.leadhandWeaponSet1,
-                                                        Offhand1 = (uint)ch.offhandWeaponSet1,
-                                                        Leadhand2 = (uint)ch.leadhandWeaponSet2,
-                                                        Offhand2 = (uint)ch.offhandWeaponSet2,
-                                                        Leadhand3 = (uint)ch.leadhandWeaponSet3,
-                                                        Offhand3 = (uint)ch.offhandWeaponSet3,
-                                                        Leadhand4 = (uint)ch.leadhandWeaponSet4,
-                                                        Offhand4 = (uint)ch.offhandWeaponSet4,
-                                                },
-
                                                 Position = { X = spawn.X, Y = spawn.Y, PlaneZ = spawn.PlaneZ },
                                                 Direction = new GWVector(0, 0, 0),
                                                 MoveState = MovementState.NotMoving,
@@ -303,8 +289,17 @@ namespace GameServer.ServerData
                                         // create the char
                                         newlyCreatedChar = new DataCharacter(charData);
 
+                                        // prepare the temporary weaponset array
+                                        var sets = new int[4, 2]
+                                        {
+                                                {ch.leadhandWeaponSet1, ch.offhandWeaponSet1},
+                                                {ch.leadhandWeaponSet2, ch.offhandWeaponSet2},
+                                                {ch.leadhandWeaponSet3, ch.offhandWeaponSet3},
+                                                {ch.leadhandWeaponSet4, ch.offhandWeaponSet4}
+                                        };
+
                                         // finally, load all of the char's items
-                                        LoadCharItems(newlyCreatedChar);
+                                        LoadCharItems(newlyCreatedChar, sets);
 
                                         // and add it
                                         return Add(newlyCreatedChar);
@@ -316,7 +311,7 @@ namespace GameServer.ServerData
                 ///   Loads all items on the account(storage) and of the specified character and adds them to the char's itemdict
                 /// </summary>
                 /// <param name="character"></param>
-                private void LoadCharItems(DataCharacter character)
+                private void LoadCharItems(DataCharacter character, int[,] weaponSets)
                 {
                         // get the database stuff
                         using (var db = (MySQL)DataBaseProvider.GetDataBase())
@@ -332,21 +327,6 @@ namespace GameServer.ServerData
                                                          (pi.charID == 0) // meaning it is in the storage
                                                    select pi;
 
-                                bool[] leadhandLoaded = new bool[4];
-                                bool[] offhandLoaded = new bool[4];
-                                for (int i = 0; i < 4; i++)
-                                {
-                                        if (character.Data.Weaponset.GetLeadhand(i) == 0)
-                                        {
-                                                leadhandLoaded[i] = true;
-                                        }
-
-                                        if (character.Data.Weaponset.GetOffhand(i) == 0)
-                                        {
-                                                offhandLoaded[i] = true;
-                                        }
-                                }
-
                                 foreach (var persItem in itemsChara.Concat(itemsStorage))
                                 {
                                         // load the item
@@ -361,20 +341,34 @@ namespace GameServer.ServerData
                                         // update equipment
                                         if (tmpItem.Data.Storage == ItemStorage.Equiped)
                                         {
-                                                character.Data.Equipment.SetPart((AgentEquipment)tmpItem.Data.Slot, (uint)tmpItem.Data.ItemLocalID);
+                                                character.Data.Items.Equipment.Add((AgentEquipment)tmpItem.Data.Slot, tmpItem);
                                         }
 
+                                        // add the weaponsets if necessary
                                         for (int i = 0; i < 4; i++)
                                         {
-                                                if (!leadhandLoaded[i] && tmpItem.Data.PersonalItemID == character.Data.Weaponset.GetLeadhand(i))
+                                                if (tmpItem.Data.PersonalItemID == weaponSets[i, 0])
                                                 {
-                                                        leadhandLoaded[i] = true;
-                                                        character.Data.Weaponset.SetLeadhand(i, (uint)tmpItem.Data.ItemLocalID);
+                                                        Weaponset set;
+                                                        if (character.Data.Items.Weaponsets.TryGetValue(i, out set))
+                                                        {
+                                                                character.Data.Items.Weaponsets.Add(i, new Weaponset { Number = i, LeadHand = tmpItem });
+                                                                continue;
+                                                        }
+
+                                                        set.LeadHand = tmpItem;
                                                 }
-                                                else if (!offhandLoaded[i] && tmpItem.Data.PersonalItemID == character.Data.Weaponset.GetOffhand(i))
+
+                                                if (tmpItem.Data.PersonalItemID == weaponSets[i, 1])
                                                 {
-                                                        offhandLoaded[i] = true;
-                                                        character.Data.Weaponset.SetOffhand(i, (uint)tmpItem.Data.ItemLocalID);
+                                                        Weaponset set;
+                                                        if (character.Data.Items.Weaponsets.TryGetValue(i, out set))
+                                                        {
+                                                                character.Data.Items.Weaponsets.Add(i, new Weaponset { Number = i, OffHand = tmpItem });
+                                                                continue;
+                                                        }
+
+                                                        set.OffHand = tmpItem;
                                                 }
                                         }
                                 }
@@ -386,14 +380,19 @@ namespace GameServer.ServerData
                 IHasMapData,
                 IHasActionQueueData<DataMap>,
                 IHasDistrictData,
+                IHasMapItemsData,
                 IHasObjectIDManagerData,
                 IHasSpawnData
         {
                 public MapData()
                 {
                         ActionQueue = new ConcurrentQueue<Action<DataMap>>();
+
+                        MapItems = new Dictionary<int, Item>();
+
                         AgentIDs = new IDManager(1, 1000);
                         LocalIDs = new IDManager(1, 1000);
+
                         PossibleSpawns = new List<GWVector>();
                 }
 
@@ -417,6 +416,12 @@ namespace GameServer.ServerData
                 public bool IsPvE { get; set; }
                 public int DistrictCountry { get; set; }
                 public int DistrictNumber { get; set; }
+
+                #endregion
+
+                #region Implementation of IHasMapItemsData
+
+                public Dictionary<int, Item> MapItems { get; set; }
 
                 #endregion
 

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
 using ServerEngine;
@@ -48,6 +49,7 @@ namespace GameServer.Packets.FromClient
                         };
                         QueuingService.PostProcessingQueue.Enqueue(head1);
 
+                        // Note: ACTIVE WEAPONSET
                         var activeWeaponset = new NetworkMessage(message.NetID)
                         {
                                 PacketTemplate = new P318_UpdateActiveWeaponset.PacketSt318
@@ -82,17 +84,10 @@ namespace GameServer.Packets.FromClient
                         //weaponbar slots
                         for (int i = 0; i < 4; i++)
                         {
-                                var weaponbarSlot = new NetworkMessage(message.NetID)
+                                foreach (var weaponset in chara.Data.Items.Weaponsets.Values)
                                 {
-                                        PacketTemplate = new P317_ItemStreamWeaponBarSlot.PacketSt317
-                                        {
-                                                ItemStreamID = itemStreamID,
-                                                LeadhandItemLocalID = chara.Data.Weaponset.GetLeadhand(i),
-                                                OffhandItemLocalID = chara.Data.Weaponset.GetOffhand(i),
-                                                SlotNumber = (byte)i
-                                        }
-                                };
-                                QueuingService.PostProcessingQueue.Enqueue(weaponbarSlot);
+                                        weaponset.SendPackets(message.NetID, itemStreamID);
+                                }
                         }
 
                         var goldOnCharacter = new NetworkMessage(message.NetID)

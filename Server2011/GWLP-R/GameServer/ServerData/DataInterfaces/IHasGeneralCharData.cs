@@ -1,3 +1,5 @@
+using GameServer.ServerData.Items;
+
 namespace GameServer.ServerData.DataInterfaces
 {
         public interface IHasGeneralCharData
@@ -8,5 +10,7 @@ namespace GameServer.ServerData.DataInterfaces
                 uint Level { get; set; }
 
                 uint Morale { get; set; }
+
+                CharacterItems Items { get; set; }
         }
 }

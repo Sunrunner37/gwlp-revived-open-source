@@ -795,7 +795,7 @@
     <Compile Include="ServerData\DataInterfaces\IHasGeneralNpcData.cs" />
     <Compile Include="ServerData\DataInterfaces\IHasGenericValueData.cs" />
     <Compile Include="ServerData\DataInterfaces\IHasHeartbeatData.cs" />
-    <Compile Include="ServerData\DataInterfaces\IHasItemData.cs" />
+    <Compile Include="ServerData\DataInterfaces\IHasMapItemsData.cs" />
     <Compile Include="ServerData\DataInterfaces\IHasMovementData.cs" />
     <Compile Include="ServerData\DataInterfaces\IHasObjectIDManagerData.cs" />
     <Compile Include="ServerData\DataInterfaces\IHasPingData.cs" />
@@ -809,11 +809,10 @@
     <Compile Include="ServerData\DataMap.cs" />
     <Compile Include="ServerData\DataNpc.cs" />
     <Compile Include="ServerData\GameServerWorld.cs" />
-    <Compile Include="ServerData\Items\ItemDictionary.cs" />
+    <Compile Include="ServerData\Items\CharacterItems.cs" />
     <Compile Include="ServerData\Items\Item.cs" />
-    <Compile Include="ServerData\Items\ItemEquipment.cs" />
     <Compile Include="ServerData\Items\ItemStat.cs" />
-    <Compile Include="ServerData\Items\ItemWeaponset.cs" />
+    <Compile Include="ServerData\Items\Weaponset.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServerEngine.GuildWars\ServerEngine.GuildWars.csproj">

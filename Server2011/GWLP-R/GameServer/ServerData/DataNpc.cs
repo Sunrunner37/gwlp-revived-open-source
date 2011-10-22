@@ -74,7 +74,6 @@ namespace GameServer.ServerData
                 IHasGeneralCharData,
                 IHasGeneralNpcData,
                 IHasGenericValueData,
-                IHasItemData,
                 IHasMapData,
                 IHasMovementData,
                 IHasSkillData,
@@ -86,7 +85,7 @@ namespace GameServer.ServerData
                         Attributes = new Dictionary<int, int>();
                         ChatCommands = new Dictionary<string, bool>();
 
-                        Items = new ItemDictionary();
+                        Items = new CharacterItems();
                         
                         Appearance = new byte[0];
                         ModelHash = new byte[0];
@@ -139,6 +138,8 @@ namespace GameServer.ServerData
                 public uint Level { get; set; }
                 public uint Morale { get; set; }
 
+                public CharacterItems Items { get; set; }
+
                 #endregion
 
                 #region Implementation of IHasGeneralNpcData
@@ -157,13 +158,6 @@ namespace GameServer.ServerData
                 public float EnergyRegen { get; set; }
                 public int Health { get; set; }
                 public float HealthRegen { get; set; }
-
-                #endregion
-
-                #region Implementation of IHasItemData
-
-                public ItemDictionary Items { get; set; }
-                public ItemEquipment Equipment { get; set; }
 
                 #endregion
 
