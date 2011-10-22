@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using GameServer.DataBase;
 using GameServer.Packets.ToLoginServer;
 using GameServer.ServerData;
 using ServerEngine;

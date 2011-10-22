@@ -5,10 +5,10 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from gwlpr on 2011-10-20 22:29:59Z.
+// Auto-generated from gwlpr on 2011-10-22 17:18:24Z.
 // Please visit http://code.google.com/p/dblinq2007/ for more information.
 //
-namespace LoginServer.DataBase
+namespace ServerEngine.GuildWars.DataBase
 {
 	using System;
 	using System.ComponentModel;
@@ -23,7 +23,7 @@ namespace LoginServer.DataBase
 	using System.Diagnostics;
 	
 	
-	public partial class MySQL : DataContext
+	public partial class gWLpR : DataContext
 	{
 		
 		#region Extensibility Method Declarations
@@ -31,19 +31,19 @@ namespace LoginServer.DataBase
 		#endregion
 		
 		
-		public MySQL(string connectionString) : 
+		public gWLpR(string connectionString) : 
 				base(connectionString)
 		{
 			this.OnCreated();
 		}
 		
-		public MySQL(string connection, MappingSource mappingSource) : 
+		public gWLpR(string connection, MappingSource mappingSource) : 
 				base(connection, mappingSource)
 		{
 			this.OnCreated();
 		}
 		
-		public MySQL(IDbConnection connection, MappingSource mappingSource) : 
+		public gWLpR(IDbConnection connection, MappingSource mappingSource) : 
 				base(connection, mappingSource)
 		{
 			this.OnCreated();
@@ -154,22 +154,22 @@ namespace LoginServer.DataBase
 	#endregion
 #else     // MONO_STRICT
 	
-	public partial class MySQL
+	public partial class gWLpR
 	{
 		
-		public MySQL(IDbConnection connection) : 
+		public gWLpR(IDbConnection connection) : 
 				base(connection, new DbLinq.MySql.MySqlVendor())
 		{
 			this.OnCreated();
 		}
 		
-		public MySQL(IDbConnection connection, IVendor sqlDialect) : 
+		public gWLpR(IDbConnection connection, IVendor sqlDialect) : 
 				base(connection, sqlDialect)
 		{
 			this.OnCreated();
 		}
 		
-		public MySQL(IDbConnection connection, MappingSource mappingSource, IVendor sqlDialect) : 
+		public gWLpR(IDbConnection connection, MappingSource mappingSource, IVendor sqlDialect) : 
 				base(connection, mappingSource, sqlDialect)
 		{
 			this.OnCreated();
@@ -649,6 +649,14 @@ namespace LoginServer.DataBase
 		
 		private sbyte _isPvP;
 		
+		private int _leadhandWeaponSet1;
+		
+		private int _leadhandWeaponSet2;
+		
+		private int _leadhandWeaponSet3;
+		
+		private int _leadhandWeaponSet4;
+		
 		private int _level;
 		
 		private int _lookCampaign;
@@ -667,6 +675,14 @@ namespace LoginServer.DataBase
 		
 		private int _mapID;
 		
+		private int _offhandWeaponSet1;
+		
+		private int _offhandWeaponSet2;
+		
+		private int _offhandWeaponSet3;
+		
+		private int _offhandWeaponSet4;
+		
 		private sbyte _professionPrimary;
 		
 		private sbyte _professionSecondary;
@@ -680,22 +696,6 @@ namespace LoginServer.DataBase
 		private int _skillPtsTotal;
 		
 		private byte[] _skillsAvailable;
-
-                private uint _leadhandWeaponSet1;
-
-                private uint _offhandWeaponSet1;
-
-                private uint _leadhandWeaponSet2;
-
-                private uint _offhandWeaponSet2;
-
-                private uint _leadhandWeaponSet3;
-
-                private uint _offhandWeaponSet3;
-
-                private uint _leadhandWeaponSet4;
-
-                private uint _offhandWeaponSet4;
 		
 		#region Extensibility Method Declarations
 		partial void OnCreated();
@@ -731,6 +731,22 @@ namespace LoginServer.DataBase
 		partial void OnisPvPChanged();
 		
 		partial void OnisPvPChanging(sbyte value);
+		
+		partial void OnleadhandWeaponSet1Changed();
+		
+		partial void OnleadhandWeaponSet1Changing(int value);
+		
+		partial void OnleadhandWeaponSet2Changed();
+		
+		partial void OnleadhandWeaponSet2Changing(int value);
+		
+		partial void OnleadhandWeaponSet3Changed();
+		
+		partial void OnleadhandWeaponSet3Changing(int value);
+		
+		partial void OnleadhandWeaponSet4Changed();
+		
+		partial void OnleadhandWeaponSet4Changing(int value);
 		
 		partial void OnlevelChanged();
 		
@@ -768,6 +784,22 @@ namespace LoginServer.DataBase
 		
 		partial void OnmapIDChanging(int value);
 		
+		partial void OnoffhandWeaponSet1Changed();
+		
+		partial void OnoffhandWeaponSet1Changing(int value);
+		
+		partial void OnoffhandWeaponSet2Changed();
+		
+		partial void OnoffhandWeaponSet2Changing(int value);
+		
+		partial void OnoffhandWeaponSet3Changed();
+		
+		partial void OnoffhandWeaponSet3Changing(int value);
+		
+		partial void OnoffhandWeaponSet4Changed();
+		
+		partial void OnoffhandWeaponSet4Changing(int value);
+		
 		partial void OnprofessionPrimaryChanged();
 		
 		partial void OnprofessionPrimaryChanging(sbyte value);
@@ -795,38 +827,6 @@ namespace LoginServer.DataBase
 		partial void OnskillsAvailableChanged();
 		
 		partial void OnskillsAvailableChanging(byte[] value);
-
-                partial void OnleadhandWeaponSet1Changed();
-
-                partial void OnleadhandWeaponSet1Changing(uint value);
-
-                partial void OnoffhandWeaponSet1Changed();
-
-                partial void OnoffhandWeaponSet1Changing(uint value);
-
-                partial void OnleadhandWeaponSet2Changed();
-
-                partial void OnleadhandWeaponSet2Changing(uint value);
-
-                partial void OnoffhandWeaponSet2Changed();
-
-                partial void OnoffhandWeaponSet2Changing(uint value);
-
-                partial void OnleadhandWeaponSet3Changed();
-
-                partial void OnleadhandWeaponSet3Changing(uint value);
-
-                partial void OnoffhandWeaponSet3Changed();
-
-                partial void OnoffhandWeaponSet3Changing(uint value);
-
-                partial void OnleadhandWeaponSet4Changed();
-
-                partial void OnleadhandWeaponSet4Changing(uint value);
-
-                partial void OnoffhandWeaponSet4Changed();
-
-                partial void OnoffhandWeaponSet4Changing(uint value);
 		#endregion
 		
 		
@@ -854,7 +854,7 @@ namespace LoginServer.DataBase
 					this.OnaccountIDChanged();
 				}
 			}
-		}	
+		}
 		
 		[Column(Storage="_attrPtsFree", Name="AttrPtsFree", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
@@ -1000,6 +1000,90 @@ namespace LoginServer.DataBase
 					this._isPvP = value;
 					this.SendPropertyChanged("isPvP");
 					this.OnisPvPChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_leadhandWeaponSet1", Name="LeadhandWeaponSet1", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int leadhandWeaponSet1
+		{
+			get
+			{
+				return this._leadhandWeaponSet1;
+			}
+			set
+			{
+				if ((_leadhandWeaponSet1 != value))
+				{
+					this.OnleadhandWeaponSet1Changing(value);
+					this.SendPropertyChanging();
+					this._leadhandWeaponSet1 = value;
+					this.SendPropertyChanged("leadhandWeaponSet1");
+					this.OnleadhandWeaponSet1Changed();
+				}
+			}
+		}
+		
+		[Column(Storage="_leadhandWeaponSet2", Name="LeadhandWeaponSet2", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int leadhandWeaponSet2
+		{
+			get
+			{
+				return this._leadhandWeaponSet2;
+			}
+			set
+			{
+				if ((_leadhandWeaponSet2 != value))
+				{
+					this.OnleadhandWeaponSet2Changing(value);
+					this.SendPropertyChanging();
+					this._leadhandWeaponSet2 = value;
+					this.SendPropertyChanged("leadhandWeaponSet2");
+					this.OnleadhandWeaponSet2Changed();
+				}
+			}
+		}
+		
+		[Column(Storage="_leadhandWeaponSet3", Name="LeadhandWeaponSet3", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int leadhandWeaponSet3
+		{
+			get
+			{
+				return this._leadhandWeaponSet3;
+			}
+			set
+			{
+				if ((_leadhandWeaponSet3 != value))
+				{
+					this.OnleadhandWeaponSet3Changing(value);
+					this.SendPropertyChanging();
+					this._leadhandWeaponSet3 = value;
+					this.SendPropertyChanged("leadhandWeaponSet3");
+					this.OnleadhandWeaponSet3Changed();
+				}
+			}
+		}
+		
+		[Column(Storage="_leadhandWeaponSet4", Name="LeadhandWeaponSet4", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int leadhandWeaponSet4
+		{
+			get
+			{
+				return this._leadhandWeaponSet4;
+			}
+			set
+			{
+				if ((_leadhandWeaponSet4 != value))
+				{
+					this.OnleadhandWeaponSet4Changing(value);
+					this.SendPropertyChanging();
+					this._leadhandWeaponSet4 = value;
+					this.SendPropertyChanged("leadhandWeaponSet4");
+					this.OnleadhandWeaponSet4Changed();
 				}
 			}
 		}
@@ -1193,6 +1277,90 @@ namespace LoginServer.DataBase
 			}
 		}
 		
+		[Column(Storage="_offhandWeaponSet1", Name="OffhandWeaponSet1", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int offhandWeaponSet1
+		{
+			get
+			{
+				return this._offhandWeaponSet1;
+			}
+			set
+			{
+				if ((_offhandWeaponSet1 != value))
+				{
+					this.OnoffhandWeaponSet1Changing(value);
+					this.SendPropertyChanging();
+					this._offhandWeaponSet1 = value;
+					this.SendPropertyChanged("offhandWeaponSet1");
+					this.OnoffhandWeaponSet1Changed();
+				}
+			}
+		}
+		
+		[Column(Storage="_offhandWeaponSet2", Name="OffhandWeaponSet2", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int offhandWeaponSet2
+		{
+			get
+			{
+				return this._offhandWeaponSet2;
+			}
+			set
+			{
+				if ((_offhandWeaponSet2 != value))
+				{
+					this.OnoffhandWeaponSet2Changing(value);
+					this.SendPropertyChanging();
+					this._offhandWeaponSet2 = value;
+					this.SendPropertyChanged("offhandWeaponSet2");
+					this.OnoffhandWeaponSet2Changed();
+				}
+			}
+		}
+		
+		[Column(Storage="_offhandWeaponSet3", Name="OffhandWeaponSet3", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int offhandWeaponSet3
+		{
+			get
+			{
+				return this._offhandWeaponSet3;
+			}
+			set
+			{
+				if ((_offhandWeaponSet3 != value))
+				{
+					this.OnoffhandWeaponSet3Changing(value);
+					this.SendPropertyChanging();
+					this._offhandWeaponSet3 = value;
+					this.SendPropertyChanged("offhandWeaponSet3");
+					this.OnoffhandWeaponSet3Changed();
+				}
+			}
+		}
+		
+		[Column(Storage="_offhandWeaponSet4", Name="OffhandWeaponSet4", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int offhandWeaponSet4
+		{
+			get
+			{
+				return this._offhandWeaponSet4;
+			}
+			set
+			{
+				if ((_offhandWeaponSet4 != value))
+				{
+					this.OnoffhandWeaponSet4Changing(value);
+					this.SendPropertyChanging();
+					this._offhandWeaponSet4 = value;
+					this.SendPropertyChanged("offhandWeaponSet4");
+					this.OnoffhandWeaponSet4Changed();
+				}
+			}
+		}
+		
 		[Column(Storage="_professionPrimary", Name="ProfessionPrimary", DbType="tinyint(4)", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
 		public sbyte professionPrimary
@@ -1341,174 +1509,6 @@ namespace LoginServer.DataBase
 				}
 			}
 		}
-
-                [Column(Storage = "_leadhandWeaponSet1", Name = "LeadhandWeaponSet1", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
-                [DebuggerNonUserCode()]
-                public uint leadhandWeaponSet1
-                {
-                        get
-                        {
-                                return this._leadhandWeaponSet1;
-                        }
-                        set
-                        {
-                                if (_leadhandWeaponSet1 != value)
-                                {
-                                        this.OnleadhandWeaponSet1Changing(value);
-                                        this.SendPropertyChanging();
-                                        this._leadhandWeaponSet1 = value;
-                                        this.SendPropertyChanged("leadhandWeaponSet1");
-                                        this.OnleadhandWeaponSet1Changed();
-                                }
-                        }
-                }
-
-                [Column(Storage = "_offhandWeaponSet1", Name = "OffhandWeaponSet1", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
-                [DebuggerNonUserCode()]
-                public uint offhandWeaponSet1
-                {
-                        get
-                        {
-                                return this._offhandWeaponSet1;
-                        }
-                        set
-                        {
-                                if (_offhandWeaponSet1 != value)
-                                {
-                                        this.OnoffhandWeaponSet1Changing(value);
-                                        this.SendPropertyChanging();
-                                        this._offhandWeaponSet1 = value;
-                                        this.SendPropertyChanged("offhandWeaponSet1");
-                                        this.OnoffhandWeaponSet1Changed();
-                                }
-                        }
-                }
-
-                [Column(Storage = "_leadhandWeaponSet2", Name = "LeadhandWeaponSet2", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
-                [DebuggerNonUserCode()]
-                public uint leadhandWeaponSet2
-                {
-                        get
-                        {
-                                return this._leadhandWeaponSet2;
-                        }
-                        set
-                        {
-                                if (_leadhandWeaponSet2 != value)
-                                {
-                                        this.OnleadhandWeaponSet2Changing(value);
-                                        this.SendPropertyChanging();
-                                        this._leadhandWeaponSet2 = value;
-                                        this.SendPropertyChanged("leadhandWeaponSet2");
-                                        this.OnleadhandWeaponSet2Changed();
-                                }
-                        }
-                }
-
-                [Column(Storage = "_offhandWeaponSet2", Name = "OffhandWeaponSet2", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
-                [DebuggerNonUserCode()]
-                public uint offhandWeaponSet2
-                {
-                        get
-                        {
-                                return this._offhandWeaponSet2;
-                        }
-                        set
-                        {
-                                if (_offhandWeaponSet2 != value)
-                                {
-                                        this.OnoffhandWeaponSet2Changing(value);
-                                        this.SendPropertyChanging();
-                                        this._offhandWeaponSet2 = value;
-                                        this.SendPropertyChanged("offhandWeaponSet2");
-                                        this.OnoffhandWeaponSet2Changed();
-                                }
-                        }
-                }
-
-                [Column(Storage = "_leadhandWeaponSet3", Name = "LeadhandWeaponSet3", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
-                [DebuggerNonUserCode()]
-                public uint leadhandWeaponSet3
-                {
-                        get
-                        {
-                                return this._leadhandWeaponSet3;
-                        }
-                        set
-                        {
-                                if (_leadhandWeaponSet3 != value)
-                                {
-                                        this.OnleadhandWeaponSet3Changing(value);
-                                        this.SendPropertyChanging();
-                                        this._leadhandWeaponSet3 = value;
-                                        this.SendPropertyChanged("leadhandWeaponSet3");
-                                        this.OnleadhandWeaponSet3Changed();
-                                }
-                        }
-                }
-
-                [Column(Storage = "_offhandWeaponSet3", Name = "OffhandWeaponSet3", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
-                [DebuggerNonUserCode()]
-                public uint offhandWeaponSet3
-                {
-                        get
-                        {
-                                return this._offhandWeaponSet3;
-                        }
-                        set
-                        {
-                                if (_offhandWeaponSet3 != value)
-                                {
-                                        this.OnoffhandWeaponSet3Changing(value);
-                                        this.SendPropertyChanging();
-                                        this._offhandWeaponSet3 = value;
-                                        this.SendPropertyChanged("offhandWeaponSet3");
-                                        this.OnoffhandWeaponSet3Changed();
-                                }
-                        }
-                }
-
-                [Column(Storage = "_leadhandWeaponSet4", Name = "LeadhandWeaponSet4", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
-                [DebuggerNonUserCode()]
-                public uint leadhandWeaponSet4
-                {
-                        get
-                        {
-                                return this._leadhandWeaponSet4;
-                        }
-                        set
-                        {
-                                if (_leadhandWeaponSet4 != value)
-                                {
-                                        this.OnleadhandWeaponSet4Changing(value);
-                                        this.SendPropertyChanging();
-                                        this._leadhandWeaponSet4 = value;
-                                        this.SendPropertyChanged("leadhandWeaponSet4");
-                                        this.OnleadhandWeaponSet4Changed();
-                                }
-                        }
-                }
-
-                [Column(Storage = "_offhandWeaponSet4", Name = "OffhandWeaponSet4", DbType = "int", AutoSync = AutoSync.Never, CanBeNull = false)]
-                [DebuggerNonUserCode()]
-                public uint offhandWeaponSet4
-                {
-                        get
-                        {
-                                return this._offhandWeaponSet4;
-                        }
-                        set
-                        {
-                                if (_offhandWeaponSet4 != value)
-                                {
-                                        this.OnoffhandWeaponSet4Changing(value);
-                                        this.SendPropertyChanging();
-                                        this._offhandWeaponSet4 = value;
-                                        this.SendPropertyChanged("offhandWeaponSet4");
-                                        this.OnoffhandWeaponSet4Changed();
-                                }
-                        }
-                }
 		
 		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
 		
@@ -1809,7 +1809,7 @@ namespace LoginServer.DataBase
 		
 		private static System.ComponentModel.PropertyChangingEventArgs emptyChangingEventArgs = new System.ComponentModel.PropertyChangingEventArgs("");
 		
-		private int _gameItemFileID;
+		private long _gameItemFileID;
 		
 		private int _gameItemID;
 		
@@ -1819,12 +1819,14 @@ namespace LoginServer.DataBase
 		
 		private string _name;
 		
+		private sbyte _profession;
+		
 		#region Extensibility Method Declarations
 		partial void OnCreated();
 		
 		partial void OngameItemFileIDChanged();
 		
-		partial void OngameItemFileIDChanging(int value);
+		partial void OngameItemFileIDChanging(long value);
 		
 		partial void OngameItemIDChanged();
 		
@@ -1841,6 +1843,10 @@ namespace LoginServer.DataBase
 		partial void OnnameChanged();
 		
 		partial void OnnameChanging(string value);
+		
+		partial void OnprofessionChanged();
+		
+		partial void OnprofessionChanging(sbyte value);
 		#endregion
 		
 		
@@ -1849,9 +1855,9 @@ namespace LoginServer.DataBase
 			this.OnCreated();
 		}
 		
-		[Column(Storage="_gameItemFileID", Name="GameItemFileID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[Column(Storage="_gameItemFileID", Name="GameItemFileID", DbType="bigint", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-		public int gameItemFileID
+		public long gameItemFileID
 		{
 			get
 			{
@@ -1955,6 +1961,27 @@ namespace LoginServer.DataBase
 			}
 		}
 		
+		[Column(Storage="_profession", Name="Profession", DbType="tinyint(8)", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public sbyte profession
+		{
+			get
+			{
+				return this._profession;
+			}
+			set
+			{
+				if ((_profession != value))
+				{
+					this.OnprofessionChanging(value);
+					this.SendPropertyChanging();
+					this._profession = value;
+					this.SendPropertyChanged("profession");
+					this.OnprofessionChanged();
+				}
+			}
+		}
+		
 		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
 		
 		public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
@@ -1988,7 +2015,7 @@ namespace LoginServer.DataBase
 		
 		private int _charID;
 		
-		private int _creatorCharID;
+		private System.Nullable<int> _creatorCharID;
 		
 		private string _creatorName;
 		
@@ -2021,7 +2048,7 @@ namespace LoginServer.DataBase
 		
 		partial void OncreatorCharIDChanged();
 		
-		partial void OncreatorCharIDChanging(int value);
+		partial void OncreatorCharIDChanging(System.Nullable<int> value);
 		
 		partial void OncreatorNameChanged();
 		
@@ -2108,9 +2135,9 @@ namespace LoginServer.DataBase
 			}
 		}
 		
-		[Column(Storage="_creatorCharID", Name="CreatorCharID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[Column(Storage="_creatorCharID", Name="CreatorCharID", DbType="int", AutoSync=AutoSync.Never)]
 		[DebuggerNonUserCode()]
-		public int creatorCharID
+		public System.Nullable<int> creatorCharID
 		{
 			get
 			{
@@ -2129,7 +2156,7 @@ namespace LoginServer.DataBase
 			}
 		}
 		
-		[Column(Storage="_creatorName", Name="CreatorName", DbType="char(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[Column(Storage="_creatorName", Name="CreatorName", DbType="char(20)", AutoSync=AutoSync.Never)]
 		[DebuggerNonUserCode()]
 		public string creatorName
 		{

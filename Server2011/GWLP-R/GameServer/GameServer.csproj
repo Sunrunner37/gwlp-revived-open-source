@@ -94,7 +94,6 @@
     <Compile Include="Modules\HeartBeat.cs" />
     <Compile Include="Modules\Ping.cs" />
     <Compile Include="Modules\Movement.cs" />
-    <Compile Include="DataBase\MySQL.cs" />
     <Compile Include="Enums\ChatColors.cs" />
     <Compile Include="Enums\GenericValues.cs" />
     <Compile Include="Enums\Movement.cs" />
@@ -853,6 +852,9 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DataBase\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
