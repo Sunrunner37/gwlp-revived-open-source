@@ -23,7 +23,7 @@ namespace ServerEngine.GuildWars.DataBase
 	using System.Diagnostics;
 	
 	
-	public partial class gWLpR : DataContext
+	public partial class MySQL : DataContext
 	{
 		
 		#region Extensibility Method Declarations
@@ -31,19 +31,19 @@ namespace ServerEngine.GuildWars.DataBase
 		#endregion
 		
 		
-		public gWLpR(string connectionString) : 
+		public MySQL(string connectionString) : 
 				base(connectionString)
 		{
 			this.OnCreated();
 		}
 		
-		public gWLpR(string connection, MappingSource mappingSource) : 
+		public MySQL(string connection, MappingSource mappingSource) : 
 				base(connection, mappingSource)
 		{
 			this.OnCreated();
 		}
 		
-		public gWLpR(IDbConnection connection, MappingSource mappingSource) : 
+		public MySQL(IDbConnection connection, MappingSource mappingSource) : 
 				base(connection, mappingSource)
 		{
 			this.OnCreated();
@@ -154,22 +154,22 @@ namespace ServerEngine.GuildWars.DataBase
 	#endregion
 #else     // MONO_STRICT
 	
-	public partial class gWLpR
+	public partial class MySQL
 	{
 		
-		public gWLpR(IDbConnection connection) : 
+		public MySQL(IDbConnection connection) : 
 				base(connection, new DbLinq.MySql.MySqlVendor())
 		{
 			this.OnCreated();
 		}
 		
-		public gWLpR(IDbConnection connection, IVendor sqlDialect) : 
+		public MySQL(IDbConnection connection, IVendor sqlDialect) : 
 				base(connection, sqlDialect)
 		{
 			this.OnCreated();
 		}
 		
-		public gWLpR(IDbConnection connection, MappingSource mappingSource, IVendor sqlDialect) : 
+		public MySQL(IDbConnection connection, MappingSource mappingSource, IVendor sqlDialect) : 
 				base(connection, mappingSource, sqlDialect)
 		{
 			this.OnCreated();

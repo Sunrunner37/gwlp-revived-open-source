@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using LoginServer.DataBase;
+using ServerEngine.GuildWars.DataBase;
 using LoginServer.ServerData;
 using MySql.Data.MySqlClient;
 using ServerEngine;

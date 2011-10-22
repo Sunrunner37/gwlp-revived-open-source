@@ -264,14 +264,14 @@ namespace GameServer.ServerData
 
                                                 Weaponset =
                                                 {
-                                                        Leadhand1 = ch.leadhandWeaponSet1,
-                                                        Offhand1 = ch.offhandWeaponSet1,
-                                                        Leadhand2 = ch.leadhandWeaponSet2,
-                                                        Offhand2 = ch.offhandWeaponSet2,
-                                                        Leadhand3 = ch.leadhandWeaponSet3,
-                                                        Offhand3 = ch.offhandWeaponSet3,
-                                                        Leadhand4 = ch.leadhandWeaponSet4,
-                                                        Offhand4 = ch.offhandWeaponSet4,
+                                                        Leadhand1 = (uint)ch.leadhandWeaponSet1,
+                                                        Offhand1 = (uint)ch.offhandWeaponSet1,
+                                                        Leadhand2 = (uint)ch.leadhandWeaponSet2,
+                                                        Offhand2 = (uint)ch.offhandWeaponSet2,
+                                                        Leadhand3 = (uint)ch.leadhandWeaponSet3,
+                                                        Offhand3 = (uint)ch.offhandWeaponSet3,
+                                                        Leadhand4 = (uint)ch.leadhandWeaponSet4,
+                                                        Offhand4 = (uint)ch.offhandWeaponSet4,
                                                 },
 
                                                 Position = { X = spawn.X, Y = spawn.Y, PlaneZ = spawn.PlaneZ },

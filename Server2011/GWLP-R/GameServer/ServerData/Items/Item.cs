@@ -110,8 +110,8 @@ namespace GameServer.ServerData.Items
                                                 {
                                                         ItemStreamID = 1,
                                                         StorageType = 1, // must be a bag (only item to come here)
-                                                        StorageID = (byte)(Data.Slot - AgentEquipment.Backpack),
-                                                        PageID = (ushort)(Data.Slot - AgentEquipment.Backpack),
+                                                        StorageID = (byte)(Data.Slot - (int)AgentEquipment.Backpack),
+                                                        PageID = (ushort)(Data.Slot - (int)AgentEquipment.Backpack),
                                                         Slots = bagSize,
                                                         ItemLocalID = (uint)Data.ItemLocalID
                                                 }
@@ -188,7 +188,7 @@ namespace GameServer.ServerData.Items
                                                 ItemLocalID = itemLocalID,
                                                 ItemID = dbItemID,
                                                 GameItemID = masterData.gameItemID,
-                                                GameItemFileID = masterData.gameItemFileID,
+                                                GameItemFileID = (uint)masterData.gameItemFileID,
                                                 Name = masterData.name,
                                                 Type = (ItemType)Enum.ToObject(typeof(ItemType), masterData.itemType),
                                         }
@@ -227,7 +227,7 @@ namespace GameServer.ServerData.Items
                                                 ItemLocalID = itemLocalID,
                                                 ItemID = personalDataBaseItem.itemID,
                                                 GameItemID = masterData.gameItemID,
-                                                GameItemFileID = masterData.gameItemFileID,
+                                                GameItemFileID = (uint)masterData.gameItemFileID,
                                                 PersonalItemID = personalDataBaseItem.personalItemID,
                                                 OwnerAccID = new AccID((uint)personalDataBaseItem.accountID),
                                                 OwnerCharID = new CharID((uint)personalDataBaseItem.charID),
@@ -238,9 +238,9 @@ namespace GameServer.ServerData.Items
                                                 Quantity = personalDataBaseItem.quantity,
                                                 Storage = (ItemStorage)Enum.ToObject(typeof(ItemStorage), personalDataBaseItem.storage),
                                                 Slot = personalDataBaseItem.slot,
-                                                CreatorCharID = personalDataBaseItem.creatorCharID,
+                                                CreatorCharID = personalDataBaseItem.creatorCharID ?? 0,
                                                 CreatorName = personalDataBaseItem.creatorName,
-                                                Profession = masterData.profession
+                                                Profession = (byte)masterData.profession
                                         }
                                 };
 
