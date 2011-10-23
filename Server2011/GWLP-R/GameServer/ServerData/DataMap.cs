@@ -341,7 +341,7 @@ namespace GameServer.ServerData
                                         // update equipment
                                         if (tmpItem.Data.Storage == ItemStorage.Equiped)
                                         {
-                                                character.Data.Items.Equipment.Add((AgentEquipment)tmpItem.Data.Slot, tmpItem);
+                                                character.Data.Items.Equipment.Add((AgentEquipment)tmpItem.Data.Slot, new ItemBag(tmpItem));
                                         }
 
                                         // add the weaponsets if necessary

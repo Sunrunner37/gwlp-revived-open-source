@@ -50,7 +50,7 @@ namespace GameServer.ServerData.Items
                                 PacketTemplate = new P343_ItemGeneral.PacketSt343
                                 {
                                         LocalID = (uint)Data.ItemLocalID,
-                                        FileID = (uint)Data.GameItemFileID,
+                                        FileID = Data.GameItemFileID,
                                         ItemType = (byte)Data.Type,
                                         Data2 = 32,
                                         DyeColor = (ushort)Data.DyeColor,
@@ -59,9 +59,9 @@ namespace GameServer.ServerData.Items
                                         Flags = (uint)Data.Flags,
                                         ItemID = (uint)Data.GameItemID,
                                         Quantity = (uint)Data.Quantity,
-                                        NameHash = GWStringExtensions.ToGW(Data.Name),
+                                        NameHash = Data.Name.ToGW(),
                                         NumStats = (byte)Data.Stats.Count,
-                                        Stats = StatsToGW(Data.Stats)
+                                        Stats = Data.Stats.Select(x => x.Compile()).ToArray()
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(itemPacket);
@@ -112,7 +112,7 @@ namespace GameServer.ServerData.Items
                                                         StorageType = 1, // must be a bag (only item to come here)
                                                         StorageID = (byte)(Data.Slot - (int)AgentEquipment.Backpack),
                                                         PageID = (ushort)(Data.Slot - (int)AgentEquipment.Backpack),
-                                                        Slots = bagSize,
+                                                        Slots = (byte)bagSize,
                                                         ItemLocalID = (uint)Data.ItemLocalID
                                                 }
                                         };
@@ -135,36 +135,21 @@ namespace GameServer.ServerData.Items
                         }
                 }
 
-                private static UInt32[] StatsToGW(List<ItemStat> stats)
+                /// <summary>
+                ///   Returns the size of this bag (if this item is no bag, this will return 0)
+                /// </summary>
+                public int GetBagSize()
                 {
-                        UInt32[] GWFormat = new UInt32[stats.Count];
-                        int i = 0;
+                        // all bags have the 'Slots' stat as the first stat, so get the frist one
+                        var firstStat = data.Stats.First();
 
-                        foreach (ItemStat stat in stats)
-                        {
-                                GWFormat[i++] = stat.ToGW();
-                        }
-
-                        return GWFormat;
-                }
-
-                private byte GetBagSize()
-                {
-                        ItemStat firstStat = data.Stats.First<ItemStat>();
-
-                        if (firstStat.Stat == ItemStatEnums.Slots)
-                        {
-                                return firstStat.Value1;
-                        }
-                        else
-                        {
-                                return 0;
-                        }
+                        // and check if it is Slots
+                        return firstStat.Stat == ItemStatEnums.Slots ? firstStat.Value1 : 0;
                 }
 
                 /// <summary>
                 ///   Generates a new item object, containing the basic item data copied from the MasterData table
-                ///   Note that this item has now owner (accID, charID)! do NOT save this to database as is!
+                ///   Note that this item has now owner (accID, charID)! Do NOT save this to database as is!
                 /// </summary>
                 public static Item CreateItemStubFromDB(int dbItemID, int itemLocalID)
                 {
@@ -263,15 +248,16 @@ namespace GameServer.ServerData.Items
 
                 /// <summary>
                 ///   Update / Add this item to the db.
+                ///   Returns the PersonalItemID of this item
                 /// </summary>
-                public void SaveToDB()
+                public long SaveToDB()
                 {
                         // get the database stuff
                         using (var db = (MySQL)DataBaseProvider.GetDataBase())
                         {
                                 // get the db item
                                 var items = from im in db.itemsPerSonALData
-                                            where im.personalItemID == data.PersonalItemID
+                                            where im.personalItemID == Data.PersonalItemID
                                             select im;
 
                                 var existsAlready = false;
@@ -288,7 +274,7 @@ namespace GameServer.ServerData.Items
                                 var charID = ((int)Data.Storage >= 5 && (int)Data.Storage <= 14) ? 0 : Data.OwnerCharID.Value;
 
                                 // update the item
-                                item.personalItemID = data.PersonalItemID;
+                                item.personalItemID = Data.PersonalItemID;
                                 item.itemID = Data.ItemID;
                                 item.accountID = (int)Data.OwnerAccID.Value;
                                 item.charID = (int)charID;
@@ -304,7 +290,7 @@ namespace GameServer.ServerData.Items
                                 var tmpList = new List<byte>();
                                 foreach (var stat in Data.Stats.Select(x => x.Compile()))
                                 {
-                                        tmpList.AddRange(stat);
+                                        tmpList.AddRange(BitConverter.GetBytes(stat));
                                 }
                                 item.stats = tmpList.ToArray();
 
@@ -313,6 +299,20 @@ namespace GameServer.ServerData.Items
 
                                 // submit changes, inserting the item (if necessary) or updating the old one
                                 db.SubmitChanges();
+
+                                if (!existsAlready)
+                                {
+                                        // this seems redundant, but i guess we need to search for it again to get the new personalItemID
+                                        // get the db item
+                                        var dbitem = (from im in db.itemsPerSonALData
+                                                    where im.personalItemID == Data.PersonalItemID
+                                                    select im).First();
+
+                                        Data.PersonalItemID = dbitem.personalItemID;
+                                        return dbitem.personalItemID;
+                                }
+
+                                return item.personalItemID;
                         }
                 }
         }

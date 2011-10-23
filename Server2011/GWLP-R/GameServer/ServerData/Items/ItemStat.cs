@@ -81,27 +81,13 @@ namespace GameServer.ServerData.Items
                 /// <summary>
                 ///   Generates the GW-Item-Stat code out of this object's data
                 /// </summary>
-                public UInt32 ToGW()
+                public UInt32 Compile()
                 {
-                        UInt32 ret = (UInt32)value2;
-                        ret |= (UInt32)value1 << 8;
-                        ret |= (UInt32)stat << 16;
-                        return ret;
-                }
+                        return (UInt32)(
+                               ((ushort) stat << 16) |
+                               (value2 << 8) |
+                               value1);
 
-                /// <summary>
-                ///   Generates the GW-Item-Stat code out of this object's data
-                /// </summary>
-                public byte[] Compile()
-                {
-                        using (var ms = new MemoryStream())
-                        {
-                                RawConverter.WriteByte(value1, ms);
-                                RawConverter.WriteByte(value2, ms);
-                                RawConverter.WriteUInt16((ushort)stat, ms);
-
-                                return ms.ToArray();
-                        }
                 }
         }
 }

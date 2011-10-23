@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace ServerEngine
@@ -68,6 +69,14 @@ namespace ServerEngine
                         {
                                 freeValues.Push(toFree);
                         }
+                }
+
+                /// <summary>
+                ///   Try to register an ID
+                /// </summary>
+                public bool ClaimID(int toClaim)
+                {
+                        return freeValues.Contains(toClaim) ? freeValues.ToList().Remove(toClaim) : false;
                 }
         }
 }
