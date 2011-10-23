@@ -339,9 +339,9 @@ namespace GameServer.ServerData
                                         character.Data.Items.Add(tmpItem.Data.ItemLocalID, tmpItem);
 
                                         // update equipment
-                                        if (tmpItem.Data.Storage == ItemStorage.Equiped)
+                                        if (tmpItem.Data.Storage == ItemStorage.Equiped && tmpItem.Data.Slot <= (int)AgentEquipment.Costume)
                                         {
-                                                character.Data.Items.Equipment.Add((AgentEquipment)tmpItem.Data.Slot, new ItemBag(tmpItem));
+                                                character.Data.Items.Equipment.Add((AgentEquipment)tmpItem.Data.Slot, tmpItem);
                                         }
 
                                         // add the weaponsets if necessary

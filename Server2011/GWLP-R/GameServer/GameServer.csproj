@@ -813,7 +813,6 @@
     <Compile Include="ServerData\Items\CharacterItems.cs" />
     <Compile Include="ServerData\Items\Item.cs" />
     <Compile Include="ServerData\Items\ItemStat.cs" />
-    <Compile Include="ServerData\Items\ItemBag.cs" />
     <Compile Include="ServerData\Items\Weaponset.cs" />
   </ItemGroup>
   <ItemGroup>

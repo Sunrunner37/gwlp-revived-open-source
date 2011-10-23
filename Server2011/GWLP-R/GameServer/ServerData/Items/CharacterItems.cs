@@ -18,7 +18,7 @@ namespace GameServer.ServerData.Items
                 public CharacterItems()
                 {
                         Weaponsets = new Dictionary<int, Weaponset>();
-                        Equipment = new Dictionary<AgentEquipment, ItemBag>();
+                        Equipment = new Dictionary<AgentEquipment, Item>();
                 }
 
                 /// <summary>
@@ -42,7 +42,9 @@ namespace GameServer.ServerData.Items
                 /// <summary>
                 ///   This property holds all equiped items
                 /// </summary>
-                public Dictionary<AgentEquipment, ItemBag> Equipment { get; set; }
+                public Dictionary<AgentEquipment, Item> Equipment { get; set; }
+
+                public Dictionary<int, IDManager> StorageSlots { get; set; }
 
                 /// <summary>
                 ///   Send the character's equipment packet
@@ -55,33 +57,46 @@ namespace GameServer.ServerData.Items
                                 PacketTemplate = new P098_UpdateAgentFullEquipment.PacketSt98
                                 {
                                         AgentID = agentID.Value,
-                                        Leadhand = Equipment.ContainsKey(AgentEquipment.Leadhand) ? (uint)Equipment[AgentEquipment.Leadhand].Item.Data.ItemLocalID : 0,
-                                        Offhand = Equipment.ContainsKey(AgentEquipment.Offhand) ? (uint)Equipment[AgentEquipment.Offhand].Item.Data.ItemLocalID : 0,
-                                        Head = Equipment.ContainsKey(AgentEquipment.Head) ? (uint)Equipment[AgentEquipment.Head].Item.Data.ItemLocalID : 0,
-                                        Chest = Equipment.ContainsKey(AgentEquipment.Chest) ? (uint)Equipment[AgentEquipment.Chest].Item.Data.ItemLocalID : 0,
-                                        Arms = Equipment.ContainsKey(AgentEquipment.Arms) ? (uint)Equipment[AgentEquipment.Arms].Item.Data.ItemLocalID : 0,
-                                        Legs = Equipment.ContainsKey(AgentEquipment.Legs) ? (uint)Equipment[AgentEquipment.Legs].Item.Data.ItemLocalID : 0,
-                                        Feet = Equipment.ContainsKey(AgentEquipment.Feet) ? (uint)Equipment[AgentEquipment.Feet].Item.Data.ItemLocalID : 0,
-                                        Costume = Equipment.ContainsKey(AgentEquipment.Costume) ? (uint)Equipment[AgentEquipment.Costume].Item.Data.ItemLocalID : 0,
-                                        CostumeHead = Equipment.ContainsKey(AgentEquipment.CostumeHead) ? (uint)Equipment[AgentEquipment.CostumeHead].Item.Data.ItemLocalID : 0
+                                        Leadhand = Equipment.ContainsKey(AgentEquipment.Leadhand) ? (uint)Equipment[AgentEquipment.Leadhand].Data.ItemLocalID : 0,
+                                        Offhand = Equipment.ContainsKey(AgentEquipment.Offhand) ? (uint)Equipment[AgentEquipment.Offhand].Data.ItemLocalID : 0,
+                                        Head = Equipment.ContainsKey(AgentEquipment.Head) ? (uint)Equipment[AgentEquipment.Head].Data.ItemLocalID : 0,
+                                        Chest = Equipment.ContainsKey(AgentEquipment.Chest) ? (uint)Equipment[AgentEquipment.Chest].Data.ItemLocalID : 0,
+                                        Arms = Equipment.ContainsKey(AgentEquipment.Arms) ? (uint)Equipment[AgentEquipment.Arms].Data.ItemLocalID : 0,
+                                        Legs = Equipment.ContainsKey(AgentEquipment.Legs) ? (uint)Equipment[AgentEquipment.Legs].Data.ItemLocalID : 0,
+                                        Feet = Equipment.ContainsKey(AgentEquipment.Feet) ? (uint)Equipment[AgentEquipment.Feet].Data.ItemLocalID : 0,
+                                        Costume = Equipment.ContainsKey(AgentEquipment.Costume) ? (uint)Equipment[AgentEquipment.Costume].Data.ItemLocalID : 0,
+                                        CostumeHead = Equipment.ContainsKey(AgentEquipment.CostumeHead) ? (uint)Equipment[AgentEquipment.CostumeHead].Data.ItemLocalID : 0
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(charEquipment);
                 }
 
                 /// <summary>
-                ///   Adds an item, and automatically saves it to the db
+                ///   Adds an item (overrides base method)
+                ///   Functionality is the same, except we got additional Item-Storage-Slot handling within
                 /// </summary>
-                /// <param name="item"></param>
-                public void AddSave(Item item)
+                public new void Add(int itemLocalID, Item item)
                 {
                         // add it
-                        Add(item.Data.ItemLocalID, item);
+                        Add(itemLocalID, item);
+                }
+
+                /// <summary>
+                ///   Adds an item, and automatically saves it to the db
+                /// </summary>
+                public void AddSave(int itemLocalID, Item item)
+                {
+                        // add it
+                        Add(itemLocalID, item);
 
                         // and call the database save stuff
                         item.SaveToDB();
                 }
 
+                /// <summary>
+                ///   Overrides Remove from dictionary.
+                ///   Functionality is the same, except we got additional Item-Storage-Slot handling within
+                /// </summary>
                 public new bool Remove(int key)
                 {
                         ItemBag bag;
@@ -89,34 +104,11 @@ namespace GameServer.ServerData.Items
                         // storage + backpack -> this is a conversion between ItemStorage and AgentEquipment
                         if (Equipment.TryGetValue((AgentEquipment)base[key].Data.Storage + (int)AgentEquipment.Backpack, out bag))
                         {
-                                bag.GetFreeSlot();
+                                // recalculate the ids, because the free slots may have changed
+                                bag.RecalculateSlotIDs(Get(base[key].Data.Storage).Values);
                         }
 
                         return base.Remove(key);
-                }
-
-                /// <summary>
-                ///   Fast lookup of a free item slot,
-                ///   this is not garuanteed to be the first slot, and it may return a -1 even if there
-                ///   is a free slot somewhere.
-                ///   This is just to be used as a quick way to get a slot.
-                /// </summary>
-                /// <returns></returns>
-                public int GetFreeSlot()
-                {
-                        ItemBag bag;
-
-                        for (var i = 0; i < 4; i++)
-                        {
-                                // get the equipment-part (by the help of the enum)
-                                // we only need the 4 values from backpack to bag2
-                                if (Equipment.TryGetValue((AgentEquipment)i + (int)AgentEquipment.Backpack, out bag))
-                                {
-                                        return bag.GetFreeSlot();
-                                }
-                        }
- 
-                        return -1;
                 }
         }
 }

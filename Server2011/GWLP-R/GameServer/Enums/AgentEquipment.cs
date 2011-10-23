@@ -16,12 +16,5 @@ namespace GameServer.Enums
                 Head = 4,
                 Costume = 7, // ??
                 CostumeHead = 8,
-
-                // these are selfdefined (9 saved for... who knows what anet comes up with next =P)
-                Backpack = 10,
-                Beltpouch = 11,
-                Bag1 = 12,
-                Bag2 = 13,
-                EquipmentPack = 14
         }
 }
