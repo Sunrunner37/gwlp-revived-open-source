@@ -42,7 +42,7 @@ namespace GameServer.Packets.FromClient
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(chatMsg);
-                        
+
 
                         return true;
                 }

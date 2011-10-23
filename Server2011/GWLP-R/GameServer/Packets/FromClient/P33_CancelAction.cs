@@ -5,19 +5,17 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.FromClient
 {
-        [PacketAttributes(IsIncoming = true, Header = 56)]
-        public class P056_FIXMEPickupItem : IPacket
+        [PacketAttributes(IsIncoming = true, Header = 33)]
+        public class P33_CancelAction : IPacket
         {
-                public class PacketSt56 : IPacketTemplate
+                public class PacketSt33 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 56; } }
-                        public UInt32 AgentID; //was ID!!
-                        public byte Flag;//0
+                        public UInt16 Header { get { return 33; } }
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt56>)parser;
+                        pParser = (PacketParser<PacketSt33>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
@@ -31,6 +29,6 @@ namespace GameServer.Packets.FromClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt56> pParser;
+                private PacketParser<PacketSt33> pParser;
         }
 }

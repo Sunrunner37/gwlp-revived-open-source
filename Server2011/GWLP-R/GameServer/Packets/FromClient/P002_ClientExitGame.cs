@@ -28,7 +28,7 @@ namespace GameServer.Packets.FromClient
 
                         // get the client
                         var client = GameServerWorld.Instance.Get<DataClient>(message.NetID);
-                        
+
                         // check if it tries to change the game server, else kick it
                         if (client.Data.Status != SyncStatus.Dispatching)
                         {
