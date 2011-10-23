@@ -16,7 +16,7 @@ namespace GameServer.Packets.ToClient
                         [PacketFieldType(ConstSize = false, MaxSize = 128)]
                         public string Text;
                         public UInt32 ButtonId;//client will sent this when button is clicked
-                        public UInt32 Data4;//mostly -1
+                        public UInt32 Flag;//mostly -1
                 }
 
                 public void InitPacket(object parser)
