@@ -7,16 +7,16 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 114)]
-        public class Packet114 : IPacket
+        public class P114_DialogButton : IPacket
         {
                 public class PacketSt114 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 114; } }
-                        public byte Data1;
+                        public byte Icon;
                         [PacketFieldType(ConstSize = false, MaxSize = 128)]
-                        public string Data2;
-                        public UInt32 Data3;
-                        public UInt32 Data4;
+                        public string Text;
+                        public UInt32 ButtonId;//client will sent this when button is clicked
+                        public UInt32 Data4;//mostly -1
                 }
 
                 public void InitPacket(object parser)
