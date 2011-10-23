@@ -34,7 +34,7 @@ namespace GameServer.Enums
         Accept3,
         Decline4,
         Action,
-        SpellIcon,//Even displays tooltip. Spell specified in Data4
+        SpellIcon,//Even displays tooltip. Spell specified in Flag
         Link,
         
     }
