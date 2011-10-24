@@ -339,7 +339,7 @@ namespace GameServer.ServerData
                                         character.Data.Items.Add(tmpItem.Data.ItemLocalID, tmpItem);
 
                                         // update equipment
-                                        if (tmpItem.Data.Storage == ItemStorage.Equiped && tmpItem.Data.Slot <= (int)AgentEquipment.Costume)
+                                        if (tmpItem.Data.Storage == ItemStorage.Equiped && tmpItem.Data.Slot <= (int)AgentEquipment.CostumeHead)
                                         {
                                                 character.Data.Items.Equipment.Add((AgentEquipment)tmpItem.Data.Slot, tmpItem);
                                         }

@@ -144,7 +144,7 @@ namespace GameServer.ServerData.Items
                         var firstStat = data.Stats.First();
 
                         // and check if it is Slots
-                        return firstStat.Stat == ItemStatEnums.Slots ? firstStat.Value1 : 0;
+                        return firstStat.Stat == ItemStatEnums.Slots ? firstStat.Value2 : 0;
                 }
 
                 /// <summary>
@@ -315,6 +315,14 @@ namespace GameServer.ServerData.Items
                                 return item.personalItemID;
                         }
                 }
+
+                public Item Clone()
+                {
+                        Item clone = new Item();
+                        clone.Data = this.data.Clone();
+                        clone.Data.PersonalItemID = 0;
+                        return clone;
+                }
         }
 
         public class ItemData
@@ -422,5 +430,10 @@ namespace GameServer.ServerData.Items
                 ///   This property holds all item stats.
                 /// </summary>
                 public List<ItemStat> Stats { get; set; }
+
+                public ItemData Clone()
+                {
+                        return (ItemData)this.MemberwiseClone();
+                }
         }
 }

@@ -44,7 +44,46 @@ namespace GameServer.ServerData.Items
                 /// </summary>
                 public Dictionary<AgentEquipment, Item> Equipment { get; set; }
 
-                public Dictionary<int, IDManager> StorageSlots { get; set; }
+                /// <summary>
+                ///   This function returns the first free slot in the characters bags.
+                ///   Returns true if a free slot was found.
+                /// </summary>
+                public bool GetFirstFreeSlot(out ItemStorage storage, out byte slot)
+                {
+                        Item bag;
+
+                        for (int i = (int)AgentEquipment.Backpack; i <= (int)AgentEquipment.EquipmentPack; i++)
+                        {
+                                if (!Equipment.TryGetValue((AgentEquipment) i, out bag)) continue;
+
+                                var slots = bag.GetBagSize();
+
+                                if (slots > 0) // failcheck
+                                {
+                                        storage = (ItemStorage)(i - (int)AgentEquipment.Backpack);
+                                        CharacterItems itemsInBag = Get(storage);
+                                        bool[] slotOccupied = new bool[slots];
+
+                                        foreach (var item in itemsInBag)
+                                        {
+                                                slotOccupied[item.Value.Data.Slot] = true;
+                                        }
+
+                                        for (slot = 0; slot < slots; slot++)
+                                        {
+                                                if (!slotOccupied[slot])
+                                                {
+                                                        return true;
+                                                }
+                                        }
+                                }
+                        }
+
+                        storage = ItemStorage.Backpack;
+                        slot = 0;
+                        return false;
+                }
+
 
                 /// <summary>
                 ///   Send the character's equipment packet
@@ -72,16 +111,6 @@ namespace GameServer.ServerData.Items
                 }
 
                 /// <summary>
-                ///   Adds an item (overrides base method)
-                ///   Functionality is the same, except we got additional Item-Storage-Slot handling within
-                /// </summary>
-                public new void Add(int itemLocalID, Item item)
-                {
-                        // add it
-                        Add(itemLocalID, item);
-                }
-
-                /// <summary>
                 ///   Adds an item, and automatically saves it to the db
                 /// </summary>
                 public void AddSave(int itemLocalID, Item item)
@@ -91,24 +120,6 @@ namespace GameServer.ServerData.Items
 
                         // and call the database save stuff
                         item.SaveToDB();
-                }
-
-                /// <summary>
-                ///   Overrides Remove from dictionary.
-                ///   Functionality is the same, except we got additional Item-Storage-Slot handling within
-                /// </summary>
-                public new bool Remove(int key)
-                {
-                        ItemBag bag;
-
-                        // storage + backpack -> this is a conversion between ItemStorage and AgentEquipment
-                        if (Equipment.TryGetValue((AgentEquipment)base[key].Data.Storage + (int)AgentEquipment.Backpack, out bag))
-                        {
-                                // recalculate the ids, because the free slots may have changed
-                                bag.RecalculateSlotIDs(Get(base[key].Data.Storage).Values);
-                        }
-
-                        return base.Remove(key);
                 }
         }
 }
