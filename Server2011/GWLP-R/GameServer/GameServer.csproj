@@ -71,6 +71,7 @@
     <Compile Include="Actions\ChatMessage.cs" />
     <Compile Include="Actions\DespawnItem.cs" />
     <Compile Include="Actions\DespawnPlayer.cs" />
+    <Compile Include="Actions\GotoLocation.cs" />
     <Compile Include="Actions\MovePlayer.cs" />
     <Compile Include="Actions\RotatePlayer.cs" />
     <Compile Include="Actions\ShowDialog.cs" />

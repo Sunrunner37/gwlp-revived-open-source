@@ -1,4 +1,7 @@
 using System;
+using GameServer.Actions;
+using GameServer.ServerData;
+using ServerEngine.GuildWars.Tools;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
@@ -11,9 +14,9 @@ namespace GameServer.Packets.FromClient
                 public class PacketSt55 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 55; } }
-                        public Single Data1;
-                        public Single Data2;
-                        public UInt32 Data3;
+                        public Single PosX;
+                        public Single PosY;
+                        public UInt32 Plane;
                 }
 
                 public void InitPacket(object parser)
@@ -28,6 +31,15 @@ namespace GameServer.Packets.FromClient
                         // parse the message
                         var pack = new PacketSt55();
                         pParser(pack, message.PacketData);
+
+                        // get the client /map
+                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
+                        var map = GameServerWorld.Instance.Get<DataMap>(chara.Data.MapID);
+                        
+                        // do NOT update the char's values as it is not yet there!
+
+                        // enqueue the action
+                        map.Data.ActionQueue.Enqueue(new GotoLocation(chara.Data.CharID, new GWVector(pack.PosX, pack.PosY, (int)pack.Plane)).Execute);
 
                         return true;
                 }
