@@ -14,7 +14,7 @@ namespace GameServer.Packets.ToClient
                         public UInt16 Header { get { return 400; } }
                         public byte ArraySize1;
                         [PacketFieldType(ConstSize = false, MaxSize = 32)]
-                public UInt16[] Data1;
+                        public UInt16[] Data1;
                         public UInt32 Data3;
                 }
 

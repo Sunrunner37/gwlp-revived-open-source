@@ -53,6 +53,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\AgentEquipment.cs" />
+    <Compile Include="Enums\ItemStorage.cs" />
     <Compile Include="Enums\SyncStatus.cs" />
     <Compile Include="Packets\FromClient\NotEncP16896_ClientSeed.cs" />
     <Compile Include="Packets\FromClient\P00_KeepAlive.cs" />

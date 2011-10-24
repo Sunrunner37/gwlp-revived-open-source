@@ -46,13 +46,14 @@ namespace GameServer.Actions
                         // Note: MOVEMENT AIM
                         var gotoLoc = new NetworkMessage(reNetID)
                         {
-                                PacketTemplate = new P030_MovementAim.PacketSt30
+                                PacketTemplate = new P031_MovementGotoLocation.PacketSt31
                                 {
                                         AgentID = (ushort)chara.Data.AgentID.Value,
-                                        X = newAim.X,
-                                        Y = newAim.Y,
-                                        PlaneZ = (ushort)newAim.PlaneZ,
-                                        Data1 = 0
+                                        PosX = newAim.X,
+                                        PosY = newAim.Y,
+                                        Plane = (ushort)newAim.PlaneZ,
+                                        Data1 = 0,
+                                        Data2 = 0x9C
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(gotoLoc);

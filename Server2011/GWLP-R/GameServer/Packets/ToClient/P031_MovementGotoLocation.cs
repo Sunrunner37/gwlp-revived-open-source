@@ -7,17 +7,17 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 31)]
-        public class Packet31 : IPacket
+        public class P031_MovementGotoLocation : IPacket
         {
                 public class PacketSt31 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 31; } }
-                        public UInt32 Data1;
-                        public Single Data2;
-                        public Single Data3;
-                        public UInt16 Data4;
-                        public UInt16 Data5;
-                        public UInt32 Data6;
+                        public UInt32 AgentID;
+                        public Single PosX;
+                        public Single PosY;
+                        public UInt16 Plane;
+                        public UInt16 Data1;
+                        public UInt32 Data2;
                 }
 
                 public void InitPacket(object parser)

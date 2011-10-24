@@ -182,6 +182,14 @@ namespace LoginServer.Packets.FromClient
                                                         // create the appearance bytearray
                                                         #region appearance
 
+                                                        //// get all character items (equipment, bags etc.)
+                                                        //var itemsChara = from pi in db.itemsPerSonALData
+                                                        //                 where (pi.charID == newClient.Data.CharID.Value) &&
+                                                        //                 (pi.storage == (int)ItemStorage.Equiped) &&
+                                                        //                 (pi.slot >= (int)AgentEquipment.Chest) &&
+                                                        //                 (pi.slot <= (int)AgentEquipment.Head)
+                                                        //                 select pi;
+
                                                         byte remainderLen = 0;
 
                                                         /*if (dbChar.armorHead.Length != 0) remainderLen++;
