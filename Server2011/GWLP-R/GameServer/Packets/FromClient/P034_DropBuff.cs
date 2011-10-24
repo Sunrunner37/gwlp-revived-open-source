@@ -5,19 +5,18 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.FromClient
 {
-        [PacketAttributes(IsIncoming = true, Header = 31)]
-        public class P31_AttackTarget : IPacket
+        [PacketAttributes(IsIncoming = true, Header = 34)]
+        public class P034_DropBuff : IPacket
         {
-                public class PacketSt31 : IPacketTemplate
+                public class PacketSt34 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 31; } }
-                        public UInt32 TargetID;
-                        public byte Flag;//0 for Attack 1 for Ping
+                        public UInt16 Header { get { return 34; } }
+                        public UInt32 BuffID;
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt31>)parser;
+                        pParser = (PacketParser<PacketSt34>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
@@ -31,6 +30,6 @@ namespace GameServer.Packets.FromClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt31> pParser;
+                private PacketParser<PacketSt34> pParser;
         }
 }

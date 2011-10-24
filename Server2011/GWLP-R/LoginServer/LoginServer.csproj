@@ -107,7 +107,7 @@
     <Compile Include="Packets\FromClient\Packet54.cs" />
     <Compile Include="Packets\FromClient\Packet55.cs" />
     <Compile Include="Packets\FromClient\Packet6.cs" />
-    <Compile Include="Packets\FromClient\Packet7.cs" />
+    <Compile Include="Packets\FromClient\P7_DeleteCharacter.cs" />
     <Compile Include="Packets\FromClient\Packet8.cs" />
     <Compile Include="Packets\FromClient\P09_LastCharInfo.cs" />
     <Compile Include="Packets\FromGameServer\P65281_HandshakeRequest.cs" />

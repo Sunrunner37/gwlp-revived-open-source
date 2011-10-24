@@ -5,19 +5,17 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.FromClient
 {
-        [PacketAttributes(IsIncoming = true, Header = 13)]
-        public class P13_SetHeroMode : IPacket
+        [PacketAttributes(IsIncoming = true, Header = 92)]
+        public class P092_SkipCinematic : IPacket
         {
-                public class PacketSt13 : IPacketTemplate
+                public class PacketSt92 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 13; } }
-                        public UInt32 AgentID;
-                        public UInt32 Mode;
+                        public UInt16 Header { get { return 92; } }
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt13>)parser;
+                        pParser = (PacketParser<PacketSt92>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
@@ -31,6 +29,6 @@ namespace GameServer.Packets.FromClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt13> pParser;
+                private PacketParser<PacketSt92> pParser;
         }
 }

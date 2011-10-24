@@ -5,18 +5,21 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.FromClient
 {
-        [PacketAttributes(IsIncoming = true, Header = 43)]
-        public class P43_ChangeWeaponSet : IPacket
+        [PacketAttributes(IsIncoming = true, Header = 84)]
+        public class P084_SetSkillbarSkill : IPacket
         {
-                public class PacketSt43 : IPacketTemplate
+                public class PacketSt84 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 43; } }
-                        public byte WeaponSet;
+                        public UInt16 Header { get { return 84; } }
+                        public UInt32 AgentID;
+                        public UInt32 Slot;
+                        public UInt32 SkillID;
+                        public UInt32 Flag;//0
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt43>)parser;
+                        pParser = (PacketParser<PacketSt84>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
@@ -30,6 +33,6 @@ namespace GameServer.Packets.FromClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt43> pParser;
+                private PacketParser<PacketSt84> pParser;
         }
 }

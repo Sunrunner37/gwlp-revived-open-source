@@ -5,19 +5,19 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.FromClient
 {
-        [PacketAttributes(IsIncoming = true, Header = 14)]
-        public class Packet14 : IPacket
+        [PacketAttributes(IsIncoming = true, Header = 74)]
+        public class P074_GoSignpost : IPacket
         {
-                public class PacketSt14 : IPacketTemplate
+                public class PacketSt74 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 14; } }
-                        public UInt32 ID1;
-                        public UInt32 ID2;
+                        public UInt16 Header { get { return 74; } }
+                        public UInt32 AgentID;
+                        public byte Flag;//0
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt14>)parser;
+                        pParser = (PacketParser<PacketSt74>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
@@ -31,6 +31,6 @@ namespace GameServer.Packets.FromClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt14> pParser;
+                private PacketParser<PacketSt74> pParser;
         }
 }

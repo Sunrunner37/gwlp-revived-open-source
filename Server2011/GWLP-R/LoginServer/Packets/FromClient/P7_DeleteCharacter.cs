@@ -3,19 +3,22 @@ using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
-namespace GameServer.Packets.FromClient
+namespace LoginServer.Packets.FromClient
 {
-        [PacketAttributes(IsIncoming = true, Header = 92)]
-        public class Packet92 : IPacket
+        [PacketAttributes(IsIncoming = true, Header = 7)]
+        public class P7_DeleteCharacter : IPacket
         {
-                public class PacketSt92 : IPacketTemplate
+                public class PacketSt7 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 92; } }
+                        public UInt16 Header { get { return 7; } }
+                        public UInt32 CharacterID;//not really sure bout this
+                        [PacketFieldType(ConstSize = false, MaxSize = 20)]
+                        public string CharacterName;
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt92>)parser;
+                        pParser = (PacketParser<PacketSt7>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
@@ -29,6 +32,6 @@ namespace GameServer.Packets.FromClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt92> pParser;
+                private PacketParser<PacketSt7> pParser;
         }
 }

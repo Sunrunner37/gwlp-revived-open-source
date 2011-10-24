@@ -5,21 +5,18 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.FromClient
 {
-        [PacketAttributes(IsIncoming = true, Header = 32)]
-        public class P32_UseAttackSkill : IPacket
+        [PacketAttributes(IsIncoming = true, Header = 40)]
+        public class P040_DropGold : IPacket
         {
-                public class PacketSt32 : IPacketTemplate
+                public class PacketSt40 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 32; } }
-                        public UInt32 SkillID;
-                        public UInt32 Event;
-                        public UInt32 TargetID;
-                        public byte Data3;//0
+                        public UInt16 Header { get { return 40; } }
+                        public UInt32 Amount;
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt32>)parser;
+                        pParser = (PacketParser<PacketSt40>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
@@ -33,6 +30,6 @@ namespace GameServer.Packets.FromClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt32> pParser;
+                private PacketParser<PacketSt40> pParser;
         }
 }

@@ -3,22 +3,22 @@ using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
-namespace LoginServer.Packets.FromClient
+namespace GameServer.Packets.FromClient
 {
-        [PacketAttributes(IsIncoming = true, Header = 7)]
-        public class Packet7 : IPacket
+        [PacketAttributes(IsIncoming = true, Header = 46)]
+        public class P046_DonateFaction : IPacket
         {
-                public class PacketSt7 : IPacketTemplate
+                public class PacketSt46 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 7; } }
-                        public UInt32 Data1;
-                        [PacketFieldType(ConstSize = false, MaxSize = 20)]
-                        public string Data2;
+                        public UInt16 Header { get { return 46; } }
+                        public UInt32 Flag;//0
+                        public byte Faction;
+                        public UInt32 Amount;
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt7>)parser;
+                        pParser = (PacketParser<PacketSt46>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
@@ -32,6 +32,6 @@ namespace LoginServer.Packets.FromClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt7> pParser;
+                private PacketParser<PacketSt46> pParser;
         }
 }

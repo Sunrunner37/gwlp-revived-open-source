@@ -5,18 +5,18 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.FromClient
 {
-        [PacketAttributes(IsIncoming = true, Header = 52)]
-        public class P52_PressDialogButton : IPacket
+        [PacketAttributes(IsIncoming = true, Header = 76)]
+        public class P076_OpenChest : IPacket
         {
-                public class PacketSt52 : IPacketTemplate
+                public class PacketSt76 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 52; } }
-                        public UInt32 ButtonID;
+                        public UInt16 Header { get { return 76; } }
+                        public UInt32 Flag;//2
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt52>)parser;
+                        pParser = (PacketParser<PacketSt76>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
@@ -30,6 +30,6 @@ namespace GameServer.Packets.FromClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt52> pParser;
+                private PacketParser<PacketSt76> pParser;
         }
 }
