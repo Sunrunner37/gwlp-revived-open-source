@@ -39,12 +39,10 @@ namespace GameServer.ServerData.Items
                 }
 
                 /// <summary>
-                ///   This generates the item packets and automatically sends them
-                ///   to the specified client
+                ///   Sends the general packet for the item
                 /// </summary>
-                public void SendPackets(NetID netID)
+                public void SendGeneral(NetID netID)
                 {
-                        // send all packets from this item to 'netID'
                         var itemPacket = new NetworkMessage(netID)
                         {
                                 PacketTemplate = new P343_ItemGeneral.PacketSt343
@@ -65,7 +63,13 @@ namespace GameServer.ServerData.Items
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(itemPacket);
+                }
 
+                /// <summary>
+                ///   Sends the owner packet for the item
+                /// </summary>
+                public void SendOwner(NetID netID)
+                {
                         // if its customized...
                         if (Data.CreatorName != null) //failcheck
                         {
@@ -82,7 +86,13 @@ namespace GameServer.ServerData.Items
                                         QueuingService.PostProcessingQueue.Enqueue(itemOwner);
                                 }
                         }
+                }
 
+                /// <summary>
+                ///   Sends the profession packet for the item
+                /// </summary>
+                public void SendProfession(NetID netID)
+                {
                         // some items have unnecessary restrictments...
                         if (Data.Profession > 0)
                         {
@@ -96,7 +106,13 @@ namespace GameServer.ServerData.Items
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(itemProfession);
                         }
+                }
 
+                /// <summary>
+                ///   Sends the location/page packet for the item
+                /// </summary>
+                public void SendLocation(NetID netID)
+                {
                         // if the item is owned by someone send its inventory location
                         if (Data.OwnerAccID.Value > 0)
                         {
@@ -133,6 +149,19 @@ namespace GameServer.ServerData.Items
                                         QueuingService.PostProcessingQueue.Enqueue(itemLocation);
                                 }
                         }
+                }
+
+                /// <summary>
+                ///   This generates the item packets and automatically sends them
+                ///   to the specified client
+                /// </summary>
+                public void SendPackets(NetID netID)
+                {
+                        // send all packets from this item to 'netID'
+                        SendGeneral(netID);
+                        SendOwner(netID);
+                        SendProfession(netID);
+                        SendLocation(netID);
                 }
 
                 /// <summary>
@@ -250,7 +279,7 @@ namespace GameServer.ServerData.Items
                 ///   Update / Add this item to the db.
                 ///   Returns the PersonalItemID of this item
                 /// </summary>
-                public long SaveToDB()
+                public void SaveToDB()
                 {
                         // get the database stuff
                         using (var db = (MySQL)DataBaseProvider.GetDataBase())
@@ -300,19 +329,7 @@ namespace GameServer.ServerData.Items
                                 // submit changes, inserting the item (if necessary) or updating the old one
                                 db.SubmitChanges();
 
-                                if (!existsAlready)
-                                {
-                                        // this seems redundant, but i guess we need to search for it again to get the new personalItemID
-                                        // get the db item
-                                        var dbitem = (from im in db.itemsPerSonALData
-                                                    where im.personalItemID == Data.PersonalItemID
-                                                    select im).First();
-
-                                        Data.PersonalItemID = dbitem.personalItemID;
-                                        return dbitem.personalItemID;
-                                }
-
-                                return item.personalItemID;
+                                Data.PersonalItemID = item.personalItemID;
                         }
                 }
 

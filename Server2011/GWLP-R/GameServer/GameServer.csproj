@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\ChatMessage.cs" />
+    <Compile Include="Actions\DespawnItem.cs" />
     <Compile Include="Actions\DespawnPlayer.cs" />
     <Compile Include="Actions\MovePlayer.cs" />
     <Compile Include="Actions\RotatePlayer.cs" />
@@ -243,7 +244,7 @@
     <Compile Include="Packets\FromClient\Packet53.cs" />
     <Compile Include="Packets\FromClient\P054_KeyboardMove.cs" />
     <Compile Include="Packets\FromClient\P055_ClickLocation.cs" />
-    <Compile Include="Packets\FromClient\P056_FIXMEPickupItem.cs" />
+    <Compile Include="Packets\FromClient\P056_PickupItem.cs" />
     <Compile Include="Packets\FromClient\P057_KeyboardRotate.cs" />
     <Compile Include="Packets\FromClient\P058_ChangeSecondProfession.cs" />
     <Compile Include="Packets\FromClient\Packet59.cs" />

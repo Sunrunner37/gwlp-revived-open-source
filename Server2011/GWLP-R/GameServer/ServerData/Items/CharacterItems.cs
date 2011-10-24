@@ -24,12 +24,11 @@ namespace GameServer.ServerData.Items
                 /// <summary>
                 ///   Selects all dictionary key-value pairs that lie within a special item storage
                 /// </summary>
-                public CharacterItems Get(ItemStorage storageType)
+                public Dictionary<int, Item> Get(ItemStorage storageType)
                 {
                         // the following linq expressions filters the dictionary and returns a new one,
                         // only containing items that are located at a specific storage
-                        return (CharacterItems)this
-                                .AsEnumerable()
+                        return this.AsEnumerable()
                                 .Where(x => x.Value.Data.Storage == storageType)
                                 .ToDictionary(x => x.Key, x => x.Value);
                 }
@@ -61,13 +60,13 @@ namespace GameServer.ServerData.Items
                                 if (slots > 0) // failcheck
                                 {
                                         storage = (ItemStorage)(i - (int)AgentEquipment.Backpack);
-                                        CharacterItems itemsInBag = Get(storage);
+                                        Dictionary<int, Item> items = Get(storage);
                                         bool[] slotOccupied = new bool[slots];
 
-                                        foreach (var item in itemsInBag)
+                                        foreach (var item in items.Values)
                                         {
-                                                slotOccupied[item.Value.Data.Slot] = true;
-                                        }
+                                                slotOccupied[item.Data.Slot] = true;
+                                        }       
 
                                         for (slot = 0; slot < slots; slot++)
                                         {
