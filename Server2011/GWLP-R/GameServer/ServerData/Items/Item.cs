@@ -333,6 +333,31 @@ namespace GameServer.ServerData.Items
                         }
                 }
 
+                /// <summary>
+                ///   Try to delete the item from the db.
+                /// </summary>
+                /// <returns></returns>
+                public bool DeleteFromDB()
+                {
+                        // get the database stuff
+                        using (var db = (MySQL)DataBaseProvider.GetDataBase())
+                        {
+                                var dbItems = from i in db.itemsPerSonALData
+                                              where i.personalItemID == Data.PersonalItemID
+                                              select i;
+
+                                // check if we found any items
+                                if (dbItems.Count() == 0) return false;
+                                var dbItem = dbItems.First();
+
+                                // delete the item:
+                                db.itemsPerSonALData.DeleteOnSubmit(dbItem);
+                                db.SubmitChanges();
+
+                                return true;
+                        }
+                }
+
                 public Item Clone()
                 {
                         Item clone = new Item();

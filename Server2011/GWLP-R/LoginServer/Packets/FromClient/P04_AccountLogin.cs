@@ -182,21 +182,13 @@ namespace LoginServer.Packets.FromClient
                                                         // create the appearance bytearray
                                                         #region appearance
 
-                                                        //// get all character items (equipment, bags etc.)
-                                                        //var itemsChara = from pi in db.itemsPerSonALData
-                                                        //                 where (pi.charID == newClient.Data.CharID.Value) &&
-                                                        //                 (pi.storage == (int)ItemStorage.Equiped) &&
-                                                        //                 (pi.slot >= (int)AgentEquipment.Chest) &&
-                                                        //                 (pi.slot <= (int)AgentEquipment.Head)
-                                                        //                 select pi;
-
-                                                        byte remainderLen = 0;
-
-                                                        /*if (dbChar.armorHead.Length != 0) remainderLen++;
-                                                        if (dbChar.armorChest.Length != 0) remainderLen++;
-                                                        if (dbChar.armorArms.Length != 0) remainderLen++;
-                                                        if (dbChar.armorLegs.Length != 0) remainderLen++;
-                                                        if (dbChar.armorFeet.Length != 0) remainderLen++;*/
+                                                        // get all character items (equipment, bags etc.)
+                                                        var itemsChara = (from pi in db.itemsPerSonALData
+                                                                         where (pi.charID == newClient.Data.CharID.Value) &&
+                                                                         (pi.storage == (int)ItemStorage.Equiped) &&
+                                                                         (pi.slot >= (int)AgentEquipment.Chest) &&
+                                                                         (pi.slot <= (int)AgentEquipment.Head)
+                                                                         select pi).ToDictionary(x => (AgentEquipment)x.slot, x => x);
 
                                                         var appearance = new MemoryStream();
                                                         RawConverter.WriteUInt16(6, appearance);
@@ -216,13 +208,29 @@ namespace LoginServer.Packets.FromClient
                                                                 (dbChar.level > 15 ? 1 : 0)),
                                                                 appearance);
                                                         RawConverter.WriteByteAr(new byte[] { 0xDD, 0xDD }, appearance);
-                                                        RawConverter.WriteByte(remainderLen, appearance);
+                                                        RawConverter.WriteByte((byte)itemsChara.Count, appearance);
                                                         RawConverter.WriteByteAr(new byte[] { 0xDD, 0xDD, 0xDD, 0xDD }, appearance);
-                                                        /*if (dbChar.armorHead != null) RawConverter.WriteByteAr(dbChar.armorHead, appearance);
-                                                        if (dbChar.armorChest != null) RawConverter.WriteByteAr(dbChar.armorChest, appearance);
-                                                        if (dbChar.armorArms != null) RawConverter.WriteByteAr(dbChar.armorArms, appearance);
-                                                        if (dbChar.armorLegs != null) RawConverter.WriteByteAr(dbChar.armorLegs, appearance);
-                                                        if (dbChar.armorFeet != null) RawConverter.WriteByteAr(dbChar.armorFeet, appearance);*/
+
+                                                        for (var i = (int)AgentEquipment.Chest; i < (int)AgentEquipment.Head; i++)
+                                                        {
+                                                                // failcheck
+                                                                if (!itemsChara.ContainsKey((AgentEquipment)i)) continue;
+
+                                                                var tmpID = itemsChara[(AgentEquipment)i].itemID;
+
+                                                                // get the master data
+                                                                var masterDatas = from im in db.itemsMasterData
+                                                                                  where im.itemID == tmpID
+                                                                                  select im;
+
+                                                                // failcheck
+                                                                if (masterDatas.Count() == 0) throw new NotImplementedException("Item master data not found. ItemID: " + tmpID);
+                                                                var masterData = masterDatas.First();
+
+                                                                RawConverter.WriteUInt16((ushort)masterData.gameItemFileID, appearance);
+                                                                RawConverter.WriteUInt16((ushort)itemsChara[(AgentEquipment)i].dyeColor, appearance);
+                                                                RawConverter.WriteByte(32, appearance);
+                                                        }
 
                                                         #endregion appearance
 
