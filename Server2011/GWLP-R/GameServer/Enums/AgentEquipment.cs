@@ -10,10 +10,10 @@ namespace GameServer.Enums
                 Leadhand = 0,
                 Offhand = 1,
                 Chest = 2,
-                Feet = 5,
                 Legs = 3,
-                Arms = 6,
                 Head = 4,
+                Feet = 5,
+                Arms = 6,
                 Costume = 7, // ??
                 CostumeHead = 8,
 

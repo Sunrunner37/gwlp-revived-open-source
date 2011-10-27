@@ -182,12 +182,13 @@ namespace LoginServer.Packets.FromClient
                                                         // create the appearance bytearray
                                                         #region appearance
 
+                                                        var tmpCharID = dbChar.charID;
                                                         // get all character items (equipment, bags etc.)
                                                         var itemsChara = (from pi in db.itemsPerSonALData
-                                                                         where (pi.charID == newClient.Data.CharID.Value) &&
+                                                                         where ((pi.charID == tmpCharID) &&
                                                                          (pi.storage == (int)ItemStorage.Equiped) &&
                                                                          (pi.slot >= (int)AgentEquipment.Chest) &&
-                                                                         (pi.slot <= (int)AgentEquipment.Head)
+                                                                         (pi.slot <= (int)AgentEquipment.Arms))
                                                                          select pi).ToDictionary(x => (AgentEquipment)x.slot, x => x);
 
                                                         var appearance = new MemoryStream();
@@ -211,7 +212,7 @@ namespace LoginServer.Packets.FromClient
                                                         RawConverter.WriteByte((byte)itemsChara.Count, appearance);
                                                         RawConverter.WriteByteAr(new byte[] { 0xDD, 0xDD, 0xDD, 0xDD }, appearance);
 
-                                                        for (var i = (int)AgentEquipment.Chest; i < (int)AgentEquipment.Head; i++)
+                                                        for (var i = (int)AgentEquipment.Chest; i <= (int)AgentEquipment.Arms; i++)
                                                         {
                                                                 // failcheck
                                                                 if (!itemsChara.ContainsKey((AgentEquipment)i)) continue;
