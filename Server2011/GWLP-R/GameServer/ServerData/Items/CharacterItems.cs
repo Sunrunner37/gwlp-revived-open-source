@@ -5,6 +5,7 @@ using GameServer.Enums;
 using GameServer.Packets.ToClient;
 using ServerEngine;
 using ServerEngine.DataManagement.DataWrappers;
+using ServerEngine.GuildWars.DataBase;
 using ServerEngine.GuildWars.DataWrappers.Chars;
 using ServerEngine.NetworkManagement;
 
@@ -17,7 +18,15 @@ namespace GameServer.ServerData.Items
                 /// </summary>
                 public CharacterItems()
                 {
-                        Weaponsets = new Dictionary<int, Weaponset>();
+                        var dummy = new Item();
+
+                        Weaponsets = new Dictionary<int, Weaponset>()
+                        {
+                                {0, new Weaponset {LeadHand = dummy, OffHand = dummy, Number = 0}},
+                                {1, new Weaponset {LeadHand = dummy, OffHand = dummy, Number = 1}},
+                                {2, new Weaponset {LeadHand = dummy, OffHand = dummy, Number = 2}},
+                                {3, new Weaponset {LeadHand = dummy, OffHand = dummy, Number = 3}}
+                        };
                         Equipment = new Dictionary<AgentEquipment, Item>();
                 }
 
@@ -39,6 +48,11 @@ namespace GameServer.ServerData.Items
                 public Dictionary<int, Weaponset> Weaponsets { get; set; }
 
                 /// <summary>
+                ///   This property contains the active weaponset
+                /// </summary>
+                public Weaponset ActiveWeaponset { get; set; }
+
+                /// <summary>
                 ///   This property holds all equiped items
                 /// </summary>
                 public Dictionary<AgentEquipment, Item> Equipment { get; set; }
@@ -47,26 +61,73 @@ namespace GameServer.ServerData.Items
                 ///   This function returns the first free slot in the characters bags.
                 ///   Returns true if a free slot was found.
                 /// </summary>
-                public bool GetFirstFreeSlot(out ItemStorage storage, out byte slot)
+                public bool GetFirstFreeSlot(out ItemStorage bag, out byte slot)
+                {
+                        for (bag = ItemStorage.Backpack; bag <= ItemStorage.EquipmentPack; bag++)
+                        {
+                                if (GetFirstFreeSlotInBag(bag, out slot)) return true;
+                        }
+
+                        bag = ItemStorage.Backpack;
+                        slot = 0;
+                        return false;
+                }
+
+                /// <summary>
+                ///   This function returns the number of free slots in the characters bags.
+                /// </summary>
+                public int GetNumFreeSlots()
                 {
                         Item bag;
+                        int numFreeSlots = 0;
 
-                        for (int i = (int)AgentEquipment.Backpack; i <= (int)AgentEquipment.EquipmentPack; i++)
+                        for (int i = (int)ItemStorage.Backpack; i <= (int)ItemStorage.EquipmentPack; i++)
                         {
-                                if (!Equipment.TryGetValue((AgentEquipment) i, out bag)) continue;
+                                numFreeSlots += GetNumFreeSlotsInBag((ItemStorage)i);
+                        }
 
-                                var slots = bag.GetBagSize();
+                        return numFreeSlots;
+                }
+
+                /// <summary>
+                ///   This function returns the number of free slots in a specific bag.
+                /// </summary>
+                public int GetNumFreeSlotsInBag(ItemStorage bag)
+                {
+                        Item bagItem;
+                        if (Equipment.TryGetValue((AgentEquipment)(bag + (int)AgentEquipment.Backpack), out bagItem))
+                        {
+                                var slots = bagItem.GetBagSize();
 
                                 if (slots > 0) // failcheck
                                 {
-                                        storage = (ItemStorage)(i - (int)AgentEquipment.Backpack);
-                                        Dictionary<int, Item> items = Get(storage);
+                                        return slots - Get(bag).Count;
+                                }
+                        }
+
+                        return 0;
+                }
+
+                /// <summary>
+                ///   This function returns the first free slot in a specific bag.
+                ///   Returns true if a free slot was found.
+                /// </summary>
+                public bool GetFirstFreeSlotInBag(ItemStorage bag, out byte slot)
+                {
+                        Item bagItem;
+                        if (Equipment.TryGetValue((AgentEquipment)(bag + (int)AgentEquipment.Backpack), out bagItem))
+                        {
+                                var slots = bagItem.GetBagSize();
+
+                                if (slots > 0) // failcheck
+                                {
+                                        var items = Get(bag);
                                         bool[] slotOccupied = new bool[slots];
 
                                         foreach (var item in items.Values)
                                         {
                                                 slotOccupied[item.Data.Slot] = true;
-                                        }       
+                                        }
 
                                         for (slot = 0; slot < slots; slot++)
                                         {
@@ -78,11 +139,9 @@ namespace GameServer.ServerData.Items
                                 }
                         }
 
-                        storage = ItemStorage.Backpack;
                         slot = 0;
                         return false;
                 }
-
 
                 /// <summary>
                 ///   Send the character's equipment packet

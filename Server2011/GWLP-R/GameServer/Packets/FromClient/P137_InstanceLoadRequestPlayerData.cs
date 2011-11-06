@@ -172,8 +172,6 @@ namespace GameServer.Packets.FromClient
                         };
                         QueuingService.PostProcessingQueue.Enqueue(genHeaReg);
 
-                        chara.Data.Level = 22; // dummy
-
                         // Note: UPDATE GENERICVALUE HEALTH
                         var genLvl = new NetworkMessage(message.NetID)
                         {

@@ -299,24 +299,22 @@ namespace GameServer.Actions
                         };
                         QueuingService.PostProcessingQueue.Enqueue(charMain);
 
-                        // Note: UPDATE AGENT EQUIPMENT
-                        var charEquip = new NetworkMessage(reNetID)
+                        // Note: Bugfix. Without it the display of armor may bug.
+                        var map = GameServerWorld.Instance.Get<DataMap>(chara.Data.MapID);
+                        for (var equipmentSlot = AgentEquipment.Leadhand; equipmentSlot <= AgentEquipment.CostumeHead; equipmentSlot++)
                         {
-                                PacketTemplate = new P098_UpdateAgentFullEquipment.PacketSt98
-                                {
-                                        AgentID = chara.Data.AgentID.Value,
-                                        Leadhand = 0,
-                                        Offhand = 0,
-                                        Chest = 0,
-                                        Head = 0,
-                                        Arms = 0,
-                                        Feet = 0,
-                                        Legs = 0,
-                                        Costume = 0,
-                                        CostumeHead = 0
-                                }
-                        };
-                        QueuingService.PostProcessingQueue.Enqueue(charEquip);
+                                if (!chara.Data.Items.Equipment.ContainsKey(equipmentSlot)) continue;
+
+                                map.Data.ActionQueue.Enqueue(
+                                new SendToAllClients(
+                                        new P099_UpdateAgentEquipment.PacketSt99
+                                        {
+                                                AgentID = chara.Data.AgentID.Value,
+                                                EquipmentSlot = (uint)equipmentSlot,
+                                                ItemLocalID = (uint)chara.Data.Items.Equipment[equipmentSlot].Data.ItemLocalID
+                                        }
+                                ).Execute);
+                        }
 
                         // Note: UPDATE AGENT MORALE
                         var charMorale = new NetworkMessage(reNetID)

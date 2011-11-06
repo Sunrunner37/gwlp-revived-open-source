@@ -7,13 +7,13 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 303)]
-        public class Packet303 : IPacket
+        public class P303_UpdateItemQuantity : IPacket
         {
                 public class PacketSt303 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 303; } }
-                        public UInt32 Data1;
-                        public UInt32 Data2;
+                        public UInt32 ItemLocalID;
+                        public UInt32 NewQuantity;
                 }
 
                 public void InitPacket(object parser)

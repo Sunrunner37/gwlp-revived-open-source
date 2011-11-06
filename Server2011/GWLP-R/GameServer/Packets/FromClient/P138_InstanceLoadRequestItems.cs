@@ -55,7 +55,7 @@ namespace GameServer.Packets.FromClient
                                 PacketTemplate = new P318_UpdateActiveWeaponset.PacketSt318
                                 {
                                         ItemStreamID = itemStreamID,
-                                        ActiveWeaponSlot = 0,
+                                        ActiveWeaponSlot = (byte)chara.Data.Items.ActiveWeaponset.Number,
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(activeWeaponset);

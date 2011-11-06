@@ -27,7 +27,6 @@ namespace GameServer.ServerData
                 private readonly object objLock = new object();
 
                 private MapData data;
-                private IDManager itemLocalIDs;
 
                 /// <summary>
                 ///   Create a new instance of the class
@@ -37,7 +36,6 @@ namespace GameServer.ServerData
                         lock (objLock)
                         {
                                 this.data = data;
-                                itemLocalIDs = new IDManager(10, 1000);
 
                                 Debug.WriteLine(string.Format("Created new {0}", GetType().Name));
                         }
@@ -301,6 +299,8 @@ namespace GameServer.ServerData
                                         // finally, load all of the char's items
                                         LoadCharItems(newlyCreatedChar, sets);
 
+                                        newlyCreatedChar.Data.Items.ActiveWeaponset = newlyCreatedChar.Data.Items.Weaponsets[ch.activeWeaponset];
+
                                         // and add it
                                         return Add(newlyCreatedChar);
                                 }
@@ -327,10 +327,12 @@ namespace GameServer.ServerData
                                                          (pi.charID == 0) // meaning it is in the storage
                                                    select pi;
 
+                                // TODO: Storage and Charitems dont get separated enough. Items without OwnerCharID get loaded in every chars inventory.
+
                                 foreach (var persItem in itemsChara.Concat(itemsStorage))
                                 {
                                         // load the item
-                                        var tmpItem = Item.LoadFromDB(persItem, itemLocalIDs.RequestID());
+                                        var tmpItem = Item.LoadFromDB(persItem, Data.ItemLocalIDs.RequestID());
 
                                         // update char id (it might be 0)
                                         tmpItem.Data.OwnerCharID = character.Data.CharID;
@@ -349,26 +351,11 @@ namespace GameServer.ServerData
                                         {
                                                 if (tmpItem.Data.PersonalItemID == weaponSets[i, 0])
                                                 {
-                                                        Weaponset set;
-                                                        if (!character.Data.Items.Weaponsets.TryGetValue(i, out set))
-                                                        {
-                                                                character.Data.Items.Weaponsets.Add(i, new Weaponset { Number = i, LeadHand = tmpItem });
-                                                                continue;
-                                                        }
-
-                                                        set.LeadHand = tmpItem;
+                                                        character.Data.Items.Weaponsets[i].LeadHand = tmpItem;
                                                 }
-
-                                                if (tmpItem.Data.PersonalItemID == weaponSets[i, 1])
+                                                else if (tmpItem.Data.PersonalItemID == weaponSets[i, 1])
                                                 {
-                                                        Weaponset set;
-                                                        if (!character.Data.Items.Weaponsets.TryGetValue(i, out set))
-                                                        {
-                                                                character.Data.Items.Weaponsets.Add(i, new Weaponset { Number = i, OffHand = tmpItem });
-                                                                continue;
-                                                        }
-
-                                                        set.OffHand = tmpItem;
+                                                        character.Data.Items.Weaponsets[i].OffHand = tmpItem;
                                                 }
                                         }
                                 }
@@ -392,6 +379,7 @@ namespace GameServer.ServerData
 
                         AgentIDs = new IDManager(1, 1000);
                         LocalIDs = new IDManager(1, 1000);
+                        ItemLocalIDs = new IDManager(1, 1000);
 
                         PossibleSpawns = new List<GWVector>();
                 }
@@ -429,6 +417,7 @@ namespace GameServer.ServerData
 
                 public IDManager AgentIDs { get; private set; }
                 public IDManager LocalIDs { get; private set; }
+                public IDManager ItemLocalIDs { get; private set; }
 
                 #endregion
 

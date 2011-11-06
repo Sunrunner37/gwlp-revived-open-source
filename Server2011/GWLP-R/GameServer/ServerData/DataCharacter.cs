@@ -2,12 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using GameServer.Enums;
 using GameServer.ServerData.DataInterfaces;
 using GameServer.ServerData.Items;
+using ServerEngine;
 using ServerEngine.DataManagement;
 using ServerEngine.DataManagement.DataInterfaces;
 using ServerEngine.DataManagement.DataWrappers;
+using ServerEngine.GuildWars.DataBase;
 using ServerEngine.GuildWars.DataInterfaces;
 using ServerEngine.GuildWars.DataWrappers.Chars;
 using ServerEngine.GuildWars.DataWrappers.Clients;
@@ -115,6 +118,27 @@ namespace GameServer.ServerData
                         
                         SkillBar = new byte[8];
                         UnlockedSkills = new byte[4];
+                }
+
+                public void SaveToDB()
+                {
+                        using (var db = (MySQL)DataBaseProvider.GetDataBase())
+                        {
+                                // get the db item
+                                var chara = db.charsMasterData.Where(im => im.charID == CharID.Value).First();
+
+                                chara.activeWeaponset = (sbyte)Items.ActiveWeaponset.Number;
+                                chara.leadhandWeaponSet1 = (int)Items.Weaponsets[0].LeadHand.Data.PersonalItemID;
+                                chara.leadhandWeaponSet2 = (int)Items.Weaponsets[1].LeadHand.Data.PersonalItemID;
+                                chara.leadhandWeaponSet3 = (int)Items.Weaponsets[2].LeadHand.Data.PersonalItemID;
+                                chara.leadhandWeaponSet4 = (int)Items.Weaponsets[3].LeadHand.Data.PersonalItemID;
+                                chara.offhandWeaponSet1 = (int)Items.Weaponsets[0].OffHand.Data.PersonalItemID;
+                                chara.offhandWeaponSet2 = (int)Items.Weaponsets[1].OffHand.Data.PersonalItemID;
+                                chara.offhandWeaponSet3 = (int)Items.Weaponsets[2].OffHand.Data.PersonalItemID;
+                                chara.offhandWeaponSet4 = (int)Items.Weaponsets[3].OffHand.Data.PersonalItemID;
+
+                                db.SubmitChanges();
+                        }
                 }
 
                 #region Implementation of IHasNetworkData

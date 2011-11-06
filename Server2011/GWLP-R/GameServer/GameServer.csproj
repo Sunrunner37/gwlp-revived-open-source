@@ -69,11 +69,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\ChatMessage.cs" />
-    <Compile Include="Actions\DespawnItem.cs" />
     <Compile Include="Actions\DespawnPlayer.cs" />
     <Compile Include="Actions\GotoLocation.cs" />
     <Compile Include="Actions\MovePlayer.cs" />
     <Compile Include="Actions\RotatePlayer.cs" />
+    <Compile Include="Actions\SendToAllClients.cs" />
     <Compile Include="Actions\ShowDialog.cs" />
     <Compile Include="Actions\SpawnPlayer.cs" />
     <Compile Include="Commands\CommandAttribute.cs" />
@@ -85,6 +85,7 @@
     <Compile Include="Commands\Test.cs" />
     <Compile Include="Enums\AgentEquipment.cs" />
     <Compile Include="Enums\ButtonIcons.cs" />
+    <Compile Include="Enums\ItemFlags.cs" />
     <Compile Include="Enums\Profession.cs" />
     <Compile Include="Enums\DamageType.cs" />
     <Compile Include="Enums\GWAttribute.cs" />
@@ -107,7 +108,7 @@
     <Compile Include="Packets\FromClient\NotEncP1280_VerifyClient.cs" />
     <Compile Include="Packets\FromClient\NotEncP16896_ClientSeed.cs" />
     <Compile Include="Packets\FromClient\Packet10.cs" />
-    <Compile Include="Packets\FromClient\Packet100.cs" />
+    <Compile Include="Packets\FromClient\P100_EquipBag.cs" />
     <Compile Include="Packets\FromClient\P101_IdentifyItem.cs" />
     <Compile Include="Packets\FromClient\Packet102.cs" />
     <Compile Include="Packets\FromClient\Packet103.cs" />
@@ -116,7 +117,7 @@
     <Compile Include="Packets\FromClient\Packet106.cs" />
     <Compile Include="Packets\FromClient\P107_MoveItem.cs" />
     <Compile Include="Packets\FromClient\P108_AcceptAllItems.cs" />
-    <Compile Include="Packets\FromClient\Packet109.cs" />
+    <Compile Include="Packets\FromClient\P109_MoveBag.cs" />
     <Compile Include="Packets\FromClient\Packet11.cs" />
     <Compile Include="Packets\FromClient\Packet110.cs" />
     <Compile Include="Packets\FromClient\P112_SalvageItem.cs" />
@@ -125,7 +126,7 @@
     <Compile Include="Packets\FromClient\P115_SalvageMaterials.cs" />
     <Compile Include="Packets\FromClient\P116_SalvageMod.cs" />
     <Compile Include="Packets\FromClient\P117_ChangeGold.cs" />
-    <Compile Include="Packets\FromClient\Packet118.cs" />
+    <Compile Include="Packets\FromClient\P118_DeEquipBag.cs" />
     <Compile Include="Packets\FromClient\P119_UseItem.cs" />
     <Compile Include="Packets\FromClient\Packet12.cs" />
     <Compile Include="Packets\FromClient\Packet120.cs" />
@@ -263,7 +264,7 @@
     <Compile Include="Packets\FromClient\Packet7.cs" />
     <Compile Include="Packets\FromClient\Packet70.cs" />
     <Compile Include="Packets\FromClient\Packet71.cs" />
-    <Compile Include="Packets\FromClient\Packet72.cs" />
+    <Compile Include="Packets\FromClient\P072_DeEquipItem.cs" />
     <Compile Include="Packets\FromClient\Packet73.cs" />
     <Compile Include="Packets\FromClient\P074_GoSignpost.cs" />
     <Compile Include="Packets\FromClient\Packet75.cs" />
@@ -290,7 +291,7 @@
     <Compile Include="Packets\FromClient\Packet95.cs" />
     <Compile Include="Packets\FromClient\Packet96.cs" />
     <Compile Include="Packets\FromClient\Packet97.cs" />
-    <Compile Include="Packets\FromClient\Packet98.cs" />
+    <Compile Include="Packets\FromClient\P098_DestroyItem.cs" />
     <Compile Include="Packets\FromClient\Packet99.cs" />
     <Compile Include="Packets\FromLoginServer\P65281_HandshakeReply.cs" />
     <Compile Include="Packets\FromLoginServer\P65282_ServerStatsRequest.cs" />
@@ -524,7 +525,7 @@
     <Compile Include="Packets\ToClient\Packet300.cs" />
     <Compile Include="Packets\ToClient\Packet301.cs" />
     <Compile Include="Packets\ToClient\P302_HandbookEntry.cs" />
-    <Compile Include="Packets\ToClient\Packet303.cs" />
+    <Compile Include="Packets\ToClient\P303_UpdateItemQuantity.cs" />
     <Compile Include="Packets\ToClient\P304_ItemOwnerName.cs" />
     <Compile Include="Packets\ToClient\Packet305.cs" />
     <Compile Include="Packets\ToClient\P306_EquipBag2.cs" />
@@ -546,11 +547,11 @@
     <Compile Include="Packets\ToClient\P321_MoveItem.cs" />
     <Compile Include="Packets\ToClient\P322_MoveBag.cs" />
     <Compile Include="Packets\ToClient\P323_RemoveItemFromInventory.cs" />
-    <Compile Include="Packets\ToClient\Packet324.cs" />
+    <Compile Include="Packets\ToClient\P324_DropEquipedBag.cs" />
     <Compile Include="Packets\ToClient\Packet325.cs" />
     <Compile Include="Packets\ToClient\Packet326.cs" />
     <Compile Include="Packets\ToClient\Packet327.cs" />
-    <Compile Include="Packets\ToClient\Packet328.cs" />
+    <Compile Include="Packets\ToClient\P328_SwapItems.cs" />
     <Compile Include="Packets\ToClient\P329_MoveEquipedBagIntoOtherStorage.cs" />
     <Compile Include="Packets\ToClient\P033_UpdateAgentPosition.cs" />
     <Compile Include="Packets\ToClient\Packet330.cs" />

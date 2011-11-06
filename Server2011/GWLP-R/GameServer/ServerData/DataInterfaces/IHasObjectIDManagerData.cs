@@ -6,5 +6,6 @@ namespace GameServer.ServerData.DataInterfaces
         {
                 IDManager AgentIDs { get; }
                 IDManager LocalIDs { get; }
+                IDManager ItemLocalIDs { get; }
         }
 }

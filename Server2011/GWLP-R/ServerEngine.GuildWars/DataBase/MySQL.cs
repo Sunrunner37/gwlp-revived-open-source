@@ -648,7 +648,9 @@ namespace ServerEngine.GuildWars.DataBase
 		private int _inventoryGold;
 		
 		private sbyte _isPvP;
-		
+
+                private sbyte _activeWeaponset;
+
 		private int _leadhandWeaponSet1;
 		
 		private int _leadhandWeaponSet2;
@@ -731,7 +733,11 @@ namespace ServerEngine.GuildWars.DataBase
 		partial void OnisPvPChanged();
 		
 		partial void OnisPvPChanging(sbyte value);
-		
+
+                partial void OnactiveWeaponsetChanged();
+
+                partial void OnactiveWeaponsetChanging(sbyte value);
+
 		partial void OnleadhandWeaponSet1Changed();
 		
 		partial void OnleadhandWeaponSet1Changing(int value);
@@ -828,7 +834,6 @@ namespace ServerEngine.GuildWars.DataBase
 		
 		partial void OnskillsAvailableChanging(byte[] value);
 		#endregion
-		
 		
 		public charsMasterData()
 		{
@@ -1003,7 +1008,28 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-		
+
+                [Column(Storage = "_activeWeaponset", Name = "ActiveWeaponset", DbType = "tinyint(4)", AutoSync = AutoSync.Never, CanBeNull = false)]
+                [DebuggerNonUserCode()]
+                public sbyte activeWeaponset
+                {
+                        get
+                        {
+                                return this._activeWeaponset;
+                        }
+                        set
+                        {
+                                if ((_activeWeaponset != value))
+                                {
+                                        this.OnactiveWeaponsetChanging(value);
+                                        this.SendPropertyChanging();
+                                        this._activeWeaponset = value;
+                                        this.SendPropertyChanged("activeWeaponset");
+                                        this.OnactiveWeaponsetChanged();
+                                }
+                        }
+                }
+
 		[Column(Storage="_leadhandWeaponSet1", Name="LeadhandWeaponSet1", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
 		public int leadhandWeaponSet1
@@ -1849,7 +1875,7 @@ namespace ServerEngine.GuildWars.DataBase
 		partial void OnprofessionChanging(sbyte value);
 		#endregion
 		
-		
+
 		public itemsMasterData()
 		{
 			this.OnCreated();

@@ -116,19 +116,17 @@ namespace GameServer.ServerData.Items
                         // if the item is owned by someone send its inventory location
                         if (Data.OwnerAccID.Value > 0)
                         {
-                                var bagSize = GetBagSize();
-
-                                if (Data.Storage == ItemStorage.Equiped && bagSize > 0) // special handling for bags
+                                if (Data.Storage == ItemStorage.Equiped && Data.Type == ItemType.Bag) // special handling for bags
                                 {
                                         var itemPage = new NetworkMessage(netID)
                                         {
                                                 PacketTemplate = new P309_ItemPagePacket.PacketSt309
                                                 {
                                                         ItemStreamID = 1,
-                                                        StorageType = 1, // must be a bag (only item to come here)
+                                                        StorageType = 1,
                                                         StorageID = (byte)(Data.Slot - (int)AgentEquipment.Backpack),
                                                         PageID = (ushort)(Data.Slot - (int)AgentEquipment.Backpack),
-                                                        Slots = (byte)bagSize,
+                                                        Slots = (byte)GetBagSize(),
                                                         ItemLocalID = (uint)Data.ItemLocalID
                                                 }
                                         };
@@ -150,6 +148,52 @@ namespace GameServer.ServerData.Items
                                 }
                         }
                 }
+
+                /// <summary>
+                ///   Sends the spawn packet for the item
+                /// </summary>
+                public void SendSpawn(NetID netID)
+                {
+                        var spawnPacket = new NetworkMessage(netID)
+                        {
+                                PacketTemplate = new P021_SpawnObject.PacketSt21
+                                {
+                                        AgentID = (uint)Data.ItemAgentID,
+                                        Data1 = (uint)Data.ItemLocalID,
+                                        Data2 = 4,
+                                        Data3 = 0,
+                                        PosX = Data.Position.X,
+                                        PosY = Data.Position.Y,
+                                        Plane = (ushort)Data.Position.PlaneZ,
+                                        Data4 = 1,
+                                        Rotation = 0,
+                                        Data5 = 1,
+                                        Speed = 0,
+                                        Data12 = 1,
+                                        Data13 = 0x34000000
+                                }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(spawnPacket);
+                }
+
+                /// <summary>
+                ///   Sends the move packet for the item
+                /// </summary>
+                public void SendMove(NetID netID)
+                {
+                        var movePacket = new NetworkMessage(netID)
+                        {
+                                PacketTemplate = new P321_MoveItem.PacketSt321
+                                {
+                                        ItemStreamID = 1,
+                                        ItemLocalID = (uint)Data.ItemLocalID,
+                                        NewPageID = (ushort)Data.Storage,
+                                        NewSlot = (byte)Data.Slot
+                                }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(movePacket);
+                }
+
 
                 /// <summary>
                 ///   This generates the item packets and automatically sends them
@@ -361,7 +405,7 @@ namespace GameServer.ServerData.Items
                 public Item Clone()
                 {
                         Item clone = new Item();
-                        clone.Data = this.data.Clone();
+                        clone.Data = data.Clone();
                         clone.Data.PersonalItemID = 0;
                         return clone;
                 }
@@ -384,6 +428,11 @@ namespace GameServer.ServerData.Items
                 ///   The so called 'Item-Glue', is a generated local ID for the loaded Items
                 /// </summary>
                 public int ItemLocalID { get; set; }
+
+                /// <summary>
+                ///   The AgentID of an item if it is on the ground.
+                /// </summary>
+                public int ItemAgentID { get; set; }
 
                 /// <summary>
                 ///   This ID is only used in the database 'items_masterdata'
@@ -473,9 +522,31 @@ namespace GameServer.ServerData.Items
                 /// </summary>
                 public List<ItemStat> Stats { get; set; }
 
+                /// <summary>
+                ///   This property holds the items coords if on the ground.
+                /// </summary>
+                public GWVector Position { get; set; }
+
                 public ItemData Clone()
                 {
                         return (ItemData)this.MemberwiseClone();
+                }
+
+                public void SetFlag(ItemFlagEnums flag, bool value)
+                {
+                        if (value)
+                        {
+                                Flags |= (int)flag;
+                        }
+                        else
+                        {
+                                Flags &= ~(int)flag;
+                        }
+                }
+
+                public bool GetFlag(ItemFlagEnums flag)
+                {
+                        return (Flags & (int)flag) == (int)flag;
                 }
         }
 }
