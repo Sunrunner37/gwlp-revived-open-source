@@ -23,6 +23,7 @@ namespace GameServer.Enums
                 Head = 16,
                 Key = 18,
                 Legs = 19,
+                Coins = 20,
                 QuestItem = 21,
                 Wand = 22,
                 Shield = 24,

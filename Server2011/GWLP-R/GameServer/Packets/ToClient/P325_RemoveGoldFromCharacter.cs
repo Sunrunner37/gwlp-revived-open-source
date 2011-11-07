@@ -6,26 +6,26 @@ using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.ToClient
 {
-        [PacketAttributes(IsIncoming = false, Header = 310)]
-        public class P310_ItemStreamGoldOnCharacter : IPacket
+        [PacketAttributes(IsIncoming = false, Header = 325)]
+        public class P325_RemoveGoldFromCharacter : IPacket
         {
-                public class PacketSt310 : IPacketTemplate
+                public class PacketSt325 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 310; } }
+                        public UInt16 Header { get { return 325; } }
                         public UInt16 ItemStreamID;
-                        public UInt32 GoldOnCharacter;
+                        public UInt32 Amount;
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt310>)parser;
+                        pParser = (PacketParser<PacketSt325>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
 
                 public bool Handler(ref NetworkMessage message)
                 {
-                        pParser((PacketSt310)message.PacketTemplate, message.PacketData);
+                        pParser((PacketSt325)message.PacketTemplate, message.PacketData);
                         QueuingService.NetOutQueue.Enqueue(message);
                         return true;
                 }
@@ -34,7 +34,7 @@ namespace GameServer.Packets.ToClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt310> pParser;
+                private PacketParser<PacketSt325> pParser;
 
         }
 }

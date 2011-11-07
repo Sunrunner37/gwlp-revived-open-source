@@ -92,7 +92,7 @@ namespace GameServer.Packets.FromClient
 
                         var goldOnCharacter = new NetworkMessage(message.NetID)
                         {
-                                PacketTemplate = new P310_ItemStreamGoldOnCharacter.PacketSt310
+                                PacketTemplate = new P310_AddGoldOnCharacter.PacketSt310
                                 {
                                         ItemStreamID = itemStreamID,
                                         GoldOnCharacter = 1337

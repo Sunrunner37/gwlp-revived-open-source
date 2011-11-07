@@ -54,6 +54,77 @@ namespace GameServer.Packets.FromClient
                         // item unbounded or for the chara
                         if (item.Data.OwnerCharID.Value > 0 && item.Data.OwnerCharID.Value != chara.Data.CharID.Value) return true; // chara was not the owner
 
+                        // gold coins
+                        // TODO: Cleanup
+                        if (item.Data.Type == ItemType.Coins)
+                        {
+                                // item not already picked up
+                                if (!map.Data.MapItems.Remove(itemAgentID)) return true; // someone was first
+
+                                // now finally we can start the pickup procedure
+                                var freezeCoin = new NetworkMessage(chara.Data.NetID)
+                                {
+                                        PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
+                                        {
+                                                AgentID = chara.Data.AgentID.Value,
+                                                ValueID = (uint)GenericValues.FreezePlayer,
+                                                Value = 1
+                                        }
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(freezeCoin);
+
+                                map.Data.ActionQueue.Enqueue(
+                                        new SendToAllClients(
+                                                new P147_UpdateGenericValueInt.PacketSt147
+                                                {
+                                                        AgentID = chara.Data.AgentID.Value,
+                                                        ValueID = 39,
+                                                        Value = 9
+                                                }
+                                        ).Execute);
+
+                                var confirmationCoin = new NetworkMessage(chara.Data.NetID)
+                                {
+                                        PacketTemplate = new P335_PickupItemConfirmation.PacketSt335
+                                        {
+                                                ItemLocalID = (uint)item.Data.ItemLocalID,
+                                                Data2 = (ushort)chara.Data.AgentID.Value
+                                        }
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(confirmationCoin);
+
+                                var addGold = new NetworkMessage(chara.Data.NetID)
+                                {
+                                        PacketTemplate = new P310_AddGoldOnCharacter.PacketSt310
+                                        {
+                                                ItemStreamID = 1,
+                                                GoldOnCharacter = (uint)item.Data.Quantity
+                                        }
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(addGold);
+
+                                // remove item from ground
+                                map.Data.ActionQueue.Enqueue(
+                                        new SendToAllClients(
+                                                new P022_DespawnObject.PacketSt22
+                                                {
+                                                        AgentID = (uint)item.Data.ItemAgentID,
+                                                }
+                                        ).Execute);
+
+                                freezeCoin = new NetworkMessage(chara.Data.NetID)
+                                {
+                                        PacketTemplate = new P147_UpdateGenericValueInt.PacketSt147
+                                        {
+                                                AgentID = chara.Data.AgentID.Value,
+                                                ValueID = (uint)GenericValues.FreezePlayer,
+                                                Value = 0
+                                        }
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(freezeCoin);
+                                return true;
+                        }
+
                         // slot free
                         ItemStorage storage;
                         byte slot;

@@ -55,6 +55,7 @@ namespace GameServer.ServerData.Items
                                         Data4 = 0,
                                         CanBeDyed = 1,
                                         Flags = (uint)Data.Flags,
+                                        MerchantPrice = Data.MerchantPrice,
                                         ItemID = (uint)Data.GameItemID,
                                         Quantity = (uint)Data.Quantity,
                                         NameHash = Data.Name.ToGW(),
@@ -438,6 +439,11 @@ namespace GameServer.ServerData.Items
                 ///   This ID is only used in the database 'items_masterdata'
                 /// </summary>
                 public int ItemID { get; set; }
+
+                /// <summary>
+                ///   The price the merchant offers for the item
+                /// </summary>
+                public uint MerchantPrice { get; set; }
 
                 /// <summary>
                 ///   The gw-internal ItemID
