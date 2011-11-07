@@ -288,7 +288,7 @@ namespace GameServer.ServerData
                                         newlyCreatedChar = new DataCharacter(charData);
 
                                         // prepare the temporary weaponset array
-                                        var sets = new int[4, 2]
+                                        var sets = new long[4, 2]
                                         {
                                                 {ch.leadhandWeaponSet1, ch.offhandWeaponSet1},
                                                 {ch.leadhandWeaponSet2, ch.offhandWeaponSet2},
@@ -311,7 +311,7 @@ namespace GameServer.ServerData
                 ///   Loads all items on the account(storage) and of the specified character and adds them to the char's itemdict
                 /// </summary>
                 /// <param name="character"></param>
-                private void LoadCharItems(DataCharacter character, int[,] weaponSets)
+                private void LoadCharItems(DataCharacter character, long[,] weaponSets)
                 {
                         // get the database stuff
                         using (var db = (MySQL)DataBaseProvider.GetDataBase())

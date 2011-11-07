@@ -651,13 +651,13 @@ namespace ServerEngine.GuildWars.DataBase
 
                 private sbyte _activeWeaponset;
 
-		private int _leadhandWeaponSet1;
-		
-		private int _leadhandWeaponSet2;
-		
-		private int _leadhandWeaponSet3;
-		
-		private int _leadhandWeaponSet4;
+                private long _leadhandWeaponSet1;
+
+                private long _leadhandWeaponSet2;
+
+                private long _leadhandWeaponSet3;
+
+                private long _leadhandWeaponSet4;
 		
 		private int _level;
 		
@@ -676,14 +676,14 @@ namespace ServerEngine.GuildWars.DataBase
 		private int _lookSkinColor;
 		
 		private int _mapID;
-		
-		private int _offhandWeaponSet1;
-		
-		private int _offhandWeaponSet2;
-		
-		private int _offhandWeaponSet3;
-		
-		private int _offhandWeaponSet4;
+
+                private long _offhandWeaponSet1;
+
+                private long _offhandWeaponSet2;
+
+                private long _offhandWeaponSet3;
+
+                private long _offhandWeaponSet4;
 		
 		private sbyte _professionPrimary;
 		
@@ -739,20 +739,20 @@ namespace ServerEngine.GuildWars.DataBase
                 partial void OnactiveWeaponsetChanging(sbyte value);
 
 		partial void OnleadhandWeaponSet1Changed();
-		
-		partial void OnleadhandWeaponSet1Changing(int value);
+
+                partial void OnleadhandWeaponSet1Changing(long value);
 		
 		partial void OnleadhandWeaponSet2Changed();
-		
-		partial void OnleadhandWeaponSet2Changing(int value);
+
+                partial void OnleadhandWeaponSet2Changing(long value);
 		
 		partial void OnleadhandWeaponSet3Changed();
-		
-		partial void OnleadhandWeaponSet3Changing(int value);
+
+                partial void OnleadhandWeaponSet3Changing(long value);
 		
 		partial void OnleadhandWeaponSet4Changed();
-		
-		partial void OnleadhandWeaponSet4Changing(int value);
+
+                partial void OnleadhandWeaponSet4Changing(long value);
 		
 		partial void OnlevelChanged();
 		
@@ -791,20 +791,20 @@ namespace ServerEngine.GuildWars.DataBase
 		partial void OnmapIDChanging(int value);
 		
 		partial void OnoffhandWeaponSet1Changed();
-		
-		partial void OnoffhandWeaponSet1Changing(int value);
+
+                partial void OnoffhandWeaponSet1Changing(long value);
 		
 		partial void OnoffhandWeaponSet2Changed();
-		
-		partial void OnoffhandWeaponSet2Changing(int value);
+
+                partial void OnoffhandWeaponSet2Changing(long value);
 		
 		partial void OnoffhandWeaponSet3Changed();
-		
-		partial void OnoffhandWeaponSet3Changing(int value);
+
+                partial void OnoffhandWeaponSet3Changing(long value);
 		
 		partial void OnoffhandWeaponSet4Changed();
-		
-		partial void OnoffhandWeaponSet4Changing(int value);
+
+                partial void OnoffhandWeaponSet4Changing(long value);
 		
 		partial void OnprofessionPrimaryChanged();
 		
@@ -1030,9 +1030,9 @@ namespace ServerEngine.GuildWars.DataBase
                         }
                 }
 
-		[Column(Storage="_leadhandWeaponSet1", Name="LeadhandWeaponSet1", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[Column(Storage="_leadhandWeaponSet1", Name="LeadhandWeaponSet1", DbType="bigint(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-		public int leadhandWeaponSet1
+                public long leadhandWeaponSet1
 		{
 			get
 			{
@@ -1050,10 +1050,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-		
-		[Column(Storage="_leadhandWeaponSet2", Name="LeadhandWeaponSet2", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+
+                [Column(Storage = "_leadhandWeaponSet2", Name = "LeadhandWeaponSet2", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
 		[DebuggerNonUserCode()]
-		public int leadhandWeaponSet2
+                public long leadhandWeaponSet2
 		{
 			get
 			{
@@ -1071,10 +1071,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-		
-		[Column(Storage="_leadhandWeaponSet3", Name="LeadhandWeaponSet3", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+
+                [Column(Storage = "_leadhandWeaponSet3", Name = "LeadhandWeaponSet3", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
 		[DebuggerNonUserCode()]
-		public int leadhandWeaponSet3
+                public long leadhandWeaponSet3
 		{
 			get
 			{
@@ -1092,10 +1092,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-		
-		[Column(Storage="_leadhandWeaponSet4", Name="LeadhandWeaponSet4", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+
+                [Column(Storage = "_leadhandWeaponSet4", Name = "LeadhandWeaponSet4", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
 		[DebuggerNonUserCode()]
-		public int leadhandWeaponSet4
+                public long leadhandWeaponSet4
 		{
 			get
 			{
@@ -1302,10 +1302,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-		
-		[Column(Storage="_offhandWeaponSet1", Name="OffhandWeaponSet1", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+
+                [Column(Storage = "_offhandWeaponSet1", Name = "OffhandWeaponSet1", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
 		[DebuggerNonUserCode()]
-		public int offhandWeaponSet1
+                public long offhandWeaponSet1
 		{
 			get
 			{
@@ -1323,10 +1323,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-		
-		[Column(Storage="_offhandWeaponSet2", Name="OffhandWeaponSet2", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+
+                [Column(Storage = "_offhandWeaponSet2", Name = "OffhandWeaponSet2", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
 		[DebuggerNonUserCode()]
-		public int offhandWeaponSet2
+                public long offhandWeaponSet2
 		{
 			get
 			{
@@ -1344,10 +1344,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-		
-		[Column(Storage="_offhandWeaponSet3", Name="OffhandWeaponSet3", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+
+                [Column(Storage = "_offhandWeaponSet3", Name = "OffhandWeaponSet3", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
 		[DebuggerNonUserCode()]
-		public int offhandWeaponSet3
+                public long offhandWeaponSet3
 		{
 			get
 			{
@@ -1365,10 +1365,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-		
-		[Column(Storage="_offhandWeaponSet4", Name="OffhandWeaponSet4", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+
+                [Column(Storage = "_offhandWeaponSet4", Name = "OffhandWeaponSet4", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
 		[DebuggerNonUserCode()]
-		public int offhandWeaponSet4
+		public long offhandWeaponSet4
 		{
 			get
 			{
