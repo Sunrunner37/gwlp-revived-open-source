@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using GameServer.Actions;
 using GameServer.Enums;
 using GameServer.Packets.ToClient;
 using ServerEngine.NetworkManagement;
@@ -87,16 +88,6 @@ namespace GameServer.Packets.FromClient
                                 {
                                         chara.Data.Items.Equipment.Remove((AgentEquipment) item.Data.Slot);
 
-                                        switch (item.Data.Slot)
-                                        {
-                                                case 0:
-                                                        chara.Data.Items.ActiveWeaponset.LeadHand = new Item();
-                                                        break;
-                                                case 1:
-                                                        chara.Data.Items.ActiveWeaponset.OffHand = new Item();
-                                                        break;
-                                        }
-
                                         if (item.Data.Type == ItemType.Bag)
                                         {
                                                 var removeBag = new NetworkMessage(chara.Data.NetID)
@@ -108,6 +99,38 @@ namespace GameServer.Packets.FromClient
                                                         }
                                                 };
                                                 QueuingService.PostProcessingQueue.Enqueue(removeBag);
+                                        }
+                                        else
+                                        {
+                                                switch (item.Data.Slot)
+                                                {
+                                                        case 0:
+                                                                chara.Data.Items.ActiveWeaponset.LeadHand = new Item();
+                                                                break;
+                                                        case 1:
+                                                                chara.Data.Items.ActiveWeaponset.OffHand = new Item();
+                                                                break;
+                                                }
+
+                                                var removeItem = new NetworkMessage(chara.Data.NetID)
+                                                {
+                                                        PacketTemplate = new P323_RemoveItemFromInventory.PacketSt323
+                                                        {
+                                                                ItemStreamID = 1,
+                                                                ItemLocalID = (uint)item.Data.ItemLocalID
+                                                        }
+                                                };
+                                                QueuingService.PostProcessingQueue.Enqueue(removeItem);
+
+                                                map.Data.ActionQueue.Enqueue(
+                                                        new SendToAllClients(
+                                                                new P099_UpdateAgentEquipment.PacketSt99
+                                                                {
+                                                                        AgentID = chara.Data.AgentID.Value,
+                                                                        EquipmentSlot = (uint) item.Data.Slot,
+                                                                        ItemLocalID = 0
+                                                                }
+                                                        ).Execute);
                                         }
                                 }
 
