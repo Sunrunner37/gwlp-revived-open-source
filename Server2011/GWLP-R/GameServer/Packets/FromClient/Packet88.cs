@@ -1,4 +1,5 @@
 using System;
+using GameServer.ServerData;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
@@ -24,7 +25,17 @@ namespace GameServer.Packets.FromClient
 
                 public bool Handler(ref NetworkMessage message)
                 {
-                        throw new NotImplementedException();
+                        // parse the message
+                        var pack = new Packet88.PacketSt88();
+                        pParser(pack, message.PacketData);
+
+                        // get the character
+                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
+
+                        Console.WriteLine(pack.Data1);
+                        Console.WriteLine(pack.Data2);
+
+                        return true;
                 }
 
                 public bool IsInitialized { get; set; }

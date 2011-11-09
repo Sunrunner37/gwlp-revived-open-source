@@ -129,7 +129,7 @@ namespace GameServer.Packets.FromClient
                         // get the map and character
                         var map = GameServerWorld.Instance.Get<DataMap>(client.Data.MapID);
                         var chara = map.Get<DataCharacter>(client.Data.CharID);
-                        
+
                         if (client.Data.Status == SyncStatus.ConnectionEstablished)
                         {
                                 client.Data.EncryptionSeed = pack.Seed;
@@ -160,32 +160,44 @@ namespace GameServer.Packets.FromClient
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(ilHeader);
 
-                                // Note: INSTANCE LOAD CHAR NAME
-                                var ilChar = new NetworkMessage(message.NetID)
-                                {
-                                        PacketTemplate = new P371_InstanceLoadCharName.PacketSt371
-                                        {
-                                                CharName = chara.Data.Name.Value,
-                                        }
-                                };
-                                QueuingService.PostProcessingQueue.Enqueue(ilChar);
 
-                                // Note: INSTANCE LOAD DISTRICT INFO
-                                var ilDInfo = new NetworkMessage(message.NetID)
+                                if (map.Data.GameMapID.Value != 0)
                                 {
-                                        PacketTemplate = new P395_InstanceLoadDistrictInfo.PacketSt395
+                                        // Note: INSTANCE LOAD CHAR NAME
+                                        var ilChar = new NetworkMessage(message.NetID)
                                         {
-                                                LocalID = chara.Data.LocalID.Value,
-                                                GameMapID = (ushort)map.Data.GameMapID.Value,
-                                                DistrictNumber = (ushort)(chara.Data.IsOutpost ? map.Data.DistrictNumber : 0),
-                                                DistrictRegion = (ushort)(chara.Data.IsOutpost ? map.Data.DistrictCountry : 0),
-                                                IsOutpost = (byte)(chara.Data.IsOutpost ? 1 : 0),
-                                                ObserverMode = 0,
-                                                Data1 = (byte)(chara.Data.IsOutpost ? 0 : 3),
-                                        }
-                                };
-                                QueuingService.PostProcessingQueue.Enqueue(ilDInfo);
+                                                PacketTemplate = new P371_InstanceLoadCharName.PacketSt371
+                                                {
+                                                        CharName = chara.Data.Name.Value,
+                                                }
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(ilChar);
 
+                                        // Note: INSTANCE LOAD DISTRICT INFO
+                                        var ilDInfo = new NetworkMessage(message.NetID)
+                                        {
+                                                PacketTemplate = new P395_InstanceLoadDistrictInfo.PacketSt395
+                                                {
+                                                        LocalID = chara.Data.LocalID.Value,
+                                                        GameMapID = (ushort)map.Data.GameMapID.Value,
+                                                        DistrictNumber = (ushort)(chara.Data.IsOutpost ? map.Data.DistrictNumber : 0),
+                                                        DistrictRegion = (ushort)(chara.Data.IsOutpost ? map.Data.DistrictCountry : 0),
+                                                        IsOutpost = (byte)(chara.Data.IsOutpost ? 1 : 0),
+                                                        ObserverMode = 0,
+                                                        Data1 = (byte)(chara.Data.IsOutpost ? 0 : 3),
+                                                }
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(ilDInfo);
+                                        }
+                                else
+                                {
+                                        client.Character = new DataCharacter();
+                                        var unknown = new NetworkMessage(message.NetID)
+                                        {
+                                                PacketTemplate = new Packet379.PacketSt379()
+                                        };
+                                        QueuingService.PostProcessingQueue.Enqueue(unknown);
+                                }
 
                                 return true;
                         }

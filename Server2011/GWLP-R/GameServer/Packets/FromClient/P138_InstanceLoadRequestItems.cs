@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using GameServer.Enums;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
 using ServerEngine;
@@ -30,13 +31,59 @@ namespace GameServer.Packets.FromClient
 
                 public bool Handler(ref NetworkMessage message)
                 {
+                        Console.WriteLine("wabadoo");
                         // parse the message
                         var pack = new PacketSt138();
                         pParser(pack, message.PacketData);
 
                         // get the character
-                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
+                        var client = GameServerWorld.Instance.Get<DataClient>(message.NetID);
+                        var chara = client.Character;
+                        var map = GameServerWorld.Instance.Get<DataMap>(chara.Data.MapID);
                         const ushort itemStreamID = 1;
+
+                        // update the clients status
+                        /*client.Data.Status = SyncStatus.TriesToLoadInstance;
+
+                        // Note: INSTANCE LOAD HEADER
+                        var ilHeader = new NetworkMessage(message.NetID)
+                        {
+                                PacketTemplate = new P370_InstanceLoadHead.PacketSt370()
+                                {
+                                        Data1 = (byte)(chara.Data.IsOutpost ? 0x3F : 0x1F),
+                                        Data2 = (byte)(chara.Data.IsOutpost ? 0x3F : 0x1F),
+                                        Data3 = 0x00,
+                                        Data4 = 0x00,
+                                }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(ilHeader);
+
+
+                        // Note: INSTANCE LOAD CHAR NAME
+                        var ilChar = new NetworkMessage(message.NetID)
+                        {
+                                PacketTemplate = new P371_InstanceLoadCharName.PacketSt371
+                                {
+                                        CharName = chara.Data.Name.Value,
+                                }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(ilChar);
+
+                        // Note: INSTANCE LOAD DISTRICT INFO
+                        var ilDInfo = new NetworkMessage(message.NetID)
+                        {
+                                PacketTemplate = new P395_InstanceLoadDistrictInfo.PacketSt395
+                                {
+                                        LocalID = chara.Data.LocalID.Value,
+                                        GameMapID = (ushort)map.Data.GameMapID.Value,
+                                        DistrictNumber = (ushort)(chara.Data.IsOutpost ? map.Data.DistrictNumber : 0),
+                                        DistrictRegion = (ushort)(chara.Data.IsOutpost ? map.Data.DistrictCountry : 0),
+                                        IsOutpost = (byte)(chara.Data.IsOutpost ? 1 : 0),
+                                        ObserverMode = 0,
+                                        Data1 = (byte)(chara.Data.IsOutpost ? 0 : 3),
+                                }
+                        };
+                        QueuingService.PostProcessingQueue.Enqueue(ilDInfo);*/
 
                         // Note: ITEM STREAM HEAD1 
                         var head1 = new NetworkMessage(message.NetID)
@@ -76,7 +123,7 @@ namespace GameServer.Packets.FromClient
                         QueuingService.PostProcessingQueue.Enqueue(equipedPage);
 
                         // send characters items
-                        foreach (KeyValuePair<int, Item> charItem in chara.Data.Items)
+                        foreach (var charItem in chara.Data.Items)
                         {
                                 charItem.Value.SendPackets(message.NetID);
                         }

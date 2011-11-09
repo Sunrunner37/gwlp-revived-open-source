@@ -17,7 +17,7 @@ namespace LoginServer.Packets.FromClient
                         public UInt16 Header { get { return 41; } }
                         public UInt32 LoginCount;
                         public UInt32 Data2;
-                        public UInt32 Data3;
+                        public UInt32 GameMapID;
                         public UInt32 Data4;
                         public UInt32 Data5;
                         public UInt32 Data6;
@@ -38,7 +38,8 @@ namespace LoginServer.Packets.FromClient
 
                         // get the client
                         var client = LoginServerWorld.Instance.Get<DataClient>(message.NetID);
-                        
+                        client.Data.MapID.Value = pack.GameMapID;
+
                         // update the login counter
                         client.Data.SyncCount = pack.LoginCount;
 
@@ -58,7 +59,6 @@ namespace LoginServer.Packets.FromClient
                                         }
                                 };
                                 QueuingService.PostProcessingQueue.Enqueue(buildMap);
-
                         }
                         else if (server == null)
                         {

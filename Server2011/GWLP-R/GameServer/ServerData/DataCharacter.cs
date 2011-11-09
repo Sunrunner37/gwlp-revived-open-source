@@ -38,6 +38,12 @@ namespace GameServer.ServerData
                         }
                 }
 
+                public DataCharacter()
+                {
+                        data = new CharacterData();
+                        Debug.WriteLine("Created new Char");
+                }
+
                 #region Implementation of IEnumerable
 
                 public IEnumerator<IWrapper> GetEnumerator()
