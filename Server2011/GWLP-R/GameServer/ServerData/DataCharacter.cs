@@ -105,6 +105,7 @@ namespace GameServer.ServerData
                 IHasTeamData,
                 IHasVitalStatusData
         {
+
                 public CharacterData()
                 {
                         Attributes = new Dictionary<int, int>();
@@ -127,6 +128,64 @@ namespace GameServer.ServerData
                 }
 
                 public void SaveToDB()
+                {
+                        using (var db = (MySQL)DataBaseProvider.GetDataBase())
+                        {
+                                var chars = from im in db.charsMasterData
+                                            where im.charID == CharID.Value
+                                            select im;
+
+                                var existsAlready = false;
+                                var chara = new charsMasterData();
+
+                                // check if it exists
+                                if (chars.Count() != 0)
+                                {
+                                        existsAlready = true;
+                                        chara = chars.First();
+                                }
+
+                                chara.charName = Name.Value;
+                                chara.accountID = (int) AccID.Value;
+                                chara.mapID = (int) MapID.Value;
+                                chara.level = (int) Level;
+                                chara.professionPrimary = (sbyte) ProfessionPrimary;
+                                chara.professionSecondary = (sbyte) ProfessionSecondary;
+                                chara.isPvP = IsPvp;
+                                chara.attrPtsFree = AttPtsFree;
+                                chara.attrPtsTotal = AttPtsTotal;
+                                chara.skillPtsFree = SkillPtsFree;
+                                chara.skillPtsTotal = SkillPtsTotal;
+                                chara.skillBar = SkillBar;
+                                chara.lookSkinColor = LookSkinColor;
+                                chara.lookCampaign = LookCampaign;
+                                chara.lookFace = LookFace;
+                                chara.lookHairColor = LookHaircolor;
+                                chara.lookHairStyle = LookHairstyle;
+                                chara.lookHeight = LookHeight;
+                                chara.lookSex = LookSex;
+                                chara.showHelm = (sbyte) LookShowHelm;
+                                /*chara.activeWeaponset = (sbyte)Items.ActiveWeaponset.Number;
+                                chara.leadhandWeaponSet1 = (int)Items.Weaponsets[0].LeadHand.Data.PersonalItemID;
+                                chara.leadhandWeaponSet2 = (int)Items.Weaponsets[1].LeadHand.Data.PersonalItemID;
+                                chara.leadhandWeaponSet3 = (int)Items.Weaponsets[2].LeadHand.Data.PersonalItemID;
+                                chara.leadhandWeaponSet4 = (int)Items.Weaponsets[3].LeadHand.Data.PersonalItemID;
+                                chara.offhandWeaponSet1 = (int)Items.Weaponsets[0].OffHand.Data.PersonalItemID;
+                                chara.offhandWeaponSet2 = (int)Items.Weaponsets[1].OffHand.Data.PersonalItemID;
+                                chara.offhandWeaponSet3 = (int)Items.Weaponsets[2].OffHand.Data.PersonalItemID;
+                                chara.offhandWeaponSet4 = (int)Items.Weaponsets[3].OffHand.Data.PersonalItemID;*/
+
+                                // finally, change the database
+                                if (!existsAlready) db.charsMasterData.InsertOnSubmit(chara);
+
+                                // submit changes, inserting the item (if necessary) or updating the old one
+                                db.SubmitChanges();
+
+                                CharID.Value = (uint) chara.charID;
+                        }
+                }
+
+                public void SaveToWeaponsetsDB()
                 {
                         using (var db = (MySQL)DataBaseProvider.GetDataBase())
                         {
@@ -191,6 +250,15 @@ namespace GameServer.ServerData
                 #region Implementation of IHasAppearanceData
 
                 public byte[] Appearance { get; set; }
+                public byte LookHeight { get; set; }
+                public byte LookSex { get; set; }
+                public byte LookFace { get; set; }
+                public byte LookHairstyle { get; set; }
+                public byte LookHaircolor { get; set; }
+                public byte LookCampaign { get; set; }
+                public byte LookSkinColor { get; set; }
+                public byte LookProfession { get; set; }
+                public byte LookShowHelm { get; set; }
 
                 #endregion
 
@@ -209,6 +277,7 @@ namespace GameServer.ServerData
                 public byte ProfessionSecondary { get; set; }
                 public uint Level { get; set; }
                 public uint Morale { get; set; }
+                public sbyte IsPvp { get; set; }
 
                 public CharacterItems Items { get; set; }
 

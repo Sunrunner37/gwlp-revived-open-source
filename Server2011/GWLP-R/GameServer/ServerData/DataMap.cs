@@ -191,10 +191,10 @@ namespace GameServer.ServerData
 
                                         // get the appearance
                                         var appearance = new MemoryStream();
-                                        RawConverter.WriteByte((byte)((ch.lookHeight << 4) | ch.lookSex), appearance);
-                                        RawConverter.WriteByte((byte)((ch.lookHairColor << 4) | ch.lookSkinColor), appearance);
-                                        RawConverter.WriteByte((byte)((ch.professionPrimary << 4) | ch.lookHairStyle), appearance);
-                                        RawConverter.WriteByte((byte)((ch.lookCampaign << 4) | ch.lookSex), appearance);
+                                        RawConverter.WriteByte((byte)((ch.lookSkinColor << 5) | (ch.lookHeight << 1) | ch.lookSex), appearance);
+                                        RawConverter.WriteByte((byte)((ch.lookFace << 7) | (ch.lookHairColor << 2) | (ch.lookSkinColor >> 3)), appearance);
+                                        RawConverter.WriteByte((byte)((ch.professionPrimary << 4) | (ch.lookFace >> 1)), appearance);
+                                        RawConverter.WriteByte((byte)((ch.lookCampaign << 6) | ch.lookHairStyle), appearance);
 
                                         // get a random spawn point
                                         var ran = new Random();

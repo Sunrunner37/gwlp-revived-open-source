@@ -195,10 +195,10 @@ namespace LoginServer.Packets.FromClient
                                                         RawConverter.WriteUInt16(6, appearance);
                                                         RawConverter.WriteUInt16((ushort)(from m in db.mapsMasterData where m.gameMapID == dbChar.mapID select m).First().gameMapID, appearance);
                                                         RawConverter.WriteByteAr(new byte[] { 0x33, 0x36, 0x31, 0x30, }, appearance);
-                                                        RawConverter.WriteByte((byte)((dbChar.lookHeight << 4) | dbChar.lookSex), appearance);
-                                                        RawConverter.WriteByte((byte)((dbChar.lookHairColor << 4) | dbChar.lookSkinColor), appearance);
-                                                        RawConverter.WriteByte((byte)((dbChar.professionPrimary << 4) | dbChar.lookHairStyle), appearance);
-                                                        RawConverter.WriteByte((byte)((dbChar.lookCampaign << 4) | dbChar.lookFace), appearance);
+                                                        RawConverter.WriteByte((byte)((dbChar.lookSkinColor << 5) | (dbChar.lookHeight << 1) | dbChar.lookSex), appearance);
+                                                        RawConverter.WriteByte((byte)((dbChar.lookFace << 7) | (dbChar.lookHairColor << 2) | (dbChar.lookSkinColor >> 3)), appearance);
+                                                        RawConverter.WriteByte((byte)((dbChar.professionPrimary << 4) | (dbChar.lookFace >> 1)), appearance);
+                                                        RawConverter.WriteByte((byte)((dbChar.lookCampaign << 6) | dbChar.lookHairStyle), appearance);
                                                         RawConverter.WriteByteAr(new byte[16], appearance);
                                                         RawConverter.WriteByte((byte)((dbChar.level << 4) | dbChar.lookCampaign), appearance);
                                                         RawConverter.WriteByte((byte)

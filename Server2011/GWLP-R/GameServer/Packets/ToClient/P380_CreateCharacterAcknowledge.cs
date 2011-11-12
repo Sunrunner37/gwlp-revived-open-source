@@ -7,7 +7,7 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 380)]
-        public class Packet380 : IPacket
+        public class P380_CreateCharacterAcknowledge : IPacket
         {
                 public class PacketSt380 : IPacketTemplate
                 {

@@ -7,19 +7,19 @@ using ServerEngine.PacketManagement.Definitions;
 namespace GameServer.Packets.ToClient
 {
         [PacketAttributes(IsIncoming = false, Header = 378)]
-        public class Packet378 : IPacket
+        public class P378_CreateCharacter : IPacket
         {
                 public class PacketSt378 : IPacketTemplate
                 {
                         public UInt16 Header { get { return 378; } }
                         [PacketFieldType(ConstSize = true, MaxSize = 16)]
-                        public byte[] Data1;
+                        public byte[] StaticHash;
                         [PacketFieldType(ConstSize = false, MaxSize = 20)]
-                        public string Data2;
-                        public UInt16 Data3;
+                        public string CharName;
+                        public UInt16 GameMapID;
                         public UInt16 ArraySize1;
                         [PacketFieldType(ConstSize = false, MaxSize = 1024)]
-                        public byte[] Data4;
+                        public byte[] Appearance;
                 }
 
                 public void InitPacket(object parser)

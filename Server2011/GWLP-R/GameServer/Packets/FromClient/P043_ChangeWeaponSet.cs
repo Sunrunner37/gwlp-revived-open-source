@@ -65,7 +65,7 @@ namespace GameServer.Packets.FromClient
                                 SwitchEquipmentSlot(chara, activeWeaponset.LeadHand, newWeaponset.LeadHand, 0);
                                 SwitchEquipmentSlot(chara, activeWeaponset.OffHand, newWeaponset.OffHand, 1);
 
-                                chara.Data.SaveToDB();
+                                chara.Data.SaveToWeaponsetsDB();
 
                                 var map = GameServerWorld.Instance.Get<DataMap>(chara.Data.MapID);
                                 map.Data.ActionQueue.Enqueue(

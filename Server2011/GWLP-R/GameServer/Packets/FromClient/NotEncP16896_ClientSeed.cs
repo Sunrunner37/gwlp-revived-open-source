@@ -5,8 +5,15 @@ using GameServer.Enums;
 using GameServer.Packets.ToClient;
 using GameServer.Packets.ToLoginServer;
 using GameServer.ServerData;
+using GameServer.ServerData.DataInterfaces;
 using ServerEngine;
+using ServerEngine.DataManagement;
+using ServerEngine.DataManagement.DataInterfaces;
 using ServerEngine.DataManagement.DataWrappers;
+using ServerEngine.GuildWars.DataInterfaces;
+using ServerEngine.GuildWars.DataWrappers.Chars;
+using ServerEngine.GuildWars.DataWrappers.Clients;
+using ServerEngine.GuildWars.DataWrappers.Maps;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
@@ -191,7 +198,16 @@ namespace GameServer.Packets.FromClient
                                         }
                                 else
                                 {
-                                        client.Character = new DataCharacter();
+                                        // create the char
+                                        var charData = new CharacterData();
+
+                                        // copy some data from the client
+                                        charData.Paste<IHasNetworkData>(client.Data);
+                                        charData.Paste<IHasClientData>(client.Data);
+                                        charData.Paste<IHasTeamData>(client.Data);
+                                        charData.CharID = new CharID(0);
+                                        client.Character = new DataCharacter(charData);
+
                                         var unknown = new NetworkMessage(message.NetID)
                                         {
                                                 PacketTemplate = new Packet379.PacketSt379()

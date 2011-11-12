@@ -73,11 +73,11 @@ namespace GameServer.Packets.FromClient
                         {
                         case 0:
                                 chara.Data.Items.ActiveWeaponset.LeadHand = new Item();
-                                chara.Data.SaveToDB();
+                                chara.Data.SaveToWeaponsetsDB();
                                 break;
                         case 1:
                                 chara.Data.Items.ActiveWeaponset.OffHand = new Item();
-                                chara.Data.SaveToDB();
+                                chara.Data.SaveToWeaponsetsDB();
                                 break;
                         }
 

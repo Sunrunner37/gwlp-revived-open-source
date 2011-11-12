@@ -47,7 +47,6 @@ namespace LoginServer.Packets.FromClient
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(msg);
-                        
 
                         return true;
                 }

@@ -128,6 +128,15 @@ namespace GameServer.ServerData
                 #region Implementation of IHasAppearanceData
 
                 public byte[] Appearance { get; set; }
+                public byte LookHeight { get; set; }
+                public byte LookSex { get; set; }
+                public byte LookFace { get; set; }
+                public byte LookHairstyle { get; set; }
+                public byte LookHaircolor { get; set; }
+                public byte LookCampaign { get; set; }
+                public byte LookSkinColor { get; set; }
+                public byte LookProfession { get; set; }
+                public byte LookShowHelm { get; set; }
 
                 #endregion
 
@@ -137,6 +146,7 @@ namespace GameServer.ServerData
                 public byte ProfessionSecondary { get; set; }
                 public uint Level { get; set; }
                 public uint Morale { get; set; }
+                public sbyte IsPvp { get; set; }
 
                 public CharacterItems Items { get; set; }
 

@@ -79,11 +79,11 @@ namespace GameServer.Packets.FromClient
                                 {
                                 case AgentEquipment.Leadhand:
                                         chara.Data.Items.ActiveWeaponset.LeadHand = itemToEquip;
-                                        chara.Data.SaveToDB();
+                                        chara.Data.SaveToWeaponsetsDB();
                                         break;
                                 case AgentEquipment.Offhand:
                                         chara.Data.Items.ActiveWeaponset.OffHand = itemToEquip;
-                                        chara.Data.SaveToDB();
+                                        chara.Data.SaveToWeaponsetsDB();
                                         break;
                                 }
                         }
@@ -114,11 +114,11 @@ namespace GameServer.Packets.FromClient
                                 {
                                 case AgentEquipment.Leadhand:
                                         chara.Data.Items.ActiveWeaponset.LeadHand = itemToEquip;
-                                        chara.Data.SaveToDB();
+                                        chara.Data.SaveToWeaponsetsDB();
                                         break;
                                 case AgentEquipment.Offhand:
                                         chara.Data.Items.ActiveWeaponset.OffHand = itemToEquip;
-                                        chara.Data.SaveToDB();
+                                        chara.Data.SaveToWeaponsetsDB();
                                         break;
                                 }
                         }

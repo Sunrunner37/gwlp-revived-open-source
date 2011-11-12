@@ -1,24 +1,26 @@
 using System;
 using GameServer.ServerData;
+using ServerEngine;
+using ServerEngine.GuildWars.Tools;
 using ServerEngine.NetworkManagement;
 using ServerEngine.PacketManagement.CustomAttributes;
 using ServerEngine.PacketManagement.Definitions;
 
 namespace GameServer.Packets.FromClient
 {
-        [PacketAttributes(IsIncoming = true, Header = 88)]
-        public class Packet88 : IPacket
+        [PacketAttributes(IsIncoming = true, Header = 125)]
+        public class P125_UpdateNewCharacterBodypart : IPacket
         {
-                public class PacketSt88 : IPacketTemplate
+                public class PacketSt125 : IPacketTemplate
                 {
-                        public UInt16 Header { get { return 88; } }
-                        public byte Data1;
-                        public byte Data2;
+                        public UInt16 Header { get { return 125; } }
+                        public byte EquipmentSlot;
+                        public byte Color;
                 }
 
                 public void InitPacket(object parser)
                 {
-                        pParser = (PacketParser<PacketSt88>)parser;
+                        pParser = (PacketParser<PacketSt125>)parser;
                         IsInitialized = true;
                         IsInUse = false;
                 }
@@ -26,14 +28,10 @@ namespace GameServer.Packets.FromClient
                 public bool Handler(ref NetworkMessage message)
                 {
                         // parse the message
-                        var pack = new Packet88.PacketSt88();
+                        var pack = new P125_UpdateNewCharacterBodypart.PacketSt125();
                         pParser(pack, message.PacketData);
 
-                        // get the character
-                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
-
-                        Console.WriteLine(pack.Data1);
-                        Console.WriteLine(pack.Data2);
+                        //equip char here
 
                         return true;
                 }
@@ -42,6 +40,6 @@ namespace GameServer.Packets.FromClient
 
                 public bool IsInUse { get; set; }
 
-                private PacketParser<PacketSt88> pParser;
+                private PacketParser<PacketSt125> pParser;
         }
 }

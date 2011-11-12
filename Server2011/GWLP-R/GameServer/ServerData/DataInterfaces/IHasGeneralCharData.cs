@@ -11,6 +11,8 @@ namespace GameServer.ServerData.DataInterfaces
 
                 uint Morale { get; set; }
 
+                sbyte IsPvp { get; set; }
+
                 CharacterItems Items { get; set; }
         }
 }
