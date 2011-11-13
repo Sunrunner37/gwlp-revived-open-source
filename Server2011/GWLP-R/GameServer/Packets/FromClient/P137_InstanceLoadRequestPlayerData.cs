@@ -104,7 +104,7 @@ namespace GameServer.Packets.FromClient
                                         ID1 = chara.Data.AgentID.Value,
                                         Prof1 = chara.Data.ProfessionPrimary,
                                         Prof2 = chara.Data.ProfessionSecondary,
-                                        Data3 = 0
+                                        IsPvp = 0
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(professions);

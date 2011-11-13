@@ -153,7 +153,7 @@ namespace GameServer.Modules
 
                 private static DateTime lastCycle;
                 private static float dt; // time per cycle
-                private static Dictionary<int, PathingMap> maps;
+                public static Dictionary<int, PathingMap> maps;
 
                 public void Execute()
                 {
@@ -376,6 +376,29 @@ namespace GameServer.Modules
                         return 0;
                 }
 
+                private static bool TryGetTrapezoid(PathingMap pmap, GWVector pos, out Trapezoid trapezoid)
+                {
+                        foreach (var trap in pmap.Trapezoids)
+                        {
+                                if (trap.Plane != pos.PlaneZ) continue;
+                                if (InTrapezoid(trap, pos) == 0)
+                                {
+                                        trapezoid = trap;
+                                        return true;
+                                }
+                        }
+
+                        trapezoid = null;
+                        return false;
+                }
+
+                private static GWVector GetCenterOfTrapezoid(Trapezoid trap)
+                {
+                        return new GWVector((trap.BottomLeft.X+trap.BottomRight.X + trap.TopLeft.X + trap.TopRight.X) / 4,
+                                (trap.TopLeft.Y + trap.BottomLeft.Y) / 2,
+                                trap.Plane);
+                }
+
                 /// <summary>
                 ///   Search for the trapezoid the player is in.
                 /// </summary>
@@ -406,7 +429,7 @@ namespace GameServer.Modules
                         return 0xFFFFFFFF;
                 }
 
-                private class PathingMap
+                public class PathingMap
                 {
                         public int MapID;
                         public uint GameFileHash;           // hash of mapfile
@@ -418,7 +441,7 @@ namespace GameServer.Modules
                         }
                 }
 
-                private class Trapezoid
+                public class Trapezoid
                 {
                         public uint TrapezoidID;
                         public readonly List<uint> AdjacentsBottom;

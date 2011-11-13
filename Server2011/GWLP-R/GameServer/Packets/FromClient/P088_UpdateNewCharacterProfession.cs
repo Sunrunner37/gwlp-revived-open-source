@@ -60,7 +60,7 @@ namespace GameServer.Packets.FromClient
                                         ID1 = 50,
                                         Prof1 = pack.Profession,
                                         Prof2 = 0,
-                                        Data3 = 0
+                                        IsPvp = (byte) chara.Data.IsPvp
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(updateProfessions);

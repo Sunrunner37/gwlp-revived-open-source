@@ -15,7 +15,7 @@ namespace GameServer.Packets.ToClient
                         public UInt32 ID1;
                         public byte Prof1;
                         public byte Prof2;
-                        public byte Data3;
+                        public byte IsPvp;
                 }
 
                 public void InitPacket(object parser)
