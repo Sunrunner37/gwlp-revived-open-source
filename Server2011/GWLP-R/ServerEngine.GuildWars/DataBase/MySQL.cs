@@ -5,7 +5,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from gwlpr on 2011-10-22 17:18:24Z.
+// Auto-generated from gwlpr on 2011-11-15 14:53:44Z.
 // Please visit http://code.google.com/p/dblinq2007/ for more information.
 //
 namespace ServerEngine.GuildWars.DataBase
@@ -94,6 +94,14 @@ namespace ServerEngine.GuildWars.DataBase
 			get
 			{
 				return this.GetTable<itemsPerSonALData>();
+			}
+		}
+		
+		public Table<itemsPredefinedData> itemsPredefinedData
+		{
+			get
+			{
+				return this.GetTable<itemsPredefinedData>();
 			}
 		}
 		
@@ -635,6 +643,8 @@ namespace ServerEngine.GuildWars.DataBase
 		
 		private int _accountID;
 		
+		private sbyte _activeWeaponset;
+		
 		private int _attrPtsFree;
 		
 		private int _attrPtsTotal;
@@ -648,16 +658,14 @@ namespace ServerEngine.GuildWars.DataBase
 		private int _inventoryGold;
 		
 		private sbyte _isPvP;
-
-                private sbyte _activeWeaponset;
-
-                private long _leadhandWeaponSet1;
-
-                private long _leadhandWeaponSet2;
-
-                private long _leadhandWeaponSet3;
-
-                private long _leadhandWeaponSet4;
+		
+		private long _leadhandWeaponSet1;
+		
+		private long _leadhandWeaponSet2;
+		
+		private long _leadhandWeaponSet3;
+		
+		private long _leadhandWeaponSet4;
 		
 		private int _level;
 		
@@ -676,14 +684,14 @@ namespace ServerEngine.GuildWars.DataBase
 		private int _lookSkinColor;
 		
 		private int _mapID;
-
-                private long _offhandWeaponSet1;
-
-                private long _offhandWeaponSet2;
-
-                private long _offhandWeaponSet3;
-
-                private long _offhandWeaponSet4;
+		
+		private long _offhandWeaponSet1;
+		
+		private long _offhandWeaponSet2;
+		
+		private long _offhandWeaponSet3;
+		
+		private long _offhandWeaponSet4;
 		
 		private sbyte _professionPrimary;
 		
@@ -705,6 +713,10 @@ namespace ServerEngine.GuildWars.DataBase
 		partial void OnaccountIDChanged();
 		
 		partial void OnaccountIDChanging(int value);
+		
+		partial void OnactiveWeaponsetChanged();
+		
+		partial void OnactiveWeaponsetChanging(sbyte value);
 		
 		partial void OnattrPtsFreeChanged();
 		
@@ -733,26 +745,22 @@ namespace ServerEngine.GuildWars.DataBase
 		partial void OnisPvPChanged();
 		
 		partial void OnisPvPChanging(sbyte value);
-
-                partial void OnactiveWeaponsetChanged();
-
-                partial void OnactiveWeaponsetChanging(sbyte value);
-
+		
 		partial void OnleadhandWeaponSet1Changed();
-
-                partial void OnleadhandWeaponSet1Changing(long value);
+		
+		partial void OnleadhandWeaponSet1Changing(long value);
 		
 		partial void OnleadhandWeaponSet2Changed();
-
-                partial void OnleadhandWeaponSet2Changing(long value);
+		
+		partial void OnleadhandWeaponSet2Changing(long value);
 		
 		partial void OnleadhandWeaponSet3Changed();
-
-                partial void OnleadhandWeaponSet3Changing(long value);
+		
+		partial void OnleadhandWeaponSet3Changing(long value);
 		
 		partial void OnleadhandWeaponSet4Changed();
-
-                partial void OnleadhandWeaponSet4Changing(long value);
+		
+		partial void OnleadhandWeaponSet4Changing(long value);
 		
 		partial void OnlevelChanged();
 		
@@ -791,20 +799,20 @@ namespace ServerEngine.GuildWars.DataBase
 		partial void OnmapIDChanging(int value);
 		
 		partial void OnoffhandWeaponSet1Changed();
-
-                partial void OnoffhandWeaponSet1Changing(long value);
+		
+		partial void OnoffhandWeaponSet1Changing(long value);
 		
 		partial void OnoffhandWeaponSet2Changed();
-
-                partial void OnoffhandWeaponSet2Changing(long value);
+		
+		partial void OnoffhandWeaponSet2Changing(long value);
 		
 		partial void OnoffhandWeaponSet3Changed();
-
-                partial void OnoffhandWeaponSet3Changing(long value);
+		
+		partial void OnoffhandWeaponSet3Changing(long value);
 		
 		partial void OnoffhandWeaponSet4Changed();
-
-                partial void OnoffhandWeaponSet4Changing(long value);
+		
+		partial void OnoffhandWeaponSet4Changing(long value);
 		
 		partial void OnprofessionPrimaryChanged();
 		
@@ -835,6 +843,7 @@ namespace ServerEngine.GuildWars.DataBase
 		partial void OnskillsAvailableChanging(byte[] value);
 		#endregion
 		
+		
 		public charsMasterData()
 		{
 			this.OnCreated();
@@ -857,6 +866,27 @@ namespace ServerEngine.GuildWars.DataBase
 					this._accountID = value;
 					this.SendPropertyChanged("accountID");
 					this.OnaccountIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_activeWeaponset", Name="ActiveWeaponset", DbType="tinyint(1)", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public sbyte activeWeaponset
+		{
+			get
+			{
+				return this._activeWeaponset;
+			}
+			set
+			{
+				if ((_activeWeaponset != value))
+				{
+					this.OnactiveWeaponsetChanging(value);
+					this.SendPropertyChanging();
+					this._activeWeaponset = value;
+					this.SendPropertyChanged("activeWeaponset");
+					this.OnactiveWeaponsetChanged();
 				}
 			}
 		}
@@ -1008,31 +1038,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-
-                [Column(Storage = "_activeWeaponset", Name = "ActiveWeaponset", DbType = "tinyint(4)", AutoSync = AutoSync.Never, CanBeNull = false)]
-                [DebuggerNonUserCode()]
-                public sbyte activeWeaponset
-                {
-                        get
-                        {
-                                return this._activeWeaponset;
-                        }
-                        set
-                        {
-                                if ((_activeWeaponset != value))
-                                {
-                                        this.OnactiveWeaponsetChanging(value);
-                                        this.SendPropertyChanging();
-                                        this._activeWeaponset = value;
-                                        this.SendPropertyChanged("activeWeaponset");
-                                        this.OnactiveWeaponsetChanged();
-                                }
-                        }
-                }
-
+		
 		[Column(Storage="_leadhandWeaponSet1", Name="LeadhandWeaponSet1", DbType="bigint(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-                public long leadhandWeaponSet1
+		public long leadhandWeaponSet1
 		{
 			get
 			{
@@ -1050,10 +1059,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-
-                [Column(Storage = "_leadhandWeaponSet2", Name = "LeadhandWeaponSet2", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
+		
+		[Column(Storage="_leadhandWeaponSet2", Name="LeadhandWeaponSet2", DbType="bigint(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-                public long leadhandWeaponSet2
+		public long leadhandWeaponSet2
 		{
 			get
 			{
@@ -1071,10 +1080,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-
-                [Column(Storage = "_leadhandWeaponSet3", Name = "LeadhandWeaponSet3", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
+		
+		[Column(Storage="_leadhandWeaponSet3", Name="LeadhandWeaponSet3", DbType="bigint(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-                public long leadhandWeaponSet3
+		public long leadhandWeaponSet3
 		{
 			get
 			{
@@ -1092,10 +1101,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-
-                [Column(Storage = "_leadhandWeaponSet4", Name = "LeadhandWeaponSet4", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
+		
+		[Column(Storage="_leadhandWeaponSet4", Name="LeadhandWeaponSet4", DbType="bigint(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-                public long leadhandWeaponSet4
+		public long leadhandWeaponSet4
 		{
 			get
 			{
@@ -1302,10 +1311,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-
-                [Column(Storage = "_offhandWeaponSet1", Name = "OffhandWeaponSet1", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
+		
+		[Column(Storage="_offhandWeaponSet1", Name="OffhandWeaponSet1", DbType="bigint(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-                public long offhandWeaponSet1
+		public long offhandWeaponSet1
 		{
 			get
 			{
@@ -1323,10 +1332,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-
-                [Column(Storage = "_offhandWeaponSet2", Name = "OffhandWeaponSet2", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
+		
+		[Column(Storage="_offhandWeaponSet2", Name="OffhandWeaponSet2", DbType="bigint(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-                public long offhandWeaponSet2
+		public long offhandWeaponSet2
 		{
 			get
 			{
@@ -1344,10 +1353,10 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-
-                [Column(Storage = "_offhandWeaponSet3", Name = "OffhandWeaponSet3", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
+		
+		[Column(Storage="_offhandWeaponSet3", Name="OffhandWeaponSet3", DbType="bigint(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
-                public long offhandWeaponSet3
+		public long offhandWeaponSet3
 		{
 			get
 			{
@@ -1365,8 +1374,8 @@ namespace ServerEngine.GuildWars.DataBase
 				}
 			}
 		}
-
-                [Column(Storage = "_offhandWeaponSet4", Name = "OffhandWeaponSet4", DbType = "bigint(20)", AutoSync = AutoSync.Never, CanBeNull = false)]
+		
+		[Column(Storage="_offhandWeaponSet4", Name="OffhandWeaponSet4", DbType="bigint(20)", AutoSync=AutoSync.Never, CanBeNull=false)]
 		[DebuggerNonUserCode()]
 		public long offhandWeaponSet4
 		{
@@ -1875,7 +1884,7 @@ namespace ServerEngine.GuildWars.DataBase
 		partial void OnprofessionChanging(sbyte value);
 		#endregion
 		
-
+		
 		public itemsMasterData()
 		{
 			this.OnCreated();
@@ -2369,6 +2378,181 @@ namespace ServerEngine.GuildWars.DataBase
 					this._storage = value;
 					this.SendPropertyChanged("storage");
 					this.OnstorageChanged();
+				}
+			}
+		}
+		
+		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
+		
+		public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			System.ComponentModel.PropertyChangingEventHandler h = this.PropertyChanging;
+			if ((h != null))
+			{
+				h(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(string propertyName)
+		{
+			System.ComponentModel.PropertyChangedEventHandler h = this.PropertyChanged;
+			if ((h != null))
+			{
+				h(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[Table(Name="gwlpr.items_predefineddata")]
+	public partial class itemsPredefinedData : System.ComponentModel.INotifyPropertyChanging, System.ComponentModel.INotifyPropertyChanged
+	{
+		
+		private static System.ComponentModel.PropertyChangingEventArgs emptyChangingEventArgs = new System.ComponentModel.PropertyChangingEventArgs("");
+		
+		private int _dyeColor;
+		
+		private int _flags;
+		
+		private int _itemID;
+		
+		private long _preDefinedItemID;
+		
+		private byte[] _stats;
+		
+		#region Extensibility Method Declarations
+		partial void OnCreated();
+		
+		partial void OndyeColorChanged();
+		
+		partial void OndyeColorChanging(int value);
+		
+		partial void OnflagsChanged();
+		
+		partial void OnflagsChanging(int value);
+		
+		partial void OnitemIDChanged();
+		
+		partial void OnitemIDChanging(int value);
+		
+		partial void OnpreDefinedItemIDChanged();
+		
+		partial void OnpreDefinedItemIDChanging(long value);
+		
+		partial void OnstatsChanged();
+		
+		partial void OnstatsChanging(byte[] value);
+		#endregion
+		
+		
+		public itemsPredefinedData()
+		{
+			this.OnCreated();
+		}
+		
+		[Column(Storage="_dyeColor", Name="DyeColor", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int dyeColor
+		{
+			get
+			{
+				return this._dyeColor;
+			}
+			set
+			{
+				if ((_dyeColor != value))
+				{
+					this.OndyeColorChanging(value);
+					this.SendPropertyChanging();
+					this._dyeColor = value;
+					this.SendPropertyChanged("dyeColor");
+					this.OndyeColorChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_flags", Name="Flags", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int flags
+		{
+			get
+			{
+				return this._flags;
+			}
+			set
+			{
+				if ((_flags != value))
+				{
+					this.OnflagsChanging(value);
+					this.SendPropertyChanging();
+					this._flags = value;
+					this.SendPropertyChanged("flags");
+					this.OnflagsChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_itemID", Name="ItemID", DbType="int", AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public int itemID
+		{
+			get
+			{
+				return this._itemID;
+			}
+			set
+			{
+				if ((_itemID != value))
+				{
+					this.OnitemIDChanging(value);
+					this.SendPropertyChanging();
+					this._itemID = value;
+					this.SendPropertyChanged("itemID");
+					this.OnitemIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_preDefinedItemID", Name="PreDefinedItemID", DbType="bigint(20)", IsPrimaryKey=true, AutoSync=AutoSync.Never, CanBeNull=false)]
+		[DebuggerNonUserCode()]
+		public long preDefinedItemID
+		{
+			get
+			{
+				return this._preDefinedItemID;
+			}
+			set
+			{
+				if ((_preDefinedItemID != value))
+				{
+					this.OnpreDefinedItemIDChanging(value);
+					this.SendPropertyChanging();
+					this._preDefinedItemID = value;
+					this.SendPropertyChanged("preDefinedItemID");
+					this.OnpreDefinedItemIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_stats", Name="Stats", DbType="blob", AutoSync=AutoSync.Never)]
+		[DebuggerNonUserCode()]
+		public byte[] stats
+		{
+			get
+			{
+				return this._stats;
+			}
+			set
+			{
+				if (((_stats == value) 
+							== false))
+				{
+					this.OnstatsChanging(value);
+					this.SendPropertyChanging();
+					this._stats = value;
+					this.SendPropertyChanged("stats");
+					this.OnstatsChanged();
 				}
 			}
 		}
