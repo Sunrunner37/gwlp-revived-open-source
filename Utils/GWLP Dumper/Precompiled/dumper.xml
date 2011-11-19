@@ -1,7 +1,0 @@
-<DumperConfig>
-	<Hostname>localhost</Hostname>
-	<Database>gwlp</Database>
-	<User>root</User>
-	<Password></Password>
-	<Port>0</Port>
-</DumperConfig>
