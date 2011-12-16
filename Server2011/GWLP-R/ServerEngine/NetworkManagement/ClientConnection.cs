@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -17,7 +18,7 @@ namespace ServerEngine.NetworkManagement
                 private const int RecieveTimeout = 1000;
                 private const int SendTimeout = 1000;
 
-                private readonly Queue<NetworkMessage> outgoingQueue;
+                private readonly ConcurrentQueue<NetworkMessage> outgoingQueue;
                 private DateTime lastWrittenPacket;
                 private DateTime lastConCheck;
                 private readonly Socket socket;
@@ -40,7 +41,7 @@ namespace ServerEngine.NetworkManagement
                         this.socket.ReceiveTimeout = RecieveTimeout;
                         this.socket.SendTimeout = SendTimeout;
 
-                        outgoingQueue = new Queue<NetworkMessage>();
+                        outgoingQueue = new ConcurrentQueue<NetworkMessage>();
                         lastWrittenPacket = DateTime.Now;
                         lastConCheck = DateTime.Now;
                 }
@@ -82,7 +83,7 @@ namespace ServerEngine.NetworkManagement
                 /// <summary>
                 ///   This property contains all messages that have to be send.
                 /// </summary>
-                public Queue<NetworkMessage> OutgoingQueue
+                public ConcurrentQueue<NetworkMessage> OutgoingQueue
                 {
                         get { return outgoingQueue; }
                 }
@@ -119,10 +120,13 @@ namespace ServerEngine.NetworkManagement
                                     outgoingQueue.Count != 0)
                                 {
                                         // send this packet
-                                        var tmpMsg = outgoingQueue.Dequeue();
-                                        if (WritePacket(tmpMsg))
+                                        NetworkMessage tmpMsg;
+                                        if (outgoingQueue.TryDequeue(out tmpMsg))
                                         {
-                                                lastWrittenPacket = DateTime.Now;
+                                                if (WritePacket(tmpMsg))
+                                                {
+                                                        lastWrittenPacket = DateTime.Now;
+                                                }
                                         }
                                 }
                         }

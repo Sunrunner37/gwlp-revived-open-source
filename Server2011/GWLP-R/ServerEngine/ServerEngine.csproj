@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigFile.cs" />
+    <Compile Include="CoroutineScheduler.cs" />
     <Compile Include="DataBaseProvider.cs" />
     <Compile Include="DataManagement\DataInterfaces\IHasNetworkData.cs" />
     <Compile Include="DataManagement\DataWrappers\IPAddress.cs" />

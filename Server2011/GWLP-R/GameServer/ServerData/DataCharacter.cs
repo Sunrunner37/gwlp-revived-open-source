@@ -100,6 +100,7 @@ namespace GameServer.ServerData
                 IHasHeartbeatData,
                 IHasMapData,
                 IHasMovementData,
+                IHasPingData,
                 IHasPlayStatusData,
                 IHasSkillData,
                 IHasTeamData,
@@ -115,7 +116,9 @@ namespace GameServer.ServerData
                         Appearance = new byte[0];
                         
                         Items = new CharacterItems();
-                        
+
+                        PingTime = DateTime.Now;
+
                         LastHeartBeat = DateTime.Now;
                         
                         Position = new GWVector(0,0,0);
@@ -320,6 +323,12 @@ namespace GameServer.ServerData
                 public float SpeedModifier { get; set; }
                 public float Rotation { get; set; }
                 public bool IsRotating { get; set; }
+
+                #endregion
+
+                #region Implementation of IHasPingData
+
+                public DateTime PingTime { get; set; }
 
                 #endregion
 

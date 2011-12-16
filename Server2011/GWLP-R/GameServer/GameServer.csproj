@@ -61,6 +61,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -818,6 +819,17 @@
     <Compile Include="ServerData\Items\Item.cs" />
     <Compile Include="ServerData\Items\ItemStat.cs" />
     <Compile Include="ServerData\Items\Weaponset.cs" />
+    <Compile Include="Skills\Enums\EffectTarget.cs" />
+    <Compile Include="Skills\Enums\EffectTrigger.cs" />
+    <Compile Include="Skills\Enums\SkillTarget.cs" />
+    <Compile Include="Skills\Enums\SkillType.cs" />
+    <Compile Include="Skills\Skill.cs" />
+    <Compile Include="Skills\SkillEffects\EnergyModification.cs" />
+    <Compile Include="Skills\SkillEffects\HealthModification.cs" />
+    <Compile Include="Skills\SkillEffects\HealthRecharge.cs" />
+    <Compile Include="Skills\SkillEffects\Interfaces\IHasDuration.cs" />
+    <Compile Include="Skills\SkillEffects\Interfaces\IHasValue.cs" />
+    <Compile Include="Skills\SkillEffects\ISkillEffect.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServerEngine.GuildWars\ServerEngine.GuildWars.csproj">

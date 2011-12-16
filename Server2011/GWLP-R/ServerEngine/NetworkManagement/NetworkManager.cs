@@ -106,7 +106,7 @@ namespace ServerEngine.NetworkManagement
                                 var msgCount = QueuingService.NetOutQueue.Count;
                                 var taskCount = (msgCount > 10) ? 10 : msgCount;
 
-                                Parallel.For(0, taskCount, delegate(int i)
+                                for (var i = 0; i < taskCount; i++)
                                 {
                                         NetworkMessage netMsg;
                                         if (QueuingService.NetOutQueue.TryPeek(out netMsg))
@@ -126,10 +126,10 @@ namespace ServerEngine.NetworkManagement
                                                         QueuingService.NetOutQueue.TryDequeue(out netMsg);
                                                 }
                                         }
-                                });
+                                }
 
                                 // Refresh the clients
-                                // when a client has lost its connection, it will automatically remove the itself
+                                // when a client has lost its connection, it will automatically remove itself
                                 for (int i = 0; i < clients.Values.Count; i++)
                                 {
                                         clients.Values.ElementAt(i).Refresh();

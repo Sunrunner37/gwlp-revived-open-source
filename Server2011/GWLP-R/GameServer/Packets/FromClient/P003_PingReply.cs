@@ -31,14 +31,14 @@ namespace GameServer.Packets.FromClient
                         var pack = new PacketSt3();
                         pParser(pack, message.PacketData);
 
-                        var client = GameServerWorld.Instance.Get<DataClient>(message.NetID);
+                        var chara = GameServerWorld.Instance.Get<DataClient>(message.NetID).Character;
 
                         // Note: PING REPLY
                         var chatMsg = new NetworkMessage(message.NetID)
                         {
                                 PacketTemplate = new P002_PingReply.PacketSt2
                                 {
-                                        Data1 = (uint)DateTime.Now.Subtract(client.Data.PingTime).TotalMilliseconds
+                                        Data1 = (uint)DateTime.Now.Subtract(chara.Data.PingTime).TotalMilliseconds
                                 }
                         };
                         QueuingService.PostProcessingQueue.Enqueue(chatMsg);

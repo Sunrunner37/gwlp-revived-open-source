@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using GameServer.Enums;
 using GameServer.Interfaces;
 using GameServer.Packets.ToClient;
 using GameServer.ServerData;
@@ -12,25 +13,33 @@ namespace GameServer.Modules
         {
                 public void Execute()
                 {
-                        GameServerWorld.Instance.GetAll<DataClient>().AsParallel().ForAll(ProcessPing);
+                        GameServerWorld.Instance.GetAll<DataMap>().AsParallel().ForAll(ProcessPing);
                 }
 
-                private static void ProcessPing(DataClient client)
+                private static void ProcessPing(DataMap map)
                 {
-                        var diff = DateTime.Now.Subtract(client.Data.PingTime).TotalMilliseconds;
-
-                        // time interval check
-                        if (diff <= 5000) return;
-
-                        // Note: PING
-                        var ping = new NetworkMessage(client.Data.NetID)
+                        // the following linq expression returns an IEnumerable<CharID> of all characters on that map
+                        foreach (var chara in map.GetAll<DataCharacter>())
                         {
-                                PacketTemplate = new P001_PingRequest.PacketSt1()
-                        };
-                        QueuingService.PostProcessingQueue.Enqueue(ping);
+                                // failcheck
+                                if (chara == null) continue;
+                                if (chara.Data.Player != PlayStatus.ReadyToPlay) continue;
 
-                        // reset the interval time check
-                        client.Data.PingTime = DateTime.Now;
+                                var diff = DateTime.Now.Subtract(chara.Data.PingTime).TotalMilliseconds;
+
+                                // time interval check
+                                if (diff <= 5000) continue;
+
+                                // Note: PING
+                                var ping = new NetworkMessage(chara.Data.NetID)
+                                {
+                                        PacketTemplate = new P001_PingRequest.PacketSt1()
+                                };
+                                QueuingService.PostProcessingQueue.Enqueue(ping);
+
+                                // reset the interval time check
+                                chara.Data.PingTime = DateTime.Now;
+                        }
                 }
         }
 }

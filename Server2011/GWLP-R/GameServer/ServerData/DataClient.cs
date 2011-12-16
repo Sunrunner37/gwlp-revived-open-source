@@ -105,7 +105,6 @@ namespace GameServer.ServerData
                 IHasMapData,
                 IHasAccountData,
                 IHasEncryptionData,
-                IHasPingData,
                 IHasSyncStatusData,
                 IHasTeamData,
                 IHasTransferSecurityData
@@ -118,7 +117,6 @@ namespace GameServer.ServerData
                         Email = "";
                         Password = "";
                         EncryptionSeed = new byte[20];
-                        PingTime = DateTime.Now;
                         Status = SyncStatus.ConnectionEstablished;
                         LastStatusChange = DateTime.Now;
                         SecurityKeys = new[] { new byte[4], new byte[4] };
@@ -157,12 +155,6 @@ namespace GameServer.ServerData
                 #region Implementation of IHasEncryptionData
 
                 public byte[] EncryptionSeed { get; set; }
-
-                #endregion
-
-                #region Implementation of IHasPingData
-
-                public DateTime PingTime { get; set; }
 
                 #endregion
 
