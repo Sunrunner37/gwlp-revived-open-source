@@ -1,0 +1,1 @@
+<wiki:gadget url="http://www.google.com/moderator/static/moderator-embed-gadget.xml"  height="900" width="950"up\_url="http://www.google.com/moderator/#15/e=bbe99&t=bbe99.40" up\_sort="HOT" up\_hl="en" />
